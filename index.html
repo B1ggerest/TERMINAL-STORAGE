@@ -3,455 +3,556 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal File Storage</title>
+    <title>Faginator Terminal Storage</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
+            background: #0a0a0a;
+            color: #00ff41;
             font-family: 'Courier New', monospace;
-            background: #000;
-            color: #00ff00;
-            min-height: 100vh;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .terminal-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            border: 2px solid #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .terminal-header {
+            background: #00ff41;
+            color: #000;
+            padding: 8px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #00ff41;
+        }
+
+        .terminal-title {
+            font-size: 14px;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #28ca42; }
+        .close { background: #ff5f56; }
+
+        .terminal-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             padding: 20px;
+            overflow: hidden;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            border: 1px solid #00ff00;
-            padding: 10px;
-            margin-bottom: 20px;
-            background: rgba(0, 255, 0, 0.1);
-        }
-        
-        .terminal {
-            border: 1px solid #00ff00;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            min-height: 500px;
-        }
-        
-        .auth-form {
+
+        .auth-section {
             text-align: center;
-            padding: 50px 0;
+            margin-top: 100px;
         }
-        
-        .auth-form input {
-            background: #000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 10px;
-            font-family: inherit;
+
+        .auth-section h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ff41;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .auth-input {
+            background: transparent;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            padding: 10px 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
             margin: 10px;
+            width: 300px;
+            outline: none;
         }
-        
-        .auth-form button {
-            background: #000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
+
+        .auth-input:focus {
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .terminal-btn {
+            background: transparent;
+            border: 2px solid #00ff41;
+            color: #00ff41;
             padding: 10px 20px;
+            font-family: 'Courier New', monospace;
             cursor: pointer;
-            font-family: inherit;
+            margin: 5px;
+            transition: all 0.3s;
         }
-        
-        .auth-form button:hover {
-            background: rgba(0, 255, 0, 0.2);
+
+        .terminal-btn:hover {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.8);
         }
-        
+
+        .terminal-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .prompt {
+            color: #00ff41;
+            margin-right: 10px;
+        }
+
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+        }
+
+        .search-section {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: rgba(0, 255, 65, 0.02);
+        }
+
+        .search-highlight {
+            background: rgba(255, 255, 0, 0.3);
+            color: #ffff00;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+
         .file-list {
-            margin: 20px 0;
+            margin: 15px 0;
         }
-        
+
         .file-item {
-            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
             cursor: pointer;
-            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+            transition: all 0.3s;
         }
-        
+
         .file-item:hover {
-            background: rgba(0, 255, 0, 0.1);
+            background: rgba(0, 255, 65, 0.1);
+            padding-left: 10px;
         }
-        
-        .file-viewer {
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid #666;
+            color: #666;
+            padding: 3px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        .action-btn:hover {
+            border-color: #00ff41;
+            color: #00ff41;
+        }
+
+        .media-player {
             margin: 20px 0;
-            border: 1px solid #00ff00;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 5px;
+            background: rgba(0, 255, 65, 0.05);
         }
-        
-        .upload-area {
-            border: 2px dashed #00ff00;
+
+        .media-player video,
+        .media-player audio {
+            width: 100%;
+            max-height: 400px;
+            outline: none;
+        }
+
+        .media-player video {
+            border-radius: 5px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #666;
             padding: 40px;
             text-align: center;
             margin: 20px 0;
+            transition: all 0.3s;
             cursor: pointer;
         }
-        
-        .upload-area:hover {
-            background: rgba(0, 255, 0, 0.1);
+
+        .drop-zone.dragover {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
         }
-        
-        .controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+
+        .upload-input {
+            display: none;
         }
-        
-        .btn {
-            background: #000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-family: inherit;
-            text-decoration: none;
-            display: inline-block;
+
+        .status-line {
+            color: #888;
+            font-size: 12px;
+            margin: 5px 0;
         }
-        
-        .btn:hover {
-            background: rgba(0, 255, 0, 0.2);
+
+        .error {
+            color: #ff4444;
         }
-        
-        video, audio, img {
-            max-width: 100%;
-            background: #000;
+
+        .success {
+            color: #44ff44;
         }
-        
-        .file-info {
-            color: #00ff00;
-            line-height: 1.6;
+
+        .loading {
+            animation: dots 1.5s infinite;
         }
-        
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
         .hidden {
             display: none;
         }
-        
-        .error {
-            color: #ff0000;
-            padding: 10px;
-            margin: 10px 0;
+
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        
-        .success {
-            color: #00ff00;
-            padding: 10px;
-            margin: 10px 0;
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
         }
-        
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            color: #00ff00;
-            background: rgba(0, 255, 0, 0.05);
-            padding: 15px;
-            border: 1px solid rgba(0, 255, 0, 0.3);
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff41;
+            border-radius: 4px;
+        }
+
+        .file-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>>>> TERMINAL FILE STORAGE SYSTEM v1.0 <<<</h1>
-            <p>Secure file storage and viewing system</p>
-        </div>
-        
-        <div id="authSection" class="terminal">
-            <div class="auth-form">
-                <h2>AUTHENTICATION REQUIRED</h2>
-                <br>
-                <input type="password" id="passwordInput" placeholder="Enter password" />
-                <br>
-                <button onclick="authenticate()">ACCESS SYSTEM</button>
-                <div id="authError" class="error hidden"></div>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-title">faginator@terminal:~/storage</div>
+            <div class="terminal-controls">
+                <div class="control-btn minimize"></div>
+                <div class="control-btn maximize"></div>
+                <div class="control-btn close"></div>
             </div>
         </div>
-        
-        <div id="mainSection" class="terminal hidden">
-            <div class="controls">
-                <button class="btn" onclick="listFiles()">LIST FILES</button>
-                <button class="btn" onclick="showUpload()">UPLOAD FILE</button>
-                <button class="btn" onclick="logout()">LOGOUT</button>
-            </div>
-            
-            <div id="uploadSection" class="hidden">
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <p>>>> CLICK TO SELECT FILE OR DRAG & DROP <<<</p>
-                    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()" multiple />
+
+        <div class="terminal-body">
+            <!-- Authentication Section -->
+            <div id="auth-section" class="auth-section">
+                <h1>FAGINATOR TERMINAL STORAGE</h1>
+                <div>
+                    <input type="password" id="password-input" class="auth-input" placeholder="Enter storage password" />
+                    <br>
+                    <button onclick="authenticate()" class="terminal-btn">ACCESS STORAGE</button>
                 </div>
-                <div id="uploadStatus"></div>
+                <div id="auth-status" class="status-line"></div>
             </div>
-            
-            <div id="fileListSection">
-                <h3>>>> FILE DIRECTORY <<<</h3>
-                <div id="fileList" class="file-list"></div>
-            </div>
-            
-            <div id="viewerSection" class="hidden">
-                <div class="controls">
-                    <button class="btn" onclick="closeViewer()">← BACK TO LIST</button>
-                    <button class="btn" onclick="downloadFile()">DOWNLOAD</button>
-                    <button class="btn" onclick="deleteFile()" style="color: #ff0000; border-color: #ff0000;">DELETE</button>
+
+            <!-- Main Terminal Section -->
+            <div id="main-section" class="hidden">
+                <div class="terminal-output" id="terminal-output">
+                    <div>Faginator Terminal Storage v2.0</div>
+                    <div>Type 'help' for available commands</div>
+                    <div>─────────────────────────────────────</div>
                 </div>
-                <div id="fileViewer" class="file-viewer"></div>
+
+                <div class="command-line">
+                    <span class="prompt">faginator@storage:~$</span>
+                    <input type="text" id="command-input" class="command-input" placeholder="Type command here..." />
+                </div>
+
+                <!-- File Upload Zone -->
+                <div id="drop-zone" class="drop-zone">
+                    <div>Drop files here to upload or click to browse</div>
+                    <input type="file" id="file-input" class="upload-input" multiple />
+                </div>
+
+                <!-- Search Section -->
+                <div class="search-section">
+                    <div class="command-line">
+                        <span class="prompt">search:</span>
+                        <input type="text" id="search-input" class="command-input" placeholder="Live search files..." />
+                        <button id="clear-search" class="action-btn" style="margin-left: 10px;">CLEAR</button>
+                    </div>
+                    <div id="search-status" class="status-line"></div>
+                </div>
+
+                <!-- File List -->
+                <div id="file-list" class="file-list"></div>
+
+                <!-- Media Player -->
+                <div id="media-player" class="media-player hidden">
+                    <div id="media-title" style="margin-bottom: 10px; font-weight: bold;"></div>
+                    <div id="media-content"></div>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // CHANGE THIS TO YOUR WORKER URL
-        const WORKER_URL = 'https://terminal-storage.lolbiggerestlol.workers.dev';
-        
-        let authToken = null;
-        let currentFile = null;
+        const API_BASE = 'https://terminal-storage.lolbiggerestlol.workers.dev';
+        let authToken = '';
         let files = [];
-        
-        // Check if already authenticated
-        if (localStorage.getItem('authToken')) {
-            authToken = localStorage.getItem('authToken');
-            showMainSection();
-            listFiles();
-        }
-        
+        let filteredFiles = [];
+        let currentSearchTerm = '';
+
+        // Authentication
         async function authenticate() {
-            const password = document.getElementById('passwordInput').value;
+            const password = document.getElementById('password-input').value;
+            const statusEl = document.getElementById('auth-status');
             
             try {
-                const response = await fetch(`${WORKER_URL}/auth`, {
+                statusEl.textContent = 'Authenticating...';
+                statusEl.className = 'status-line';
+                
+                const response = await fetch(`${API_BASE}/auth`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     authToken = data.token;
-                    localStorage.setItem('authToken', authToken);
-                    showMainSection();
-                    listFiles();
+                    statusEl.textContent = 'Access granted. Welcome to the system.';
+                    statusEl.className = 'status-line success';
+                    
+                    setTimeout(() => {
+                        document.getElementById('auth-section').classList.add('hidden');
+                        document.getElementById('main-section').classList.remove('hidden');
+                        loadFiles();
+                    }, 1000);
                 } else {
-                    showError('authError', 'Invalid password');
+                    statusEl.textContent = 'Access denied. Invalid password.';
+                    statusEl.className = 'status-line error';
                 }
             } catch (error) {
-                showError('authError', 'Authentication failed');
+                statusEl.textContent = 'Connection error. Check network.';
+                statusEl.className = 'status-line error';
             }
         }
-        
-        function logout() {
-            authToken = null;
-            localStorage.removeItem('authToken');
-            document.getElementById('authSection').classList.remove('hidden');
-            document.getElementById('mainSection').classList.add('hidden');
-            document.getElementById('passwordInput').value = '';
-        }
-        
-        function showMainSection() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('mainSection').classList.remove('hidden');
-        }
-        
-        async function listFiles() {
+
+        // File operations
+        async function loadFiles() {
             try {
-                const response = await fetch(`${WORKER_URL}/files`, {
+                const response = await fetch(`${API_BASE}/files`, {
                     headers: { 'Authorization': authToken }
                 });
-                
+
                 if (response.ok) {
                     files = await response.json();
-                    displayFileList();
+                    displayFiles();
+                    addOutput(`Loaded ${files.length} files from storage.`);
                 } else {
-                    showError('fileList', 'Failed to load files');
+                    addOutput('Failed to load files.', 'error');
                 }
             } catch (error) {
-                showError('fileList', 'Error loading files');
+                addOutput('Network error loading files.', 'error');
             }
         }
-        
-        function displayFileList() {
-            const fileList = document.getElementById('fileList');
-            fileList.innerHTML = '';
-            
-            if (files.length === 0) {
-                fileList.innerHTML = '<p>No files found. Upload some files to get started.</p>';
+
+        function displayFiles() {
+            const listEl = document.getElementById('file-list');
+            listEl.innerHTML = '';
+
+            const filesToShow = currentSearchTerm ? filteredFiles : files;
+
+            if (filesToShow.length === 0) {
+                if (currentSearchTerm) {
+                    listEl.innerHTML = '<div class="status-line">No files match your search.</div>';
+                } else {
+                    listEl.innerHTML = '<div class="status-line">No files in storage.</div>';
+                }
                 return;
             }
-            
-            files.forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <span onclick="viewFile('${file.name}')">[VIEW] ${file.name}</span>
-                    <span style="float: right;">${formatFileSize(file.size)} | ${new Date(file.lastModified).toLocaleString()}</span>
+
+            filesToShow.forEach(file => {
+                const fileEl = document.createElement('div');
+                fileEl.className = 'file-item';
+                
+                const icon = getFileIcon(file.name);
+                const size = formatFileSize(file.size);
+                const escapedFilename = escapeForJs(file.name);
+                
+                // Highlight search terms in filename
+                let displayName = escapeHtml(file.name);
+                if (currentSearchTerm) {
+                    const regex = new RegExp(`(${escapeRegex(currentSearchTerm)})`, 'gi');
+                    displayName = displayName.replace(regex, '<span class="search-highlight">$1</span>');
+                }
+                
+                fileEl.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${icon}</span>
+                        <span>${displayName}</span>
+                        <span class="status-line">${size}</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="action-btn" onclick="viewFile('${escapedFilename}')">VIEW</button>
+                        <button class="action-btn" onclick="downloadFile('${escapedFilename}')">DOWNLOAD</button>
+                        <button class="action-btn" onclick="deleteFile('${escapedFilename}')">DELETE</button>
+                    </div>
                 `;
-                fileList.appendChild(fileItem);
+                
+                listEl.appendChild(fileEl);
             });
+
+            // Update search status
+            updateSearchStatus();
         }
-        
-        async function viewFile(filename) {
-            currentFile = filename;
-            
-            try {
-                const response = await fetch(`${WORKER_URL}/file/${encodeURIComponent(filename)}`, {
-                    headers: { 'Authorization': authToken }
-                });
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\        function displayFiles() {
+            const listEl = document.getElementById('file-list');
+            listEl.innerHTML = '';
+
+            files.forEach(file => {
+                const fileEl = document.createElement('div');
+                fileEl.className = 'file-item';
                 
-                if (!response.ok) {
-                    throw new Error('Failed to load file');
-                }
+                const icon = getFileIcon(file.name);
+                const size = formatFileSize(file.size);
                 
-                const contentType = response.headers.get('content-type') || '';
-                const fileViewer = document.getElementById('fileViewer');
+                fileEl.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${icon}</span>
+                        <span>${file.name}</span>
+                        <span class="status-line">${size}</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="action-btn" onclick="viewFile('${file.name}')">VIEW</button>
+                        <button class="action-btn" onclick="downloadFile('${file.name}')">DOWNLOAD</button>
+                        <button class="action-btn" onclick="deleteFile('${file.name}')">DELETE</button>
+                    </div>
+                `;
                 
-                document.getElementById('fileListSection').classList.add('hidden');
-                document.getElementById('viewerSection').classList.remove('hidden');
-                
-                if (contentType.startsWith('image/')) {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    fileViewer.innerHTML = `<img src="${url}" alt="${filename}" />`;
-                } else if (contentType.startsWith('video/')) {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    fileViewer.innerHTML = `<video controls><source src="${url}" type="${contentType}">Your browser does not support video playback.</video>`;
-                } else if (contentType.startsWith('audio/')) {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    fileViewer.innerHTML = `<audio controls><source src="${url}" type="${contentType}">Your browser does not support audio playback.</audio>`;
-                } else if (contentType === 'application/pdf') {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    fileViewer.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="600px" />`;
-                } else if (contentType.startsWith('text/') || contentType === 'application/json' || filename.match(/\.(txt|js|html|css|md|json|xml|csv)$/i)) {
-                    const text = await response.text();
-                    fileViewer.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
-                } else {
-                    // Show file info for unsupported files
-                    const fileInfo = files.find(f => f.name === filename);
-                    fileViewer.innerHTML = `
-                        <div class="file-info">
-                            <h3>>>> FILE INFORMATION <<<</h3>
-                            <p><strong>Name:</strong> ${filename}</p>
-                            <p><strong>Size:</strong> ${formatFileSize(fileInfo.size)}</p>
-                            <p><strong>Type:</strong> ${contentType || 'Unknown'}</p>
-                            <p><strong>Last Modified:</strong> ${new Date(fileInfo.lastModified).toLocaleString()}</p>
-                            <p><strong>Status:</strong> File type not supported for preview</p>
-                            <p><strong>Action:</strong> Use DOWNLOAD button to save file</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                showError('fileViewer', 'Error loading file: ' + error.message);
+                listEl.appendChild(fileEl);
+            });
+        }');
+        }
+
+        function updateSearchStatus() {
+            const statusEl = document.getElementById('search-status');
+            if (currentSearchTerm) {
+                const total = files.length;
+                const matches = filteredFiles.length;
+                statusEl.textContent = `Found ${matches} of ${total} files matching "${currentSearchTerm}"`;
+                statusEl.className = 'status-line success';
+            } else {
+                statusEl.textContent = '';
             }
         }
-        
-        function closeViewer() {
-            document.getElementById('viewerSection').classList.add('hidden');
-            document.getElementById('fileListSection').classList.remove('hidden');
-            currentFile = null;
-        }
-        
-        async function downloadFile() {
-            if (!currentFile) return;
+
+        function performSearch(searchTerm) {
+            currentSearchTerm = searchTerm.toLowerCase().trim();
             
-            try {
-                const response = await fetch(`${WORKER_URL}/file/${encodeURIComponent(currentFile)}`, {
-                    headers: { 'Authorization': authToken }
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = currentFile;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                }
-            } catch (error) {
-                alert('Download failed');
+            if (!currentSearchTerm) {
+                filteredFiles = [];
+                displayFiles();
+                return;
+            }
+
+            filteredFiles = files.filter(file => {
+                return file.name.toLowerCase().includes(currentSearchTerm);
+            });
+
+            displayFiles();
+            
+            // Add to terminal output
+            if (filteredFiles.length > 0) {
+                addOutput(`Search "${searchTerm}": ${filteredFiles.length} files found`);
+            } else {
+                addOutput(`Search "${searchTerm}": No matches found`, 'error');
             }
         }
-        
-        async function deleteFile() {
-            if (!currentFile || !confirm(`Delete ${currentFile}?`)) return;
-            
-            try {
-                const response = await fetch(`${WORKER_URL}/file/${encodeURIComponent(currentFile)}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': authToken }
-                });
-                
-                if (response.ok) {
-                    closeViewer();
-                    listFiles();
-                    showSuccess('uploadStatus', 'File deleted successfully');
-                } else {
-                    showError('uploadStatus', 'Delete failed');
-                }
-            } catch (error) {
-                showError('uploadStatus', 'Delete failed');
-            }
+
+        function clearSearch() {
+            currentSearchTerm = '';
+            filteredFiles = [];
+            document.getElementById('search-input').value = '';
+            displayFiles();
+            addOutput('Search cleared');
         }
-        
-        function showUpload() {
-            document.getElementById('uploadSection').classList.toggle('hidden');
+
+        function getFileIcon(filename) {
+            const ext = filename.toLowerCase().split('.').pop();
+            const videoFormats = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'm4v', '3gp'];
+            const audioFormats = ['mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a', 'wma', 'opus'];
+            const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+            
+            if (videoFormats.includes(ext)) return '🎬';
+            if (audioFormats.includes(ext)) return '🎵';
+            if (imageFormats.includes(ext)) return '🖼️';
+            return '📄';
         }
-        
-        async function uploadFile() {
-            const fileInput = document.getElementById('fileInput');
-            const files = fileInput.files;
-            
-            if (files.length === 0) return;
-            
-            for (let file of files) {
-                try {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    
-                    showStatus('uploadStatus', `Uploading ${file.name}...`);
-                    
-                    const response = await fetch(`${WORKER_URL}/upload`, {
-                        method: 'POST',
-                        headers: { 'Authorization': authToken },
-                        body: formData
-                    });
-                    
-                    if (response.ok) {
-                        showSuccess('uploadStatus', `${file.name} uploaded successfully`);
-                    } else {
-                        showError('uploadStatus', `Failed to upload ${file.name}`);
-                    }
-                } catch (error) {
-                    showError('uploadStatus', `Error uploading ${file.name}`);
-                }
-            }
-            
-            fileInput.value = '';
-            setTimeout(() => listFiles(), 1000);
-        }
-        
-        // Drag and drop
-        document.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-        
-        document.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                document.getElementById('fileInput').files = files;
-                uploadFile();
-            }
-        });
-        
-        // Helper functions
+
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 B';
             const k = 1024;
@@ -459,38 +560,267 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+
+        async function viewFile(filename) {
+            const ext = filename.toLowerCase().split('.').pop();
+            const videoFormats = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'm4v', '3gp'];
+            const audioFormats = ['mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a', 'wma', 'opus'];
+            const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+            
+            const playerEl = document.getElementById('media-player');
+            const titleEl = document.getElementById('media-title');
+            const contentEl = document.getElementById('media-content');
+            
+            titleEl.textContent = `Playing: ${filename}`;
+            const fileUrl = `${API_BASE}/file/${encodeURIComponent(filename)}`;
+            
+            if (videoFormats.includes(ext)) {
+                contentEl.innerHTML = `
+                    <video controls autoplay>
+                        <source src="${fileUrl}" type="video/${ext}">
+                        Your browser does not support video playback.
+                    </video>
+                `;
+                playerEl.classList.remove('hidden');
+                addOutput(`Playing video: ${filename}`);
+            } else if (audioFormats.includes(ext)) {
+                contentEl.innerHTML = `
+                    <audio controls autoplay>
+                        <source src="${fileUrl}" type="audio/${ext}">
+                        Your browser does not support audio playback.
+                    </audio>
+                `;
+                playerEl.classList.remove('hidden');
+                addOutput(`Playing audio: ${filename}`);
+            } else if (imageFormats.includes(ext)) {
+                contentEl.innerHTML = `<img src="${fileUrl}" style="max-width: 100%; border-radius: 5px;" alt="${filename}">`;
+                playerEl.classList.remove('hidden');
+                addOutput(`Viewing image: ${filename}`);
+            } else {
+                downloadFile(filename);
+            }
         }
-        
-        function showError(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = 'error';
-            element.classList.remove('hidden');
+
+        function downloadFile(filename) {
+            const url = `${API_BASE}/file/${encodeURIComponent(filename)}`;
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            addOutput(`Downloading: ${filename}`);
         }
-        
-        function showSuccess(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = 'success';
-            element.classList.remove('hidden');
+
+        async function deleteFile(filename) {
+            if (!confirm(`Delete ${filename}? This cannot be undone.`)) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/file/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': authToken }
+                });
+
+                if (response.ok) {
+                    addOutput(`Deleted: ${filename}`, 'success');
+                    loadFiles();
+                } else {
+                    addOutput(`Failed to delete: ${filename}`, 'error');
+                }
+            } catch (error) {
+                addOutput('Network error during deletion.', 'error');
+            }
         }
-        
-        function showStatus(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = '';
-            element.classList.remove('hidden');
+
+        // File upload
+        async function uploadFiles(fileList) {
+            for (const file of fileList) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    addOutput(`Uploading: ${file.name}...`);
+                    
+                    const response = await fetch(`${API_BASE}/upload`, {
+                        method: 'POST',
+                        headers: { 'Authorization': authToken },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        addOutput(`Uploaded: ${file.name}`, 'success');
+                    } else {
+                        addOutput(`Failed to upload: ${file.name}`, 'error');
+                    }
+                } catch (error) {
+                    addOutput(`Upload error: ${file.name}`, 'error');
+                }
+            }
+            
+            loadFiles();
         }
-        
-        // Handle enter key in password field
-        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+
+        // Terminal commands
+        function addOutput(text, type = '') {
+            const outputEl = document.getElementById('terminal-output');
+            const line = document.createElement('div');
+            line.textContent = `> ${text}`;
+            if (type) line.className = type;
+            outputEl.appendChild(line);
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+
+        function processCommand(cmd) {
+            const parts = cmd.trim().split(' ');
+            const command = parts[0].toLowerCase();
+            
+            addOutput(cmd);
+            
+            switch (command) {
+                case 'help':
+                    addOutput('Available commands:');
+                    addOutput('  ls, list     - List all files');
+                    addOutput('  search <term>- Search files by name');
+                    addOutput('  clear-search - Clear current search');
+                    addOutput('  upload       - Open file browser');
+                    addOutput('  clear        - Clear terminal');
+                    addOutput('  refresh      - Reload file list');
+                    addOutput('  play <file>  - Play media file');
+                    addOutput('  stop         - Stop current media');
+                    addOutput('  exit         - Logout');
+                    break;
+                    
+                case 'ls':
+                case 'list':
+                    const filesToList = currentSearchTerm ? filteredFiles : files;
+                    if (filesToList.length === 0) {
+                        if (currentSearchTerm) {
+                            addOutput('No files match current search.');
+                        } else {
+                            addOutput('No files in storage.');
+                        }
+                    } else {
+                        if (currentSearchTerm) {
+                            addOutput(`Files matching "${currentSearchTerm}":`);
+                        }
+                        filesToList.forEach(file => {
+                            const icon = getFileIcon(file.name);
+                            const size = formatFileSize(file.size);
+                            addOutput(`${icon} ${file.name} (${size})`);
+                        });
+                    }
+                    break;
+                    
+                case 'search':
+                    if (parts[1]) {
+                        const searchTerm = parts.slice(1).join(' ');
+                        document.getElementById('search-input').value = searchTerm;
+                        performSearch(searchTerm);
+                    } else {
+                        addOutput('Usage: search <term>', 'error');
+                    }
+                    break;
+                    
+                case 'clear-search':
+                    clearSearch();
+                    break;
+                    
+                case 'upload':
+                    document.getElementById('file-input').click();
+                    break;
+                    
+                case 'clear':
+                    document.getElementById('terminal-output').innerHTML = '';
+                    break;
+                    
+                case 'refresh':
+                    loadFiles();
+                    break;
+                    
+                case 'play':
+                    if (parts[1]) {
+                        const filename = parts.slice(1).join(' ');
+                        const searchList = currentSearchTerm ? filteredFiles : files;
+                        const file = searchList.find(f => f.name.toLowerCase().includes(filename.toLowerCase()));
+                        if (file) {
+                            viewFile(file.name);
+                        } else {
+                            addOutput(`File not found: ${filename}`, 'error');
+                            if (currentSearchTerm) {
+                                addOutput(`Note: Currently showing search results for "${currentSearchTerm}"`);
+                            }
+                        }
+                    } else {
+                        addOutput('Usage: play <filename>', 'error');
+                    }
+                    break;
+                    
+                case 'stop':
+                    document.getElementById('media-player').classList.add('hidden');
+                    addOutput('Media playback stopped.');
+                    break;
+                    
+                case 'exit':
+                    location.reload();
+                    break;
+                    
+                default:
+                    addOutput(`Command not found: ${command}`, 'error');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('password-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') authenticate();
+        });
+
+        document.getElementById('command-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                authenticate();
+                const cmd = e.target.value;
+                if (cmd.trim()) {
+                    processCommand(cmd);
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // Drag and drop
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            uploadFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                uploadFiles(e.target.files);
+            }
+        });
+
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+            performSearch(searchTerm);
+        });
+
+        document.getElementById('clear-search').addEventListener('click', clearSearch);
+
+        // Auto-focus command input
+        document.addEventListener('click', () => {
+            if (!document.getElementById('main-section').classList.contains('hidden')) {
+                document.getElementById('command-input').focus();
             }
         });
     </script>
