@@ -118,6 +118,21 @@
             cursor: not-allowed;
         }
 
+        .btn-favorite {
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .btn-favorite:hover {
+            background: #ffaa00;
+            color: #000;
+        }
+
+        .btn-favorite.active {
+            background: #ffaa00;
+            color: #000;
+        }
+
         .btn-danger {
             border-color: #ff0040;
             color: #ff0040;
@@ -126,6 +141,299 @@
         .btn-danger:hover {
             background: #ff0040;
             color: #000;
+        }
+
+        .favorites-section {
+            margin-bottom: 30px;
+        }
+
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .favorites-header h3 {
+            color: #ffaa00;
+            margin: 0;
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .favorite-item {
+            background: #1a1a1a;
+            border: 1px solid #ffaa00;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .favorite-item:hover {
+            background: rgba(255, 170, 0, 0.1);
+        }
+
+        .favorite-icon {
+            color: #ffaa00;
+            font-size: 1.2em;
+        }
+
+        .favorite-name {
+            flex: 1;
+            color: #ffaa00;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9em;
+        }
+
+        .favorite-remove {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 2px;
+            font-family: inherit;
+        }
+
+        .favorite-remove:hover {
+            color: #ff0040;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .settings-content {
+            background: #111;
+            border: 1px solid var(--accent-color, #00ff00);
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .settings-header h2 {
+            color: var(--accent-color, #00ff00);
+            margin: 0;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section h3 {
+            color: var(--accent-color, #00ff00);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+        }
+
+        .setting-label {
+            color: #ccc;
+            flex: 1;
+        }
+
+        .setting-control {
+            flex: 0 0 auto;
+            margin-left: 20px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .theme-option {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .theme-option:hover,
+        .theme-option.active {
+            border-color: var(--accent-color, #00ff00);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 30px;
+            margin-bottom: 8px;
+            display: flex;
+            border: 1px solid #333;
+        }
+
+        .theme-preview .bg {
+            flex: 3;
+        }
+
+        .theme-preview .accent {
+            flex: 1;
+        }
+
+        .theme-name {
+            font-size: 0.8em;
+            color: #ccc;
+            text-transform: uppercase;
+        }
+
+        .color-picker {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: var(--accent-color, #00ff00);
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 14px;
+            width: 100px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #333;
+            border: 1px solid #555;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-color, #00ff00);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 19px;
+            height: 19px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 26px;
+            background: #000;
+        }
+
+        .slider {
+            width: 100px;
+            background: #333;
+            border: 1px solid #555;
+            outline: none;
+            height: 25px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 23px;
+            background: var(--accent-color, #00ff00);
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 15px;
+            height: 23px;
+            background: var(--accent-color, #00ff00);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Theme Variables */
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --border-color: #333;
+            --text-color: #ccc;
+            --accent-color: #00ff00;
+            --grid-size: 320px;
+            --animation-speed: 0.3s;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all var(--animation-speed);
+        }
+
+        .main-content,
+        .auth-section {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .file-card {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .file-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
+        }
+
+        .btn {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+        }
+
+        .header h1 {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(var(--accent-rgb), 0.3);
+        }
+
+        .file-grid {
+            grid-template-columns: repeat(auto-fill, minmax(var(--grid-size), 1fr));
         }
 
         .main-content {
@@ -494,6 +802,8 @@
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="SEARCH FILES..." oninput="searchFiles()">
                 </div>
+                <button class="btn" onclick="fileStorage.toggleFavorites()">★ FAVORITES</button>
+                <button class="btn" onclick="fileStorage.openSettings()">⚙ SETTINGS</button>
                 <button class="btn" onclick="uploadFiles()">UPLOAD</button>
                 <button class="btn" onclick="logout()">LOGOUT</button>
             </div>
@@ -505,6 +815,15 @@
             </div>
 
             <div id="alertContainer"></div>
+
+            <!-- Favorites Section -->
+            <div class="favorites-section" id="favoritesSection" style="display: none;">
+                <div class="favorites-header">
+                    <h3>★ FAVORITES</h3>
+                    <button class="btn" onclick="fileStorage.toggleFavorites()">HIDE FAVORITES</button>
+                </div>
+                <div class="favorites-grid" id="favoritesGrid"></div>
+            </div>
 
             <div id="fileContainer">
                 <div class="empty-state">
@@ -526,6 +845,146 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>SETTINGS</h2>
+                <button class="close-btn" onclick="fileStorage.closeSettings()">✕</button>
+            </div>
+            
+            <!-- Theme Section -->
+            <div class="settings-section">
+                <h3>THEMES</h3>
+                <div class="theme-grid">
+                    <div class="theme-option active" data-theme="matrix">
+                        <div class="theme-preview">
+                            <div class="bg" style="background: #0a0a0a;"></div>
+                            <div class="accent" style="background: #00ff00;"></div>
+                        </div>
+                        <div class="theme-name">Matrix</div>
+                    </div>
+                    <div class="theme-option" data-theme="cyber">
+                        <div class="theme-preview">
+                            <div class="bg" style="background: #0a0a0a;"></div>
+                            <div class="accent" style="background: #00ffff;"></div>
+                        </div>
+                        <div class="theme-name">Cyber</div>
+                    </div>
+                    <div class="theme-option" data-theme="neon">
+                        <div class="theme-preview">
+                            <div class="bg" style="background: #0a0a0a;"></div>
+                            <div class="accent" style="background: #ff00ff;"></div>
+                        </div>
+                        <div class="theme-name">Neon</div>
+                    </div>
+                    <div class="theme-option" data-theme="amber">
+                        <div class="theme-preview">
+                            <div class="bg" style="background: #1a1a0a;"></div>
+                            <div class="accent" style="background: #ffaa00;"></div>
+                        </div>
+                        <div class="theme-name">Amber</div>
+                    </div>
+                    <div class="theme-option" data-theme="red">
+                        <div class="theme-preview">
+                            <div class="bg" style="background: #1a0a0a;"></div>
+                            <div class="accent" style="background: #ff0040;"></div>
+                        </div>
+                        <div class="theme-name">Red Alert</div>
+                    </div>
+                    <div class="theme-option" data-theme="blue">
+                        <div class="theme-preview">
+                            <div class="bg" style="background: #0a0a1a;"></div>
+                            <div class="accent" style="background: #4080ff;"></div>
+                        </div>
+                        <div class="theme-name">Blue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Colors -->
+            <div class="settings-section">
+                <h3>CUSTOM COLORS</h3>
+                <div class="setting-item">
+                    <div class="setting-label">Accent Color</div>
+                    <div class="setting-control">
+                        <input type="color" class="color-picker" id="accentColor" value="#00ff00" onchange="fileStorage.updateCustomColor('accent', this.value)">
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">Background Color</div>
+                    <div class="setting-control">
+                        <input type="color" class="color-picker" id="bgColor" value="#0a0a0a" onchange="fileStorage.updateCustomColor('bg', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display Settings -->
+            <div class="settings-section">
+                <h3>DISPLAY</h3>
+                <div class="setting-item">
+                    <div class="setting-label">Grid Size</div>
+                    <div class="setting-control">
+                        <input type="range" class="slider" id="gridSize" min="250" max="400" value="320" onchange="fileStorage.updateGridSize(this.value)">
+                        <span id="gridSizeValue">320px</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">Animation Speed</div>
+                    <div class="setting-control">
+                        <input type="range" class="slider" id="animSpeed" min="0.1" max="1" step="0.1" value="0.3" onchange="fileStorage.updateAnimSpeed(this.value)">
+                        <span id="animSpeedValue">0.3s</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">Show File Previews</div>
+                    <div class="setting-control">
+                        <div class="toggle-switch active" id="showPreviews" onclick="fileStorage.togglePreview()"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">Auto-play Videos</div>
+                    <div class="setting-control">
+                        <div class="toggle-switch" id="autoPlay" onclick="fileStorage.toggleAutoPlay()"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="settings-section">
+                <h3>ADVANCED</h3>
+                <div class="setting-item">
+                    <div class="setting-label">Enable Sound Effects</div>
+                    <div class="setting-control">
+                        <div class="toggle-switch" id="soundEffects" onclick="fileStorage.toggleSounds()"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">Compact Mode</div>
+                    <div class="setting-control">
+                        <div class="toggle-switch" id="compactMode" onclick="fileStorage.toggleCompact()"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">Dark Overlay</div>
+                    <div class="setting-control">
+                        <div class="toggle-switch active" id="darkOverlay" onclick="fileStorage.toggleOverlay()"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset Section -->
+            <div class="settings-section">
+                <div class="setting-item">
+                    <div class="setting-label">Reset All Settings</div>
+                    <div class="setting-control">
+                        <button class="btn btn-danger" onclick="fileStorage.resetSettings()">RESET</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelect(event)">
 
     <script>
@@ -535,6 +994,20 @@
                 this.token = null;
                 this.files = [];
                 this.filteredFiles = [];
+                this.favorites = [];
+                this.showingFavorites = false;
+                this.settings = {
+                    theme: 'matrix',
+                    accentColor: '#00ff00',
+                    bgColor: '#0a0a0a',
+                    gridSize: 320,
+                    animSpeed: 0.3,
+                    showPreviews: true,
+                    autoPlay: false,
+                    soundEffects: false,
+                    compactMode: false,
+                    darkOverlay: true
+                };
                 
                 this.init();
             }
@@ -550,6 +1023,12 @@
                     this.showMainContent();
                     this.loadFiles();
                 }
+                
+                // Load favorites
+                this.loadFavorites();
+                
+                // Load settings
+                this.loadSettings();
             }
 
             setupEventListeners() {
@@ -702,7 +1181,7 @@
                     `;
                     
                     // Generate preview for media files
-                    if (this.isVideoFile(file.name)) {
+                    if (this.settings.showPreviews && this.isVideoFile(file.name)) {
                         try {
                             const videoUrl = await this.getFileUrl(file.name);
                             previewHTML = `
@@ -717,7 +1196,7 @@
                                 <div class="file-type-label">${type}</div>
                             `;
                         }
-                    } else if (this.isImageFile(file.name)) {
+                    } else if (this.settings.showPreviews && this.isImageFile(file.name)) {
                         try {
                             const imageUrl = await this.getFileUrl(file.name);
                             previewHTML = `
@@ -741,6 +1220,7 @@
                                 <div class="file-name" title="${file.name}">${file.name}</div>
                                 <div class="file-meta">${type} • ${size} • ${date}</div>
                                 <div class="file-actions" onclick="event.stopPropagation()">
+                                    <button class="btn btn-favorite ${this.isFavorite(file.name) ? 'active' : ''}" onclick="fileStorage.toggleFavorite('${file.name.replace(/'/g, "\\'")}')">★</button>
                                     <button class="btn" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">VIEW</button>
                                     <button class="btn" onclick="fileStorage.downloadFile('${file.name.replace(/'/g, "\\'")}')">DOWNLOAD</button>
                                     <button class="btn btn-danger" onclick="fileStorage.deleteFile('${file.name.replace(/'/g, "\\'")}')">DELETE</button>
@@ -751,6 +1231,271 @@
                 }));
 
                 container.innerHTML = `<div class="file-grid">${filesHTML.join('')}</div>`;
+                
+                // Update favorites display
+                this.renderFavorites();
+            }
+
+            loadFavorites() {
+                const saved = localStorage.getItem('file_favorites');
+                this.favorites = saved ? JSON.parse(saved) : [];
+            }
+
+            saveFavorites() {
+                localStorage.setItem('file_favorites', JSON.stringify(this.favorites));
+            }
+
+            isFavorite(filename) {
+                return this.favorites.includes(filename);
+            }
+
+            toggleFavorite(filename) {
+                if (this.isFavorite(filename)) {
+                    this.favorites = this.favorites.filter(f => f !== filename);
+                    this.showAlert(`REMOVED FROM FAVORITES: ${filename}`, 'info');
+                } else {
+                    this.favorites.push(filename);
+                    this.showAlert(`ADDED TO FAVORITES: ${filename}`, 'success');
+                }
+                
+                this.saveFavorites();
+                this.renderFiles();
+            }
+
+            toggleFavorites() {
+                const section = document.getElementById('favoritesSection');
+                const btn = event.target;
+                
+                this.showingFavorites = !this.showingFavorites;
+                
+                if (this.showingFavorites) {
+                    section.style.display = 'block';
+                    btn.textContent = 'HIDE FAVORITES';
+                    this.renderFavorites();
+                } else {
+                    section.style.display = 'none';
+                    btn.textContent = '★ FAVORITES';
+                }
+            }
+
+            renderFavorites() {
+                const grid = document.getElementById('favoritesGrid');
+                
+                if (this.favorites.length === 0) {
+                    grid.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">NO FAVORITES YET</div>';
+                    return;
+                }
+                
+                // Filter favorites to only show files that still exist
+                const existingFavorites = this.favorites.filter(fav => 
+                    this.files.some(file => file.name === fav)
+                );
+                
+                // Update favorites list if some were removed
+                if (existingFavorites.length !== this.favorites.length) {
+                    this.favorites = existingFavorites;
+                    this.saveFavorites();
+                }
+                
+                const favoritesHTML = this.favorites.map(filename => {
+                    const file = this.files.find(f => f.name === filename);
+                    if (!file) return '';
+                    
+                    const icon = this.getFileIcon(filename);
+                    
+                    return `
+                        <div class="favorite-item" onclick="fileStorage.viewFile('${filename.replace(/'/g, "\\'")}')">
+                            <div class="favorite-icon">${icon}</div>
+                            <div class="favorite-name" title="${filename}">${filename}</div>
+                            <button class="favorite-remove" onclick="event.stopPropagation(); fileStorage.toggleFavorite('${filename.replace(/'/g, "\\'")}')">✕</button>
+                        </div>
+                    `;
+                }).filter(html => html).join('');
+                
+                grid.innerHTML = favoritesHTML;
+            }
+
+            // Settings Methods
+            loadSettings() {
+                const saved = localStorage.getItem('app_settings');
+                if (saved) {
+                    this.settings = { ...this.settings, ...JSON.parse(saved) };
+                }
+                this.applySettings();
+            }
+
+            saveSettings() {
+                localStorage.setItem('app_settings', JSON.stringify(this.settings));
+            }
+
+            applySettings() {
+                // Apply theme
+                this.applyTheme(this.settings.theme);
+                
+                // Apply custom colors if not using preset theme
+                document.documentElement.style.setProperty('--accent-color', this.settings.accentColor);
+                document.documentElement.style.setProperty('--bg-color', this.settings.bgColor);
+                document.documentElement.style.setProperty('--grid-size', this.settings.gridSize + 'px');
+                document.documentElement.style.setProperty('--animation-speed', this.settings.animSpeed + 's');
+                
+                // Apply RGB values for shadows
+                const rgb = this.hexToRgb(this.settings.accentColor);
+                document.documentElement.style.setProperty('--accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+            }
+
+            openSettings() {
+                document.getElementById('settingsModal').style.display = 'flex';
+                this.updateSettingsUI();
+            }
+
+            closeSettings() {
+                document.getElementById('settingsModal').style.display = 'none';
+            }
+
+            updateSettingsUI() {
+                // Update theme selection
+                document.querySelectorAll('.theme-option').forEach(option => {
+                    option.classList.toggle('active', option.dataset.theme === this.settings.theme);
+                });
+                
+                // Update color pickers
+                document.getElementById('accentColor').value = this.settings.accentColor;
+                document.getElementById('bgColor').value = this.settings.bgColor;
+                
+                // Update sliders
+                document.getElementById('gridSize').value = this.settings.gridSize;
+                document.getElementById('gridSizeValue').textContent = this.settings.gridSize + 'px';
+                document.getElementById('animSpeed').value = this.settings.animSpeed;
+                document.getElementById('animSpeedValue').textContent = this.settings.animSpeed + 's';
+                
+                // Update toggles
+                document.getElementById('showPreviews').classList.toggle('active', this.settings.showPreviews);
+                document.getElementById('autoPlay').classList.toggle('active', this.settings.autoPlay);
+                document.getElementById('soundEffects').classList.toggle('active', this.settings.soundEffects);
+                document.getElementById('compactMode').classList.toggle('active', this.settings.compactMode);
+                document.getElementById('darkOverlay').classList.toggle('active', this.settings.darkOverlay);
+            }
+
+            applyTheme(themeName) {
+                const themes = {
+                    matrix: { accent: '#00ff00', bg: '#0a0a0a', card: '#1a1a1a' },
+                    cyber: { accent: '#00ffff', bg: '#0a0a0a', card: '#1a1a1a' },
+                    neon: { accent: '#ff00ff', bg: '#0a0a0a', card: '#1a1a1a' },
+                    amber: { accent: '#ffaa00', bg: '#1a1a0a', card: '#2a2a1a' },
+                    red: { accent: '#ff0040', bg: '#1a0a0a', card: '#2a1a1a' },
+                    blue: { accent: '#4080ff', bg: '#0a0a1a', card: '#1a1a2a' }
+                };
+                
+                const theme = themes[themeName];
+                if (theme) {
+                    this.settings.theme = themeName;
+                    this.settings.accentColor = theme.accent;
+                    this.settings.bgColor = theme.bg;
+                    
+                    document.documentElement.style.setProperty('--accent-color', theme.accent);
+                    document.documentElement.style.setProperty('--bg-color', theme.bg);
+                    document.documentElement.style.setProperty('--card-bg', theme.card);
+                    
+                    const rgb = this.hexToRgb(theme.accent);
+                    document.documentElement.style.setProperty('--accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+                    
+                    this.saveSettings();
+                }
+            }
+
+            updateCustomColor(type, color) {
+                if (type === 'accent') {
+                    this.settings.accentColor = color;
+                    document.documentElement.style.setProperty('--accent-color', color);
+                    const rgb = this.hexToRgb(color);
+                    document.documentElement.style.setProperty('--accent-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+                } else if (type === 'bg') {
+                    this.settings.bgColor = color;
+                    document.documentElement.style.setProperty('--bg-color', color);
+                }
+                this.settings.theme = 'custom';
+                this.saveSettings();
+            }
+
+            updateGridSize(size) {
+                this.settings.gridSize = parseInt(size);
+                document.documentElement.style.setProperty('--grid-size', size + 'px');
+                document.getElementById('gridSizeValue').textContent = size + 'px';
+                this.saveSettings();
+            }
+
+            updateAnimSpeed(speed) {
+                this.settings.animSpeed = parseFloat(speed);
+                document.documentElement.style.setProperty('--animation-speed', speed + 's');
+                document.getElementById('animSpeedValue').textContent = speed + 's';
+                this.saveSettings();
+            }
+
+            togglePreview() {
+                this.settings.showPreviews = !this.settings.showPreviews;
+                document.getElementById('showPreviews').classList.toggle('active', this.settings.showPreviews);
+                this.saveSettings();
+                this.renderFiles(); // Re-render to apply preview changes
+            }
+
+            toggleAutoPlay() {
+                this.settings.autoPlay = !this.settings.autoPlay;
+                document.getElementById('autoPlay').classList.toggle('active', this.settings.autoPlay);
+                this.saveSettings();
+            }
+
+            toggleSounds() {
+                this.settings.soundEffects = !this.settings.soundEffects;
+                document.getElementById('soundEffects').classList.toggle('active', this.settings.soundEffects);
+                this.saveSettings();
+            }
+
+            toggleCompact() {
+                this.settings.compactMode = !this.settings.compactMode;
+                document.getElementById('compactMode').classList.toggle('active', this.settings.compactMode);
+                if (this.settings.compactMode) {
+                    document.documentElement.style.setProperty('--grid-size', '250px');
+                } else {
+                    document.documentElement.style.setProperty('--grid-size', this.settings.gridSize + 'px');
+                }
+                this.saveSettings();
+            }
+
+            toggleOverlay() {
+                this.settings.darkOverlay = !this.settings.darkOverlay;
+                document.getElementById('darkOverlay').classList.toggle('active', this.settings.darkOverlay);
+                this.saveSettings();
+            }
+
+            resetSettings() {
+                if (confirm('Reset all settings to default?')) {
+                    localStorage.removeItem('app_settings');
+                    this.settings = {
+                        theme: 'matrix',
+                        accentColor: '#00ff00',
+                        bgColor: '#0a0a0a',
+                        gridSize: 320,
+                        animSpeed: 0.3,
+                        showPreviews: true,
+                        autoPlay: false,
+                        soundEffects: false,
+                        compactMode: false,
+                        darkOverlay: true
+                    };
+                    this.applySettings();
+                    this.updateSettingsUI();
+                    this.showAlert('SETTINGS RESET', 'success');
+                }
+            }
+
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : { r: 0, g: 255, b: 0 };
+            }
             }
 
             async getFileUrl(filename) {
@@ -880,14 +1625,16 @@
                 title.title = filename; // Show full name on hover
                 
                 if (contentType.startsWith('video/')) {
+                    const autoplayAttr = this.settings.autoPlay ? 'autoplay' : '';
                     content.innerHTML = `
-                        <video controls autoplay style="max-width: 100%; max-height: 70vh;">
+                        <video controls ${autoplayAttr} style="max-width: 100%; max-height: 70vh;">
                             <source src="${url}" type="${contentType}">
                         </video>
                     `;
                 } else if (contentType.startsWith('audio/')) {
+                    const autoplayAttr = this.settings.autoPlay ? 'autoplay' : '';
                     content.innerHTML = `
-                        <audio controls autoplay style="width: 100%; max-width: 600px;">
+                        <audio controls ${autoplayAttr} style="width: 100%; max-width: 600px;">
                             <source src="${url}" type="${contentType}">
                         </audio>
                     `;
@@ -1016,6 +1763,14 @@
         // Initialize when page loads
         window.addEventListener('DOMContentLoaded', () => {
             fileStorage = new FileStorage();
+            
+            // Setup theme selection after fileStorage is created
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    fileStorage.applyTheme(option.dataset.theme);
+                    fileStorage.updateSettingsUI();
+                });
+            });
         });
     </script>
 </body>
