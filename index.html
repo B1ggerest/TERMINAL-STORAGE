@@ -418,29 +418,179 @@
             100% { transform: rotate(360deg); }
         }
 
-        .alert {
-            padding: 12px;
-            border: 1px solid;
-            margin-bottom: 20px;
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.hide {
+            transform: translateX(100%);
+            opacity: 0;
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            max-height: 0;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .notification-icon {
+            font-size: 18px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .notification-message {
+            flex: 1;
             font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
         }
 
-        .alert-success {
-            background: rgba(var(--success-color), 0.1);
-            color: var(--success-color);
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--color-tertiary);
+            cursor: pointer;
+            padding: 2px;
+            font-family: inherit;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* Success notifications */
+        .notification.success {
             border-color: var(--success-color);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(var(--success-color), 0.05));
         }
 
-        .alert-error {
-            background: rgba(var(--danger-color), 0.1);
-            color: var(--danger-color);
+        .notification.success .notification-icon {
+            color: var(--success-color);
+        }
+
+        .notification.success .notification-message {
+            color: var(--success-color);
+        }
+
+        .notification.success::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--success-color);
+            opacity: 0.8;
+        }
+
+        /* Error notifications */
+        .notification.error {
             border-color: var(--danger-color);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(var(--danger-color), 0.05));
         }
 
-        .alert-info {
-            background: rgba(var(--info-color), 0.1);
-            color: var(--info-color);
+        .notification.error .notification-icon {
+            color: var(--danger-color);
+        }
+
+        .notification.error .notification-message {
+            color: var(--danger-color);
+        }
+
+        .notification.error::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--danger-color);
+            opacity: 0.8;
+        }
+
+        /* Info notifications */
+        .notification.info {
             border-color: var(--info-color);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(var(--info-color), 0.05));
+        }
+
+        .notification.info .notification-icon {
+            color: var(--info-color);
+        }
+
+        .notification.info .notification-message {
+            color: var(--info-color);
+        }
+
+        .notification.info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--info-color);
+            opacity: 0.8;
+        }
+
+        /* Progress bar animation */
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: currentColor;
+            opacity: 0.3;
+            transform-origin: left;
+            animation: progressBar 3s linear;
+        }
+
+        @keyframes progressBar {
+            from {
+                transform: scaleX(1);
+            }
+            to {
+                transform: scaleX(0);
+            }
         }
 
         /* Modal Styles */
@@ -647,6 +797,17 @@
             .theme-grid {
                 grid-template-columns: 1fr;
             }
+
+            .notification-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .notification {
+                margin-bottom: 8px;
+            }
         }
     </style>
 </head>
@@ -656,6 +817,9 @@
             <h1>FAGINATOR</h1>
             <p>FILE STORAGE SYSTEM</p>
         </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
 
         <!-- Authentication Section -->
         <div class="auth-section" id="authSection">
@@ -687,7 +851,7 @@
                 <button class="btn">CHOOSE FILES</button>
             </div>
 
-            <div id="alertContainer"></div>
+
 
             <div id="fileContainer">
                 <div class="empty-state">
@@ -794,7 +958,7 @@
     <script>
         class FileStorage {
             constructor() {
-                this.apiUrl = 'https://terminal-storage.lolbiggesstlol.workers.dev';
+                this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
                 this.token = null;
                 this.files = [];
                 this.filteredFiles = [];
@@ -920,17 +1084,57 @@
                 });
             }
 
-            showAlert(message, type = 'info') {
-                const alertContainer = document.getElementById('alertContainer');
-                const alert = document.createElement('div');
-                alert.className = `alert alert-${type}`;
-                alert.textContent = message;
+            showAlert(message, type = 'info', duration = 3000) {
+                const container = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
                 
-                alertContainer.appendChild(alert);
+                // Get appropriate icon for notification type
+                const icons = {
+                    success: '✓',
+                    error: '✕',
+                    info: 'ⓘ'
+                };
                 
+                const icon = icons[type] || 'ⓘ';
+                
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <div class="notification-icon">${icon}</div>
+                        <div class="notification-message">${message}</div>
+                        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">✕</button>
+                    </div>
+                    <div class="notification-progress"></div>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    notification.classList.add('show');
+                });
+                
+                // Auto remove after duration
                 setTimeout(() => {
-                    alert.remove();
-                }, 3000);
+                    this.removeNotification(notification);
+                }, duration);
+                
+                // Limit max notifications (remove oldest if too many)
+                const notifications = container.querySelectorAll('.notification');
+                if (notifications.length > 5) {
+                    this.removeNotification(notifications[0]);
+                }
+            }
+
+            removeNotification(notification) {
+                if (!notification || !notification.parentNode) return;
+                
+                notification.classList.add('hide');
+                notification.addEventListener('transitionend', () => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, { once: true });
             }
 
             async authenticate() {
@@ -962,7 +1166,12 @@
                         this.showAlert('ACCESS DENIED', 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`CONNECTION ERROR: ${error.message}`, 'error');
+                    if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
+                        this.showAlert('CORS ERROR: Check API configuration', 'error');
+                    } else {
+                        this.showAlert(`CONNECTION ERROR: ${error.message}`, 'error');
+                    }
+                    console.error('Auth error:', error);
                 } finally {
                     authText.style.display = 'inline';
                     authLoading.style.display = 'none';
@@ -1012,11 +1221,20 @@
                         this.files = await response.json();
                         this.filteredFiles = [...this.files];
                         this.renderFiles();
+                    } else if (response.status === 401) {
+                        this.showAlert('SESSION EXPIRED - Please login again', 'error');
+                        this.logout();
                     } else {
                         this.showAlert('FAILED TO LOAD FILES', 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`ERROR: ${error.message}`, 'error');
+                    if (error.name === 'TypeError' && (error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
+                        this.showAlert('CORS ERROR: Cannot connect to API server', 'error');
+                        console.error('CORS Error - API may need CORS headers configured');
+                    } else {
+                        this.showAlert(`ERROR: ${error.message}`, 'error');
+                    }
+                    console.error('Load files error:', error);
                 }
             }
 
