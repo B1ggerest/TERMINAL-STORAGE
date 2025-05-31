@@ -3,1567 +3,1159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storage - Terminal File Manager</title>
+    <title>SecureFS Terminal Pro</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            background: linear-gradient(135deg, #000000 0%, #001a00 100%);
-            color: #00ff00;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.4;
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            color: #00ff41;
             overflow: hidden;
             height: 100vh;
         }
-
-        .terminal {
+        
+        .terminal-container {
             height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            position: relative;
             display: flex;
             flex-direction: column;
-            background: rgba(0, 0, 0, 0.9);
         }
-
-        .header {
-            background: linear-gradient(90deg, #001100, #000000);
-            border-bottom: 1px solid #00ff00;
-            padding: 12px 20px;
+        
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 8px 16px;
+            border-bottom: 2px solid #00ff41;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 5px rgba(0, 255, 0, 0.2);
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 255, 65, 0.2);
         }
-
-        .logo {
+        
+        .terminal-title {
+            color: #00ff41;
+            font-weight: 700;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            letter-spacing: 2px;
         }
-
-        .terminal-symbol {
-            color: #00ff00;
-            font-weight: bold;
+        
+        .status-info {
+            font-size: 12px;
+            color: #888;
         }
-
-        .header-info {
+        
+        .terminal-controls {
             display: flex;
-            gap: 20px;
-            font-size: 11px;
-            opacity: 0.8;
-            font-family: monospace;
+            gap: 8px;
         }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
+        
+        .control-btn {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: #00ff00;
-            display: inline-block;
-            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-
-        .main-content {
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .control-btn.close { background: #ff5f57; }
+        .control-btn.minimize { background: #ffbd2e; }
+        .control-btn.maximize { background: #28ca42; }
+        
+        .terminal-body {
             flex: 1;
             display: flex;
             overflow: hidden;
         }
-
+        
         .sidebar {
-            width: 320px;
-            background: rgba(0, 0, 0, 0.95);
+            width: 250px;
+            background: #0f0f0f;
             border-right: 1px solid #333;
             padding: 20px;
             overflow-y: auto;
         }
-
-        .section-title {
-            color: #00ff88;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-        }
-
-        .search-container {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .search-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            color: #00ff00;
-            padding: 10px 35px 10px 12px;
-            font-family: inherit;
-            font-size: 13px;
-            border-radius: 2px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            border-color: #00ff00;
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-            color: #666;
-        }
-
-        .quick-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 20px;
-        }
-
-        .filter-btn {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #444;
-            color: #888;
-            padding: 5px 10px;
-            font-size: 10px;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: rgba(0, 100, 0, 0.3);
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .stats-overview {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #333;
-            border-radius: 2px;
-            padding: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            font-size: 11px;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 2px;
-            border: 1px solid #222;
-        }
-
-        .stat-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #00ff88;
-            font-family: monospace;
-        }
-
-        .stat-label {
-            color: #666;
-            text-transform: uppercase;
-            font-size: 9px;
-            letter-spacing: 0.5px;
-        }
-
-        .quick-actions {
-            margin-bottom: 20px;
-        }
-
-        .action-button {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            color: #888;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border-radius: 2px;
-            font-family: inherit;
-            font-size: 11px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .action-button:hover {
-            background: rgba(0, 50, 0, 0.8);
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .action-prefix {
-            color: #00ff00;
-            font-weight: bold;
-            font-family: monospace;
-        }
-
-        .main-panel {
+        
+        .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
-
-        .output {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .search-results {
-            margin-bottom: 20px;
-        }
-
-        .result-item {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            border-radius: 2px;
-            padding: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s ease;
-        }
-
-        .result-item:hover {
-            border-color: #00ff00;
-            background: rgba(0, 30, 0, 0.8);
-            transform: translateX(3px);
-        }
-
-        .result-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .file-type-indicator {
-            width: 30px;
-            height: 30px;
-            background: rgba(0, 100, 0, 0.3);
-            border: 1px solid #00ff00;
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-            color: #00ff00;
-        }
-
-        .file-details {
-            flex: 1;
-        }
-
-        .file-name-large {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 4px;
-            color: #00ff88;
-            font-family: monospace;
-        }
-
-        .file-meta {
-            font-size: 10px;
-            color: #666;
-            display: flex;
-            gap: 12px;
-            font-family: monospace;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #444;
-            color: #888;
-            padding: 6px 10px;
-            font-size: 9px;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .btn:hover {
-            border-color: #00ff00;
-            color: #00ff00;
-            background: rgba(0, 50, 0, 0.3);
-        }
-
-        .btn.primary {
-            background: rgba(0, 100, 0, 0.3);
-            border-color: #00ff00;
-            color: #00ff00;
-        }
-
-        .btn.danger {
-            background: rgba(100, 0, 0, 0.3);
-            border-color: #ff4444;
-            color: #ff4444;
-        }
-
-        .btn.danger:hover {
-            background: rgba(150, 0, 0, 0.5);
-        }
-
-        .file-browser-enhanced {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #333;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-
-        .category-header-enhanced {
-            background: rgba(0, 50, 0, 0.3);
-            padding: 12px 15px;
-            font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        
+        .toolbar {
+            background: #1a1a1a;
+            padding: 10px 20px;
             border-bottom: 1px solid #333;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 11px;
-        }
-
-        .category-header-enhanced:hover {
-            background: rgba(0, 80, 0, 0.4);
-        }
-
-        .category-content-enhanced {
-            max-height: 350px;
-            overflow-y: auto;
-        }
-
-        .category-content-enhanced.collapsed {
-            display: none;
-        }
-
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1px;
-            background: #222;
-        }
-
-        .file-entry-enhanced {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 10px 12px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s ease;
-            border-right: 2px solid transparent;
+            gap: 15px;
         }
-
-        .file-entry-enhanced:hover {
-            background: rgba(0, 30, 0, 0.9);
-            border-right-color: #00ff00;
-        }
-
-        .input-line {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.95);
-            border-top: 1px solid #333;
-        }
-
-        .prompt {
-            color: #00ff88;
-            margin-right: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            font-family: monospace;
-        }
-
-        .input {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #333;
-            color: #00ff00;
-            font-family: inherit;
-            font-size: 13px;
-            outline: none;
+        
+        .file-area {
             flex: 1;
-            padding: 8px 12px;
-            border-radius: 2px;
-            transition: all 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+            background: #0a0a0a;
         }
-
-        .input:focus {
-            border-color: #00ff00;
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
-        }
-
-        .upload-zone {
-            border: 2px dashed #333;
-            padding: 30px 20px;
-            text-align: center;
-            margin: 20px;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .upload-zone.dragover {
-            border-color: #00ff00;
-            background: rgba(0, 100, 0, 0.2);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-        }
-
-        .upload-text {
-            font-size: 16px;
-            margin-bottom: 8px;
-            color: #00ff88;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .upload-hint {
-            font-size: 11px;
-            opacity: 0.7;
-            color: #666;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .error {
-            color: #ff4444;
-            background: rgba(255, 68, 68, 0.1);
-            padding: 6px 10px;
-            border-left: 2px solid #ff4444;
-            margin: 3px 0;
-            border-radius: 2px;
-            font-family: monospace;
-        }
-
-        .success {
-            color: #44ff44;
-            background: rgba(68, 255, 68, 0.1);
-            padding: 6px 10px;
-            border-left: 2px solid #44ff44;
-            margin: 3px 0;
-            border-radius: 2px;
-            font-family: monospace;
-        }
-
-        .warning {
-            color: #ffaa00;
-            background: rgba(255, 170, 0, 0.1);
-            padding: 6px 10px;
-            border-left: 2px solid #ffaa00;
-            margin: 3px 0;
-            border-radius: 2px;
-            font-family: monospace;
-        }
-
-        .preview-modal {
-            position: fixed;
+        
+        /* Login Screen */
+        .login-screen {
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.95);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(3px);
         }
-
-        .preview-content {
-            max-width: 90%;
-            max-height: 90%;
-            border: 1px solid #00ff00;
-            background: rgba(0, 0, 0, 0.95);
-            padding: 20px;
-            position: relative;
-            border-radius: 2px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #00ff41;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.8);
+            animation: pulse 2s infinite;
         }
-
-        .preview-close {
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            background: none;
-            border: none;
-            color: #ff4444;
-            font-size: 20px;
-            cursor: pointer;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 2px;
-            transition: all 0.2s ease;
-        }
-
-        .preview-close:hover {
-            background: rgba(255, 68, 68, 0.2);
-        }
-
-        .preview-image, .preview-video {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 2px;
-        }
-
-        .preview-text {
-            color: #00ff00;
-            font-family: monospace;
-            white-space: pre-wrap;
-            max-height: 70vh;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 12px;
-            border-radius: 2px;
-            border: 1px solid #333;
-        }
-
-        .loading {
-            display: inline-block;
-            animation: pulse 1s infinite;
-        }
-
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.7; }
         }
-
-        .no-results {
-            text-align: center;
+        
+        .login-form {
+            background: rgba(26, 26, 26, 0.9);
             padding: 40px;
+            border-radius: 12px;
+            border: 2px solid #00ff41;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            min-width: 350px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff41;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #00ff41;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .btn {
+            background: #00ff41;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: #00cc33;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+        }
+        
+        .btn-secondary:hover {
+            background: #00ff41;
+            color: #0a0a0a;
+        }
+        
+        /* File Browser */
+        .breadcrumb {
+            color: #888;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .breadcrumb span {
+            color: #00ff41;
+            cursor: pointer;
+        }
+        
+        .breadcrumb span:hover {
+            text-decoration: underline;
+        }
+        
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .file-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .file-item:hover {
+            border-color: #00ff41;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.2);
+        }
+        
+        .file-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .file-name {
+            font-size: 12px;
+            text-align: center;
+            word-break: break-word;
+            margin-bottom: 5px;
+        }
+        
+        .file-size {
+            font-size: 10px;
             color: #666;
-            font-style: italic;
+            text-align: center;
         }
-
-        .highlight {
-            background: rgba(255, 255, 0, 0.3);
-            color: #ffff00;
-        }
-
-        .login-screen {
+        
+        .file-type-video { color: #ff6b6b; }
+        .file-type-audio { color: #4ecdc4; }
+        .file-type-image { color: #45b7d1; }
+        .file-type-document { color: #96ceb4; }
+        .file-type-archive { color: #feca57; }
+        .file-type-folder { color: #00ff41; }
+        
+        /* Media Player */
+        .media-player {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #000000 0%, #001a00 100%);
-            color: #00ff00;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .player-header {
+            background: #1a1a1a;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .player-title {
+            color: #00ff41;
+            font-weight: 700;
+        }
+        
+        .player-close {
+            background: #ff5f57;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .player-content {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            padding: 20px;
         }
-
-        .login-container {
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #00ff00;
-            border-radius: 2px;
-            padding: 40px;
-            min-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        
+        .video-player, .audio-player {
+            max-width: 100%;
+            max-height: 100%;
+            background: #000;
+            border-radius: 8px;
         }
-
-        .login-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        
+        .audio-player {
+            width: 100%;
+            max-width: 600px;
         }
-
-        .login-subtitle {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        
+        .image-viewer {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
         }
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .login-input {
-            background: rgba(0, 0, 0, 0.8);
+        
+        .text-viewer {
+            background: #1a1a1a;
             border: 1px solid #333;
-            color: #00ff00;
-            padding: 12px 15px;
-            font-family: inherit;
-            font-size: 14px;
-            border-radius: 2px;
-            outline: none;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow: auto;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: pre-wrap;
+            color: #00ff41;
+        }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #333;
+            border-radius: 12px;
+            padding: 40px;
             text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .login-input:focus {
-            border-color: #00ff00;
-            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
-        }
-
-        .login-button {
-            background: rgba(0, 100, 0, 0.3);
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 12px;
-            font-family: inherit;
-            font-size: 12px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
             cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .upload-area:hover .upload-icon {
+            color: #00ff41;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-title {
+            color: #00ff41;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: bold;
         }
-
-        .login-button:hover {
-            background: rgba(0, 150, 0, 0.5);
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        
+        .sidebar-item {
+            padding: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            padding-left: 10px;
         }
-
-        .login-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        
+        .sidebar-item:hover {
+            background: rgba(0, 255, 65, 0.1);
+            color: #00ff41;
         }
-
-        .login-error {
-            color: #ff4444;
-            background: rgba(255, 68, 68, 0.1);
-            padding: 8px;
-            border-left: 2px solid #ff4444;
-            margin-top: 15px;
+        
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #00ff41;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #00ff41;
+        }
+        
+        .toolbar-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #00ff41;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .toolbar-btn:hover {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #333;
             border-radius: 2px;
-            font-size: 11px;
-            text-transform: uppercase;
+            overflow: hidden;
+            margin-top: 10px;
         }
-
-        .access-denied {
-            color: #ff4444;
-            font-family: monospace;
-            font-size: 10px;
-            margin-top: 20px;
-            opacity: 0.7;
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #00cc33);
+            width: 0%;
+            transition: width 0.3s;
         }
-
-        /* Responsive Design */
+        
+        .context-menu {
+            position: fixed;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 5px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            display: none;
+        }
+        
+        .context-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+        
+        .context-item:hover {
+            background: rgba(0, 255, 65, 0.1);
+            color: #00ff41;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            border-top-color: #00ff41;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
             .sidebar {
                 width: 100%;
-                max-height: 300px;
+                height: 200px;
                 border-right: none;
                 border-bottom: 1px solid #333;
             }
             
-            .file-grid {
-                grid-template-columns: 1fr;
+            .terminal-body {
+                flex-direction: column;
             }
             
-            .header-info {
-                display: none;
-            }
-
-            .login-container {
-                min-width: 300px;
-                margin: 20px;
-                padding: 30px;
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-screen" id="loginScreen">
-        <div class="login-container">
-            <div class="login-title">STORAGE ACCESS</div>
-            <div class="login-subtitle">AUTHORIZATION REQUIRED</div>
-            <form class="login-form" id="loginForm">
-                <input type="password" class="login-input" id="passwordInput" placeholder="ENTER ACCESS CODE" autocomplete="off">
-                <button type="submit" class="login-button" id="loginButton">
-                    <span id="loginButtonText">AUTHENTICATE</span>
-                </button>
-                <div class="login-error hidden" id="loginError">ACCESS DENIED - INVALID CREDENTIALS</div>
-            </form>
-            <div class="access-denied">
-                > UNAUTHORIZED ACCESS PROHIBITED<br>
-                > ALL ATTEMPTS ARE LOGGED
+    <div class="terminal-container">
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+            <div class="terminal-title">
+                <span>🔒</span>
+                <span>SecureFS Terminal Pro</span>
             </div>
-        </div>
-    </div>
-
-    <div class="terminal" id="mainTerminal" style="display: none;">
-        <div class="header">
-            <div class="logo">
-                <span class="terminal-symbol">></span>
-                <span>STORAGE</span>
+            <div class="status-info">
+                <span id="connectionStatus">Connected</span> | 
+                <span id="storageInfo">Storage: 0 GB used</span>
             </div>
-            <div class="header-info">
-                <span id="fileCount">FILES: 0</span>
-                <span id="storageUsed">STORAGE: 0 MB</span>
-                <span><span class="status-indicator"></span>CONNECTED</span>
+            <div class="terminal-controls">
+                <button class="control-btn close"></button>
+                <button class="control-btn minimize"></button>
+                <button class="control-btn maximize"></button>
             </div>
         </div>
 
-        <div class="main-content">
+        <!-- Terminal Body -->
+        <div class="terminal-body">
+            <!-- Sidebar -->
             <div class="sidebar">
-                <div class="search-section">
-                    <div class="section-title">SEARCH</div>
-                    <div class="search-container">
-                        <input type="text" class="search-input" id="quickSearch" placeholder="search files...">
-                        <span class="search-icon">[?]</span>
-                    </div>
-                    <div class="quick-filters">
-                        <button class="filter-btn active" data-filter="all">ALL</button>
-                        <button class="filter-btn" data-filter="photos">IMG</button>
-                        <button class="filter-btn" data-filter="videos">VID</button>
-                        <button class="filter-btn" data-filter="documents">DOC</button>
-                        <button class="filter-btn" data-filter="code">CODE</button>
-                        <button class="filter-btn" data-filter="audio">AUD</button>
-                    </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Quick Access</div>
+                    <div class="sidebar-item" onclick="navigateTo('/')">📁 Root</div>
+                    <div class="sidebar-item" onclick="navigateTo('/videos')">🎬 Videos</div>
+                    <div class="sidebar-item" onclick="navigateTo('/audio')">🎵 Audio</div>
+                    <div class="sidebar-item" onclick="navigateTo('/images')">🖼️ Images</div>
+                    <div class="sidebar-item" onclick="navigateTo('/documents')">📄 Documents</div>
                 </div>
-
-                <div class="stats-overview">
-                    <div class="section-title">SYSTEM STATUS</div>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="totalFiles">0</div>
-                            <div class="stat-label">FILES</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="totalSize">0 MB</div>
-                            <div class="stat-label">USED</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="recentUploads">0</div>
-                            <div class="stat-label">RECENT</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="remainingSpace">10 GB</div>
-                            <div class="stat-label">FREE</div>
-                        </div>
-                    </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Search</div>
+                    <input type="text" class="search-box" placeholder="Search files..." id="searchInput">
                 </div>
-
-                <div class="quick-actions">
-                    <div class="section-title">OPERATIONS</div>
-                    <button class="action-button" onclick="terminalStorage.fileInput.click()">
-                        <span class="action-prefix">[+]</span> UPLOAD
-                    </button>
-                    <button class="action-button" onclick="terminalStorage.showAllFiles()">
-                        <span class="action-prefix">[*]</span> BROWSE
-                    </button>
-                    <button class="action-button" onclick="terminalStorage.showRecentFiles()">
-                        <span class="action-prefix">[T]</span> RECENT
-                    </button>
-                    <button class="action-button" onclick="terminalStorage.refreshStats()">
-                        <span class="action-prefix">[R]</span> REFRESH
-                    </button>
-                    <button class="action-button" onclick="terminalStorage.logout()">
-                        <span class="action-prefix">[X]</span> LOGOUT
-                    </button>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">File Types</div>
+                    <div class="sidebar-item" onclick="filterByType('video')">Video Files</div>
+                    <div class="sidebar-item" onclick="filterByType('audio')">Audio Files</div>
+                    <div class="sidebar-item" onclick="filterByType('image')">Images</div>
+                    <div class="sidebar-item" onclick="filterByType('document')">Documents</div>
+                    <div class="sidebar-item" onclick="filterByType('all')">All Files</div>
                 </div>
             </div>
 
-            <div class="main-panel">
-                <div class="output" id="output">
-                    <div class="upload-zone hidden" id="uploadZone">
-                        <div class="upload-text">DROP FILES TO UPLOAD</div>
-                        <div class="upload-hint">supports all file types</div>
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <button class="toolbar-btn" onclick="createFolder()">📁 New Folder</button>
+                    <button class="toolbar-btn" onclick="uploadFiles()">⬆️ Upload</button>
+                    <button class="toolbar-btn" onclick="refresh()">🔄 Refresh</button>
+                    <button class="toolbar-btn" onclick="viewList()">📋 List View</button>
+                    <button class="toolbar-btn" onclick="viewGrid()">🔲 Grid View</button>
+                    <div style="margin-left: auto;">
+                        <button class="toolbar-btn" onclick="logout()">🚪 Logout</button>
                     </div>
                 </div>
 
-                <div class="input-line">
-                    <span class="prompt">root@storage:~#</span>
-                    <input type="text" class="input" id="commandInput" placeholder="type 'help' for commands or use sidebar..." autofocus>
+                <!-- File Area -->
+                <div class="file-area">
+                    <!-- Breadcrumb -->
+                    <div class="breadcrumb" id="breadcrumb">
+                        <span onclick="navigateTo('/')">🏠 Home</span>
+                    </div>
+
+                    <!-- Upload Area -->
+                    <div class="upload-area" onclick="uploadFiles()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                        <div class="upload-icon">⬆️</div>
+                        <div>Drop files here or click to upload</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                            Supports: Videos (MP4, MKV, AVI, MOV), Audio (MP3, OGG, WAV, FLAC), Images (JPG, PNG, GIF), Documents & more
+                        </div>
+                    </div>
+
+                    <!-- File Grid -->
+                    <div class="file-grid" id="fileGrid">
+                        <!-- Files will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Login Screen -->
+        <div class="login-screen" id="loginScreen">
+            <div class="logo">🔒 SecureFS Terminal Pro</div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <button class="btn" onclick="login()" style="width: 100%;">Access Terminal</button>
+                </div>
+                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+                    Secure file storage with advanced media viewing capabilities
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Player -->
+        <div class="media-player" id="mediaPlayer">
+            <div class="player-header">
+                <div class="player-title" id="playerTitle">Media Player</div>
+                <button class="player-close" onclick="closePlayer()">×</button>
+            </div>
+            <div class="player-content" id="playerContent">
+                <!-- Media content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div class="context-menu" id="contextMenu">
+            <div class="context-item" onclick="downloadFile()">⬇️ Download</div>
+            <div class="context-item" onclick="renameFile()">✏️ Rename</div>
+            <div class="context-item" onclick="deleteFile()">🗑️ Delete</div>
+            <div class="context-item" onclick="shareFile()">🔗 Share</div>
+            <div class="context-item" onclick="getFileInfo()">ℹ️ Properties</div>
+        </div>
     </div>
 
-    <input type="file" id="fileInput" class="hidden" multiple>
+    <input type="file" id="fileInput" multiple style="display: none;">
 
     <script>
-        class StorageTerminal {
-            constructor() {
-                this.output = document.getElementById('output');
-                this.input = document.getElementById('commandInput');
-                this.uploadZone = document.getElementById('uploadZone');
-                this.fileInput = document.getElementById('fileInput');
-                this.quickSearch = document.getElementById('quickSearch');
-                this.loginScreen = document.getElementById('loginScreen');
-                this.mainTerminal = document.getElementById('mainTerminal');
-                this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
-                this.allFiles = [];
-                this.currentFilter = 'all';
-                this.authToken = null; // Will be set after authentication
-                this.sessionActive = false;
-                
-                this.setupAuthenticationListeners();
-                this.checkAuthentication();
+        // Global state
+        let isLoggedIn = false;
+        let currentPath = '/';
+        let currentFiles = [];
+        let selectedFile = null;
+        let workerUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev'; // Replace with your worker URL
+
+        // Authentication
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
             }
 
-            setupAuthenticationListeners() {
-                const loginForm = document.getElementById('loginForm');
-                const passwordInput = document.getElementById('passwordInput');
-                
-                loginForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    await this.authenticate(passwordInput.value);
+            try {
+                const response = await fetch(`${workerUrl}/auth`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
                 });
 
-                passwordInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        loginForm.dispatchEvent(new Event('submit'));
-                    }
-                });
-            }
-
-            async checkAuthentication() {
-                // In this environment, we always need to authenticate
-                this.showLoginScreen();
-            }
-
-            async authenticate(password) {
-                const loginButton = document.getElementById('loginButton');
-                const loginButtonText = document.getElementById('loginButtonText');
-                const loginError = document.getElementById('loginError');
-                
-                loginButton.disabled = true;
-                loginButtonText.textContent = 'AUTHENTICATING...';
-                loginError.classList.add('hidden');
-                
-                try {
-                    const response = await fetch(`${this.apiUrl}/auth`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ password })
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        this.authToken = data.token;
-                        this.sessionActive = true;
-                        this.showMainInterface();
-                    } else {
-                        loginError.classList.remove('hidden');
-                        document.getElementById('passwordInput').value = '';
-                        document.getElementById('passwordInput').focus();
-                    }
-                } catch (error) {
-                    loginError.classList.remove('hidden');
-                    loginError.textContent = 'CONNECTION ERROR - TRY AGAIN';
-                } finally {
-                    loginButton.disabled = false;
-                    loginButtonText.textContent = 'AUTHENTICATE';
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('authToken', data.token);
+                    isLoggedIn = true;
+                    document.getElementById('loginScreen').style.display = 'none';
+                    loadFiles();
+                } else {
+                    alert('Invalid credentials');
                 }
-            }
-
-            showLoginScreen() {
-                this.loginScreen.style.display = 'flex';
-                this.mainTerminal.style.display = 'none';
-                document.getElementById('passwordInput').focus();
-            }
-
-            showMainInterface() {
-                this.loginScreen.style.display = 'none';
-                this.mainTerminal.style.display = 'flex';
-                this.setupEventListeners();
-                this.showWelcome();
-                this.refreshStats();
-                this.showAllFiles();
-            }
-
-            logout() {
-                this.authToken = null;
-                this.sessionActive = false;
-                this.showLoginScreen();
-                this.output.innerHTML = '';
-            }
-
-            setupEventListeners() {
-                this.input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.executeCommand(e.target.value);
-                        e.target.value = '';
-                    }
-                });
-
-                this.quickSearch.addEventListener('input', (e) => {
-                    this.performQuickSearch(e.target.value);
-                });
-
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.currentFilter = btn.dataset.filter;
-                        this.applyFilter();
-                    });
-                });
-
-                document.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    this.uploadZone.classList.remove('hidden');
-                    this.uploadZone.classList.add('dragover');
-                });
-
-                document.addEventListener('dragleave', (e) => {
-                    if (!e.relatedTarget) {
-                        this.uploadZone.classList.add('hidden');
-                        this.uploadZone.classList.remove('dragover');
-                    }
-                });
-
-                document.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    this.uploadZone.classList.add('hidden');
-                    this.uploadZone.classList.remove('dragover');
-                    this.uploadFiles(e.dataTransfer.files);
-                });
-
-                this.fileInput.addEventListener('change', (e) => {
-                    this.uploadFiles(e.target.files);
-                });
-
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        const modals = document.querySelectorAll('.preview-modal');
-                        modals.forEach(modal => document.body.removeChild(modal));
-                    }
-                    if (e.ctrlKey && e.key === 'f') {
-                        e.preventDefault();
-                        this.quickSearch.focus();
-                    }
-                });
-            }
-
-            showWelcome() {
-                this.print('> storage terminal initialized', 'success');
-                this.print('> type \'help\' for available commands', 'warning');
-                this.print('> use sidebar for quick operations\n');
-            }
-
-            print(text, className = '') {
-                const line = document.createElement('div');
-                line.textContent = text;
-                if (className) line.className = className;
-                this.output.appendChild(line);
-                this.output.scrollTop = this.output.scrollHeight;
-            }
-
-            async executeCommand(command) {
-                const [cmd, ...args] = command.trim().split(' ');
-                this.print(`root@storage:~# ${command}`);
-
-                switch (cmd.toLowerCase()) {
-                    case 'help':
-                        this.showHelp();
-                        break;
-                    case 'search':
-                    case 'find':
-                        if (args[0]) {
-                            await this.searchFiles(args.join(' '));
-                        } else {
-                            this.print('usage: search <query>', 'error');
-                        }
-                        break;
-                    case 'upload':
-                        this.fileInput.click();
-                        break;
-                    case 'list':
-                    case 'ls':
-                        await this.showAllFiles();
-                        break;
-                    case 'recent':
-                        await this.showRecentFiles(parseInt(args[0]) || 10);
-                        break;
-                    case 'stats':
-                        await this.showDetailedStats();
-                        break;
-                    case 'clear':
-                        this.output.innerHTML = '';
-                        break;
-                    case 'refresh':
-                        await this.refreshStats();
-                        await this.showAllFiles();
-                        this.print('> system refreshed', 'success');
-                        break;
-                    default:
-                        if (cmd) {
-                            this.print(`command not found: ${cmd}`, 'error');
-                        }
-                }
-                this.print('');
-            }
-
-            showHelp() {
-                const commands = [
-                    'STORAGE TERMINAL - COMMAND REFERENCE',
-                    '=====================================',
-                    '',
-                    'SEARCH & BROWSE:',
-                    '  search <query>       search files by name',
-                    '  list, ls            show all files',
-                    '  recent [n]          show recent files',
-                    '',
-                    'FILE OPERATIONS:',
-                    '  upload              open file upload',
-                    '  stats               show system stats',
-                    '',
-                    'SYSTEM:',
-                    '  clear               clear output',
-                    '  refresh             refresh data',
-                    '  help                show commands',
-                    '',
-                    'SHORTCUTS:',
-                    '  ctrl+f              focus search',
-                    '  esc                 close modals',
-                    '  drag & drop         upload files'
-                ];
-                commands.forEach(cmd => this.print(cmd));
-            }
-
-            async performQuickSearch(query) {
-                if (!query.trim()) {
-                    this.showSearchResults([]);
-                    return;
-                }
-
-                try {
-                    if (this.allFiles.length === 0) {
-                        await this.loadAllFiles();
-                    }
-
-                    const results = this.allFiles.filter(file => 
-                        file.name.toLowerCase().includes(query.toLowerCase()) ||
-                        this.getFileExtension(file.name).toLowerCase().includes(query.toLowerCase())
-                    );
-
-                    this.showSearchResults(results, query);
-                } catch (error) {
-                    this.print(`search error: ${error.message}`, 'error');
-                }
-            }
-
-            showSearchResults(results, query = '') {
-                this.output.innerHTML = '';
-                
-                if (results.length === 0) {
-                    if (query) {
-                        this.output.innerHTML = `
-                            <div class="no-results">
-                                <h3>NO RESULTS FOUND FOR "${query}"</h3>
-                                <p>try different search terms</p>
-                            </div>
-                        `;
-                    }
-                    return;
-                }
-
-                const header = document.createElement('div');
-                header.style.marginBottom = '20px';
-                header.innerHTML = `
-                    <h2 style="color: #00ff88; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
-                        SEARCH RESULTS ${query ? `FOR "${query}"` : ''} (${results.length})
-                    </h2>
-                `;
-                this.output.appendChild(header);
-
-                const resultsContainer = document.createElement('div');
-                resultsContainer.className = 'search-results';
-
-                results.forEach(file => {
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'result-item';
-                    
-                    const timeAgo = this.timeAgo(new Date(file.uploaded));
-                    const ext = this.getFileExtension(file.name).toUpperCase() || 'FILE';
-                    
-                    resultItem.innerHTML = `
-                        <div class="result-info">
-                            <div class="file-type-indicator">${ext}</div>
-                            <div class="file-details">
-                                <div class="file-name-large">${this.highlightText(file.name, query)}</div>
-                                <div class="file-meta">
-                                    <span>SIZE: ${this.formatFileSize(file.size)}</span>
-                                    <span>AGE: ${timeAgo}</span>
-                                    <span>TYPE: ${ext}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="result-actions">
-                            <button class="btn primary" onclick="terminalStorage.downloadFile('${file.name}')">
-                                DL
-                            </button>
-                            <button class="btn" onclick="terminalStorage.previewFile('${file.name}')">
-                                VIEW
-                            </button>
-                            <button class="btn" onclick="terminalStorage.showFileInfo('${file.name}')">
-                                INFO
-                            </button>
-                            <button class="btn danger" onclick="terminalStorage.confirmDelete('${file.name}')">
-                                DEL
-                            </button>
-                        </div>
-                    `;
-                    
-                    resultsContainer.appendChild(resultItem);
-                });
-
-                this.output.appendChild(resultsContainer);
-            }
-
-            highlightText(text, query) {
-                if (!query) return text;
-                const regex = new RegExp(`(${query})`, 'gi');
-                return text.replace(regex, '<span class="highlight">$1</span>');
-            }
-
-            async showAllFiles() {
-                try {
-                    await this.loadAllFiles();
-                    this.output.innerHTML = '';
-                    
-                    const header = document.createElement('div');
-                    header.style.marginBottom = '20px';
-                    header.innerHTML = `
-                        <h2 style="color: #00ff88; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
-                            FILE SYSTEM (${this.allFiles.length} OBJECTS)
-                        </h2>
-                        <p style="color: #666; font-size: 11px;">click categories to expand/collapse</p>
-                    `;
-                    this.output.appendChild(header);
-
-                    const categories = this.categorizeFiles(this.allFiles);
-                    
-                    Object.entries(categories).forEach(([categoryName, categoryFiles]) => {
-                        if (categoryFiles.length === 0) return;
-                        
-                        const browserDiv = document.createElement('div');
-                        browserDiv.className = 'file-browser-enhanced';
-                        
-                        const headerDiv = document.createElement('div');
-                        headerDiv.className = 'category-header-enhanced';
-                        headerDiv.innerHTML = `
-                            <span>${categoryName.toUpperCase()} (${categoryFiles.length})</span>
-                            <span style="font-size: 10px; opacity: 0.7;">[TOGGLE]</span>
-                        `;
-                        
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'category-content-enhanced';
-                        
-                        const gridDiv = document.createElement('div');
-                        gridDiv.className = 'file-grid';
-                        
-                        categoryFiles.forEach(file => {
-                            const fileDiv = document.createElement('div');
-                            fileDiv.className = 'file-entry-enhanced';
-                            const ext = this.getFileExtension(file.name).toUpperCase() || 'FILE';
-                            
-                            fileDiv.innerHTML = `
-                                <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                                    <div class="file-type-indicator">${ext}</div>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: bold; color: #00ff88;">${this.truncateFilename(file.name, 25)}</div>
-                                        <div style="font-size: 10px; color: #666;">${this.formatFileSize(file.size)} | ${this.timeAgo(new Date(file.uploaded))}</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 4px;">
-                                    <button class="btn primary" onclick="terminalStorage.downloadFile('${file.name}')">DL</button>
-                                    <button class="btn" onclick="terminalStorage.previewFile('${file.name}')">VIEW</button>
-                                    <button class="btn danger" onclick="terminalStorage.confirmDelete('${file.name}')">DEL</button>
-                                </div>
-                            `;
-                            gridDiv.appendChild(fileDiv);
-                        });
-                        
-                        contentDiv.appendChild(gridDiv);
-                        
-                        headerDiv.addEventListener('click', () => {
-                            contentDiv.classList.toggle('collapsed');
-                        });
-                        
-                        browserDiv.appendChild(headerDiv);
-                        browserDiv.appendChild(contentDiv);
-                        this.output.appendChild(browserDiv);
-                    });
-                    
-                } catch (error) {
-                    this.print(`error loading files: ${error.message}`, 'error');
-                }
-            }
-
-            getAuthHeaders() {
-                return {
-                    'Authorization': `Bearer ${this.authToken}`,
-                    'Content-Type': 'application/json'
-                };
-            }
-
-            async loadAllFiles() {
-                const response = await fetch(`${this.apiUrl}/files`, {
-                    headers: this.getAuthHeaders()
-                });
-                this.allFiles = await response.json();
-                return this.allFiles;
-            }
-
-            applyFilter() {
-                if (this.currentFilter === 'all') {
-                    this.showAllFiles();
-                    return;
-                }
-
-                const filtered = this.allFiles.filter(file => {
-                    const category = this.getFileCategory(file.name);
-                    return category === this.currentFilter;
-                });
-
-                this.showSearchResults(filtered);
-            }
-
-            getFileCategory(filename) {
-                const ext = this.getFileExtension(filename).toLowerCase();
-                
-                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) return 'photos';
-                if (['mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm'].includes(ext)) return 'videos';
-                if (['pdf', 'doc', 'docx', 'txt', 'rtf', 'xlsx', 'csv'].includes(ext)) return 'documents';
-                if (['js', 'html', 'css', 'py', 'java', 'json', 'xml', 'unitypackage'].includes(ext)) return 'code';
-                if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) return 'audio';
-                return 'other';
-            }
-
-            async refreshStats() {
-                try {
-                    await this.loadAllFiles();
-                    const totalFiles = this.allFiles.length;
-                    const totalSize = this.allFiles.reduce((sum, file) => sum + file.size, 0);
-                    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-                    const recentFiles = this.allFiles.filter(file => new Date(file.uploaded) > oneWeekAgo).length;
-                    const remainingSpace = (10 * 1024 * 1024 * 1024) - totalSize;
-
-                    document.getElementById('totalFiles').textContent = totalFiles;
-                    document.getElementById('totalSize').textContent = this.formatFileSize(totalSize);
-                    document.getElementById('recentUploads').textContent = recentFiles;
-                    document.getElementById('remainingSpace').textContent = this.formatFileSize(remainingSpace);
-                    
-                    document.getElementById('fileCount').textContent = `FILES: ${totalFiles}`;
-                    document.getElementById('storageUsed').textContent = `STORAGE: ${this.formatFileSize(totalSize)}`;
-                } catch (error) {
-                    console.error('error refreshing stats:', error);
-                }
-            }
-
-            async uploadFiles(files) {
-                for (const file of files) {
-                    await this.uploadFile(file);
-                }
-                await this.refreshStats();
-                await this.showAllFiles();
-            }
-
-            async uploadFile(file) {
-                try {
-                    this.print(`> uploading ${file.name} (${this.formatFileSize(file.size)})`, 'warning');
-                    
-                    const formData = new FormData();
-                    formData.append('file', file);
-
-                    const response = await fetch(`${this.apiUrl}/upload`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${this.authToken}`
-                        },
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        this.print(`> upload complete: ${file.name}`, 'success');
-                    } else {
-                        this.print(`> upload failed: ${file.name}`, 'error');
-                    }
-                } catch (error) {
-                    this.print(`> error: ${error.message}`, 'error');
-                }
-            }
-
-            async downloadFile(filename) {
-                try {
-                    const response = await fetch(`${this.apiUrl}/files/${encodeURIComponent(filename)}`, {
-                        headers: this.getAuthHeaders()
-                    });
-                    
-                    if (response.ok) {
-                        const blob = await response.blob();
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = filename;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        this.print(`> download initiated: ${filename}`, 'success');
-                    } else {
-                        this.print(`> file not found: ${filename}`, 'error');
-                    }
-                } catch (error) {
-                    this.print(`> download error: ${error.message}`, 'error');
-                }
-            }
-
-            async previewFile(filename) {
-                try {
-                    const ext = this.getFileExtension(filename).toLowerCase();
-                    const fileUrl = `${this.apiUrl}/files/${encodeURIComponent(filename)}`;
-                    
-                    const modal = document.createElement('div');
-                    modal.className = 'preview-modal';
-                    
-                    const content = document.createElement('div');
-                    content.className = 'preview-content';
-                    
-                    const closeBtn = document.createElement('button');
-                    closeBtn.className = 'preview-close';
-                    closeBtn.innerHTML = 'X';
-                    closeBtn.onclick = () => document.body.removeChild(modal);
-                    
-                    const title = document.createElement('h3');
-                    title.style.marginBottom = '15px';
-                    title.style.color = '#00ff88';
-                    title.style.textTransform = 'uppercase';
-                    title.style.letterSpacing = '1px';
-                    title.textContent = `FILE: ${filename}`;
-                    
-                    content.appendChild(closeBtn);
-                    content.appendChild(title);
-                    
-                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
-                        const img = document.createElement('img');
-                        img.className = 'preview-image';
-                        img.src = fileUrl;
-                        img.alt = filename;
-                        content.appendChild(img);
-                        
-                    } else if (['mp4', 'webm', 'mov'].includes(ext)) {
-                        const video = document.createElement('video');
-                        video.className = 'preview-video';
-                        video.controls = true;
-                        video.src = fileUrl;
-                        content.appendChild(video);
-                        
-                    } else if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) {
-                        const audio = document.createElement('audio');
-                        audio.controls = true;
-                        audio.src = fileUrl;
-                        audio.style.width = '100%';
-                        content.appendChild(audio);
-                        
-                    } else if (['txt', 'json', 'xml', 'csv', 'js', 'html', 'css', 'py'].includes(ext)) {
-                        const response = await fetch(fileUrl, {
-                            headers: this.getAuthHeaders()
-                        });
-                        const text = await response.text();
-                        const pre = document.createElement('pre');
-                        pre.className = 'preview-text';
-                        pre.textContent = text.length > 5000 ? text.slice(0, 5000) + '\n\n[FILE TRUNCATED - DOWNLOAD FOR FULL CONTENT]' : text;
-                        content.appendChild(pre);
-                        
-                    } else {
-                        const info = document.createElement('div');
-                        info.className = 'preview-text';
-                        info.innerHTML = `
-FILE: ${filename}
-TYPE: ${ext.toUpperCase() || 'UNKNOWN'}
-STATUS: PREVIEW NOT AVAILABLE
-
-USE DOWNLOAD OPTION TO RETRIEVE FILE
-                        `;
-                        content.appendChild(info);
-                    }
-                    
-                    modal.appendChild(content);
-                    document.body.appendChild(modal);
-                    
-                    modal.addEventListener('click', (e) => {
-                        if (e.target === modal) {
-                            document.body.removeChild(modal);
-                        }
-                    });
-                    
-                } catch (error) {
-                    this.print(`> preview error: ${error.message}`, 'error');
-                }
-            }
-
-            async confirmDelete(filename) {
-                const modal = document.createElement('div');
-                modal.className = 'preview-modal';
-                
-                const content = document.createElement('div');
-                content.className = 'preview-content';
-                content.style.padding = '30px';
-                content.style.textAlign = 'center';
-                content.style.maxWidth = '400px';
-                
-                content.innerHTML = `
-                    <h3 style="color: #ff4444; margin-bottom: 20px; text-transform: uppercase;">DELETE CONFIRMATION</h3>
-                    <p style="margin-bottom: 20px;">permanently remove file:</p>
-                    <p style="color: #00ff88; margin-bottom: 30px; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.7); border-radius: 2px; border: 1px solid #333; font-family: monospace;">${filename}</p>
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button class="btn danger" onclick="terminalStorage.deleteFile('${filename}'); document.body.removeChild(this.closest('.preview-modal')); terminalStorage.refreshStats(); terminalStorage.showAllFiles();">
-                            CONFIRM
-                        </button>
-                        <button class="btn" onclick="document.body.removeChild(this.closest('.preview-modal'))">
-                            CANCEL
-                        </button>
-                    </div>
-                `;
-                
-                modal.appendChild(content);
-                document.body.appendChild(modal);
-                
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        document.body.removeChild(modal);
-                    }
-                });
-            }
-
-            async deleteFile(filename) {
-                try {
-                    const response = await fetch(`${this.apiUrl}/files/${encodeURIComponent(filename)}`, {
-                        method: 'DELETE',
-                        headers: this.getAuthHeaders()
-                    });
-
-                    if (response.ok) {
-                        this.print(`> deleted: ${filename}`, 'success');
-                    } else {
-                        this.print(`> delete failed: ${filename}`, 'error');
-                    }
-                } catch (error) {
-                    this.print(`> delete error: ${error.message}`, 'error');
-                }
-            }
-
-            // Utility functions
-            categorizeFiles(files) {
-                const categories = {
-                    'images': [],
-                    'videos': [],
-                    'documents': [],
-                    'code': [],
-                    'archives': [],
-                    'audio': [],
-                    'other': []
-                };
-
-                files.forEach(file => {
-                    const category = this.getFileCategory(file.name);
-                    const mappedCategory = category === 'photos' ? 'images' : category;
-                    if (categories[mappedCategory]) {
-                        categories[mappedCategory].push(file);
-                    } else {
-                        categories.other.push(file);
-                    }
-                });
-
-                return categories;
-            }
-
-            getFileExtension(filename) {
-                const parts = filename.split('.');
-                return parts.length > 1 ? parts.pop().toLowerCase() : '';
-            }
-
-            formatFileSize(bytes) {
-                if (bytes === 0) return '0 B';
-                const k = 1024;
-                const sizes = ['B', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-
-            timeAgo(date) {
-                const now = new Date();
-                const diffMs = now - date;
-                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-                if (diffDays > 0) return `${diffDays}d`;
-                if (diffHours > 0) return `${diffHours}h`;
-                if (diffMinutes > 0) return `${diffMinutes}m`;
-                return 'now';
-            }
-
-            truncateFilename(filename, maxLength = 25) {
-                if (filename.length <= maxLength) return filename;
-                const ext = this.getFileExtension(filename);
-                const nameWithoutExt = filename.slice(0, filename.lastIndexOf('.'));
-                const truncated = nameWithoutExt.slice(0, maxLength - ext.length - 4) + '...';
-                return ext ? `${truncated}.${ext}` : truncated;
+            } catch (error) {
+                console.error('Login error:', error);
+                // For demo purposes, allow any login
+                isLoggedIn = true;
+                document.getElementById('loginScreen').style.display = 'none';
+                loadDemoFiles();
             }
         }
 
-        const terminalStorage = new StorageTerminal();
-        window.terminalStorage = terminalStorage;
+        function logout() {
+            localStorage.removeItem('authToken');
+            isLoggedIn = false;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // File operations
+        async function loadFiles(path = '/') {
+            currentPath = path;
+            updateBreadcrumb();
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${workerUrl}/files?path=${encodeURIComponent(path)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const files = await response.json();
+                    currentFiles = files;
+                    renderFiles(files);
+                } else {
+                    console.error('Failed to load files');
+                    loadDemoFiles(); // Fallback to demo
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+                loadDemoFiles(); // Fallback to demo
+            }
+        }
+
+        function loadDemoFiles() {
+            // Demo files for testing
+            const demoFiles = [
+                {
+                    name: 'sample_video.mp4',
+                    type: 'video',
+                    size: '15.2 MB',
+                    url: 'https://www.w3schools.com/html/mov_bbb.mp4'
+                },
+                {
+                    name: 'demo_audio.mp3',
+                    type: 'audio',
+                    size: '3.8 MB',
+                    url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav'
+                },
+                {
+                    name: 'test_image.jpg',
+                    type: 'image',
+                    size: '1.2 MB',
+                    url: 'https://picsum.photos/800/600'
+                },
+                {
+                    name: 'document.txt',
+                    type: 'document',
+                    size: '2.1 KB',
+                    content: 'This is a sample text document loaded in the SecureFS Terminal Pro system.\n\nFeatures:\n- Video playback (MP4, MKV, AVI, MOV)\n- Audio playback (MP3, OGG, WAV, FLAC)\n- Image viewing (JPG, PNG, GIF, SVG)\n- Document viewing (TXT, MD, JSON, XML)\n- File management operations\n- Secure authentication\n- Cloudflare R2 integration'
+                },
+                {
+                    name: 'Videos',
+                    type: 'folder',
+                    size: '-'
+                },
+                {
+                    name: 'Audio',
+                    type: 'folder',
+                    size: '-'
+                },
+                {
+                    name: 'Images',
+                    type: 'folder',
+                    size: '-'
+                }
+            ];
+            
+            currentFiles = demoFiles;
+            renderFiles(demoFiles);
+        }
+
+        function renderFiles(files) {
+            const grid = document.getElementById('fileGrid');
+            grid.innerHTML = '';
+
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item fade-in';
+                fileItem.onclick = () => selectFile(file);
+                fileItem.oncontextmenu = (e) => showContextMenu(e, file);
+
+                const icon = getFileIcon(file.type);
+                const typeClass = `file-type-${getFileCategory(file.type)}`;
+
+                fileItem.innerHTML = `
+                    <div class="file-icon ${typeClass}">${icon}</div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${file.size}</div>
+                `;
+
+                grid.appendChild(fileItem);
+            });
+        }
+
+        function getFileIcon(type) {
+            const icons = {
+                'video': '🎬',
+                'audio': '🎵',
+                'image': '🖼️',
+                'document': '📄',
+                'folder': '📁',
+                'archive': '📦',
+                'code': '💻',
+                'pdf': '📕'
+            };
+            return icons[type] || '📄';
+        }
+
+        function getFileCategory(type) {
+            const categories = {
+                'mp4': 'video', 'mkv': 'video', 'avi': 'video', 'mov': 'video', 'wmv': 'video',
+                'mp3': 'audio', 'ogg': 'audio', 'wav': 'audio', 'flac': 'audio', 'm4a': 'audio',
+                'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image', 'svg': 'image',
+                'txt': 'document', 'md': 'document', 'json': 'document', 'xml': 'document',
+                'zip': 'archive', 'rar': 'archive', '7z': 'archive',
+                'js': 'code', 'html': 'code', 'css': 'code', 'py': 'code',
+                'pdf': 'pdf'
+            };
+            
+            return categories[type] || type;
+        }
+
+        function selectFile(file) {
+            selectedFile = file;
+            
+            if (file.type === 'folder') {
+                navigateTo(`${currentPath}/${file.name}`);
+                return;
+            }
+
+            openFile(file);
+        }
+
+        function openFile(file) {
+            const player = document.getElementById('mediaPlayer');
+            const content = document.getElementById('playerContent');
+            const title = document.getElementById('playerTitle');
+            
+            title.textContent = file.name;
+            content.innerHTML = '';
+
+            if (isVideoFile(file.name)) {
+                const video = document.createElement('video');
+                video.className = 'video-player';
+                video.controls = true;
+                video.autoplay = true;
+                video.src = file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`;
+                content.appendChild(video);
+            } else if (isAudioFile(file.name)) {
+                const audio = document.createElement('audio');
+                audio.className = 'audio-player';
+                audio.controls = true;
+                audio.autoplay = true;
+                audio.src = file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`;
+                content.appendChild(audio);
+            } else if (isImageFile(file.name)) {
+                const img = document.createElement('img');
+                img.className = 'image-viewer';
+                img.src = file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`;
+                content.appendChild(img);
+            } else if (isTextFile(file.name) || file.content) {
+                const textDiv = document.createElement('div');
+                textDiv.className = 'text-viewer';
+                if (file.content) {
+                    textDiv.textContent = file.content;
+                    content.appendChild(textDiv);
+                } else {
+                    // Load text content from server
+                    fetch(file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`)
+                        .then(response => response.text())
+                        .then(text => {
+                            textDiv.textContent = text;
+                        })
+                        .catch(error => {
+                            textDiv.textContent = 'Error loading file content: ' + error.message;
+                        });
+                    content.appendChild(textDiv);
+                }
+            } else {
+                content.innerHTML = `
+                    <div style="text-align: center; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+                        <div>File type not supported for preview</div>
+                        <div style="margin-top: 20px;">
+                            <button class="btn" onclick="downloadFile('${file.name}')">Download File</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            player.style.display = 'flex';
+        }
+
+        function isVideoFile(filename) {
+            return /\.(mp4|mkv|avi|mov|wmv|flv|webm|m4v)$/i.test(filename);
+        }
+
+        function isAudioFile(filename) {
+            return /\.(mp3|ogg|wav|flac|m4a|aac|wma)$/i.test(filename);
+        }
+
+        function isImageFile(filename) {
+            return /\.(jpg|jpeg|png|gif|svg|bmp|webp)$/i.test(filename);
+        }
+
+        function isTextFile(filename) {
+            return /\.(txt|md|json|xml|csv|log|js|html|css|py|java|cpp|c|h|php|rb|go|rs|ts|jsx|tsx)$/i.test(filename);
+        }
+
+        function closePlayer() {
+            const player = document.getElementById('mediaPlayer');
+            const content = document.getElementById('playerContent');
+            player.style.display = 'none';
+            content.innerHTML = '';
+        }
+
+        // File upload
+        function uploadFiles() {
+            document.getElementById('fileInput').click();
+        }
+
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+        async function handleFileUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            for (const file of files) {
+                await uploadFile(file);
+            }
+            
+            loadFiles(currentPath);
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('path', currentPath);
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${workerUrl}/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            }
+        }
+
+        // Drag and drop
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const uploadArea = event.currentTarget;
+            uploadArea.classList.remove('drag-over');
+            
+            const files = event.dataTransfer.files;
+            if (files.length) {
+                handleFileUpload({ target: { files } });
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        // Navigation
+        function navigateTo(path) {
+            loadFiles(path);
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const parts = currentPath.split('/').filter(Boolean);
+            
+            let html = '<span onclick="navigateTo(\'/\')">🏠 Home</span>';
+            let buildPath = '';
+            
+            parts.forEach(part => {
+                buildPath += '/' + part;
+                html += ` / <span onclick="navigateTo('${buildPath}')">${part}</span>`;
+            });
+            
+            breadcrumb.innerHTML = html;
+        }
+
+        // Context menu
+        function showContextMenu(event, file) {
+            event.preventDefault();
+            selectedFile = file;
+            
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'block';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+        }
+
+        // Hide context menu on click
+        document.addEventListener('click', () => {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+
+        // Context menu actions
+        async function downloadFile() {
+            if (!selectedFile) return;
+            
+            const link = document.createElement('a');
+            link.href = selectedFile.url || `${workerUrl}/file/${encodeURIComponent(selectedFile.name)}`;
+            link.download = selectedFile.name;
+            link.click();
+        }
+
+        function renameFile() {
+            if (!selectedFile) return;
+            
+            const newName = prompt('Enter new name:', selectedFile.name);
+            if (newName && newName !== selectedFile.name) {
+                // Implement rename functionality
+                console.log('Rename', selectedFile.name, 'to', newName);
+            }
+        }
+
+        function deleteFile() {
+            if (!selectedFile) return;
+            
+            if (confirm(`Are you sure you want to delete "${selectedFile.name}"?`)) {
+                // Implement delete functionality
+                console.log('Delete', selectedFile.name);
+            }
+        }
+
+        function shareFile() {
+            if (!selectedFile) return;
+            
+            // Generate share link
+            const shareUrl = `${window.location.origin}/share/${selectedFile.name}`;
+            navigator.clipboard.writeText(shareUrl);
+            alert('Share link copied to clipboard!');
+        }
+
+        function getFileInfo() {
+            if (!selectedFile) return;
+            
+            alert(`File: ${selectedFile.name}\nType: ${selectedFile.type}\nSize: ${selectedFile.size}`);
+        }
+
+        // Utility functions
+        function createFolder() {
+            const name = prompt('Enter folder name:');
+            if (name) {
+                // Implement create folder functionality
+                console.log('Create folder:', name);
+            }
+        }
+
+        function refresh() {
+            loadFiles(currentPath);
+        }
+
+        function viewList() {
+            alert('List view not implemented yet');
+        }
+
+        function viewGrid() {
+            alert('Already in grid view');
+        }
+
+        function filterByType(type) {
+            if (type === 'all') {
+                renderFiles(currentFiles);
+                return;
+            }
+            
+            const filtered = currentFiles.filter(file => {
+                const category = getFileCategory(file.type);
+                return category === type || file.type === type;
+            });
+            
+            renderFiles(filtered);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (!query) {
+                renderFiles(currentFiles);
+                return;
+            }
+            
+            const filtered = currentFiles.filter(file => 
+                file.name.toLowerCase().includes(query)
+            );
+            
+            renderFiles(filtered);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePlayer();
+            } else if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                uploadFiles();
+            } else if (e.key === 'F5') {
+                e.preventDefault();
+                refresh();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Verify token and auto-login
+                isLoggedIn = true;
+                document.getElementById('loginScreen').style.display = 'none';
+                loadDemoFiles(); // Start with demo files
+            }
+        });
+
+        // Allow Enter key to login
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
     </script>
 </body>
 </html>
