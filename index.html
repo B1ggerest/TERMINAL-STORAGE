@@ -11,12 +11,125 @@
             box-sizing: border-box;
         }
 
+        /* Base theme variables */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111;
+            --bg-tertiary: #1a1a1a;
+            --color-primary: #00ff00;
+            --color-secondary: #888;
+            --color-tertiary: #666;
+            --color-text: #00ff00;
+            --border-color: #333;
+            --accent-color: #ffaa00;
+            --danger-color: #ff0040;
+            --success-color: #00ff00;
+            --info-color: #00ffff;
+        }
+
+        /* Theme: Matrix (default) */
+        [data-theme="matrix"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111;
+            --bg-tertiary: #1a1a1a;
+            --color-primary: #00ff00;
+            --color-secondary: #888;
+            --color-tertiary: #666;
+            --color-text: #00ff00;
+            --border-color: #333;
+            --accent-color: #ffaa00;
+            --danger-color: #ff0040;
+            --success-color: #00ff00;
+            --info-color: #00ffff;
+        }
+
+        /* Theme: Cyberpunk */
+        [data-theme="cyberpunk"] {
+            --bg-primary: #0d0d23;
+            --bg-secondary: #1a1a3a;
+            --bg-tertiary: #2d2d4a;
+            --color-primary: #ff0080;
+            --color-secondary: #aa88ff;
+            --color-tertiary: #6666aa;
+            --color-text: #ff0080;
+            --border-color: #444466;
+            --accent-color: #00ffff;
+            --danger-color: #ff4040;
+            --success-color: #ff0080;
+            --info-color: #aa88ff;
+        }
+
+        /* Theme: Terminal */
+        [data-theme="terminal"] {
+            --bg-primary: #000000;
+            --bg-secondary: #0d1117;
+            --bg-tertiary: #161b22;
+            --color-primary: #0099ff;
+            --color-secondary: #7d8590;
+            --color-tertiary: #484f58;
+            --color-text: #0099ff;
+            --border-color: #30363d;
+            --accent-color: #ffa500;
+            --danger-color: #f85149;
+            --success-color: #0099ff;
+            --info-color: #58a6ff;
+        }
+
+        /* Theme: Amber */
+        [data-theme="amber"] {
+            --bg-primary: #1a1000;
+            --bg-secondary: #2a1f00;
+            --bg-tertiary: #3a2f10;
+            --color-primary: #ffaa00;
+            --color-secondary: #cc8800;
+            --color-tertiary: #996600;
+            --color-text: #ffaa00;
+            --border-color: #553300;
+            --accent-color: #ff6600;
+            --danger-color: #ff3300;
+            --success-color: #ffaa00;
+            --info-color: #ffcc00;
+        }
+
+        /* Theme: Neon */
+        [data-theme="neon"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a0a1a;
+            --bg-tertiary: #2a1a2a;
+            --color-primary: #ff00ff;
+            --color-secondary: #aa55aa;
+            --color-tertiary: #775577;
+            --color-text: #ff00ff;
+            --border-color: #443344;
+            --accent-color: #00ffaa;
+            --danger-color: #ff0055;
+            --success-color: #ff00ff;
+            --info-color: #55aaff;
+        }
+
+        /* Theme: Hacker */
+        [data-theme="hacker"] {
+            --bg-primary: #000000;
+            --bg-secondary: #0f0f0f;
+            --bg-tertiary: #1f1f1f;
+            --color-primary: #00ff41;
+            --color-secondary: #00cc33;
+            --color-tertiary: #009922;
+            --color-text: #00ff41;
+            --border-color: #002200;
+            --accent-color: #ffff00;
+            --danger-color: #ff2200;
+            --success-color: #00ff41;
+            --info-color: #00ffcc;
+        }
+
         body {
             font-family: 'Courier New', monospace;
-            background: #0a0a0a;
-            color: #00ff00;
+            background: var(--bg-primary);
+            color: var(--color-text);
             min-height: 100vh;
             line-height: 1.4;
+            transition: all 0.3s ease;
         }
 
         .container {
@@ -28,25 +141,25 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 20px;
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 5px;
-            color: #00ff00;
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            color: var(--color-primary);
+            text-shadow: 0 0 10px rgba(var(--color-primary), 0.3);
         }
 
         .header p {
-            color: #888;
+            color: var(--color-secondary);
             font-size: 1em;
         }
 
         .auth-section {
-            background: #111;
-            border: 1px solid #333;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             padding: 40px;
             text-align: center;
             margin-bottom: 30px;
@@ -60,7 +173,7 @@
 
         .auth-section h2 {
             margin-bottom: 20px;
-            color: #00ff00;
+            color: var(--color-primary);
         }
 
         .form-group {
@@ -71,29 +184,29 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            color: #888;
+            color: var(--color-secondary);
         }
 
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            color: #00ff00;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--color-primary);
             font-family: inherit;
             font-size: 16px;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #00ff00;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(var(--color-primary), 0.3);
         }
 
         .btn {
-            background: #1a1a1a;
-            color: #00ff00;
-            border: 1px solid #00ff00;
+            background: var(--bg-tertiary);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
             padding: 12px 24px;
             font-family: inherit;
             font-size: 14px;
@@ -107,40 +220,40 @@
         }
 
         .btn:hover {
-            background: #00ff00;
-            color: #000;
+            background: var(--color-primary);
+            color: var(--bg-primary);
         }
 
         .btn:disabled {
-            background: #333;
-            color: #666;
-            border-color: #333;
+            background: var(--border-color);
+            color: var(--color-tertiary);
+            border-color: var(--border-color);
             cursor: not-allowed;
         }
 
         .btn-favorite {
-            border-color: #ffaa00;
-            color: #ffaa00;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
 
         .btn-favorite:hover {
-            background: #ffaa00;
-            color: #000;
+            background: var(--accent-color);
+            color: var(--bg-primary);
         }
 
         .btn-favorite.active {
-            background: #ffaa00;
-            color: #000;
+            background: var(--accent-color);
+            color: var(--bg-primary);
         }
 
         .btn-danger {
-            border-color: #ff0040;
-            color: #ff0040;
+            border-color: var(--danger-color);
+            color: var(--danger-color);
         }
 
         .btn-danger:hover {
-            background: #ff0040;
-            color: #000;
+            background: var(--danger-color);
+            color: var(--bg-primary);
         }
 
         .favorites-section {
@@ -153,11 +266,11 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .favorites-header h3 {
-            color: #ffaa00;
+            color: var(--accent-color);
             margin: 0;
         }
 
@@ -169,8 +282,8 @@
         }
 
         .favorite-item {
-            background: #1a1a1a;
-            border: 1px solid #ffaa00;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent-color);
             padding: 10px;
             cursor: pointer;
             transition: all 0.3s;
@@ -180,17 +293,17 @@
         }
 
         .favorite-item:hover {
-            background: rgba(255, 170, 0, 0.1);
+            background: rgba(var(--accent-color), 0.1);
         }
 
         .favorite-icon {
-            color: #ffaa00;
+            color: var(--accent-color);
             font-size: 1.2em;
         }
 
         .favorite-name {
             flex: 1;
-            color: #ffaa00;
+            color: var(--accent-color);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -200,19 +313,19 @@
         .favorite-remove {
             background: none;
             border: none;
-            color: #666;
+            color: var(--color-tertiary);
             cursor: pointer;
             padding: 2px;
             font-family: inherit;
         }
 
         .favorite-remove:hover {
-            color: #ff0040;
+            color: var(--danger-color);
         }
 
         .main-content {
-            background: #111;
-            border: 1px solid #333;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             padding: 30px;
         }
 
@@ -226,7 +339,7 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -239,25 +352,25 @@
         .search-box input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            color: #00ff00;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--color-primary);
             font-family: inherit;
             font-size: 14px;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: #00ff00;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(var(--color-primary), 0.3);
         }
 
         .search-box input::placeholder {
-            color: #666;
+            color: var(--color-tertiary);
         }
 
         .upload-area {
-            border: 2px dashed #333;
+            border: 2px dashed var(--border-color);
             padding: 40px;
             text-align: center;
             margin-bottom: 30px;
@@ -267,17 +380,17 @@
 
         .upload-area:hover,
         .upload-area.dragover {
-            border-color: #00ff00;
-            background: rgba(0, 255, 0, 0.05);
+            border-color: var(--color-primary);
+            background: rgba(var(--color-primary), 0.05);
         }
 
         .upload-area h3 {
             margin-bottom: 10px;
-            color: #00ff00;
+            color: var(--color-primary);
         }
 
         .upload-area p {
-            color: #888;
+            color: var(--color-secondary);
             margin-bottom: 20px;
         }
 
@@ -288,26 +401,26 @@
         }
 
         .file-card {
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             transition: all 0.3s;
             overflow: hidden;
             cursor: pointer;
         }
 
         .file-card:hover {
-            border-color: #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(var(--color-primary), 0.2);
         }
 
         .file-preview {
             width: 100%;
             height: 180px;
-            background: #0a0a0a;
+            background: var(--bg-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
             overflow: hidden;
             position: relative;
         }
@@ -326,7 +439,7 @@
 
         .file-preview .file-icon {
             font-size: 4em;
-            color: #333;
+            color: var(--border-color);
         }
 
         .file-preview .file-type-label {
@@ -334,7 +447,7 @@
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            color: #666;
+            color: var(--color-tertiary);
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -345,7 +458,7 @@
         }
 
         .file-name {
-            color: #00ff00;
+            color: var(--color-primary);
             font-weight: bold;
             margin-bottom: 8px;
             overflow: hidden;
@@ -354,7 +467,7 @@
         }
 
         .file-meta {
-            color: #888;
+            color: var(--color-secondary);
             font-size: 0.85em;
             margin-bottom: 15px;
         }
@@ -374,21 +487,21 @@
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #666;
-            border: 1px solid #333;
+            color: var(--color-tertiary);
+            border: 1px solid var(--border-color);
         }
 
         .empty-state h3 {
             margin-bottom: 10px;
-            color: #888;
+            color: var(--color-secondary);
         }
 
         .loading {
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid #333;
-            border-top: 2px solid #00ff00;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--color-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -406,24 +519,24 @@
         }
 
         .alert-success {
-            background: rgba(0, 255, 0, 0.1);
-            color: #00ff00;
-            border-color: #00ff00;
+            background: rgba(var(--success-color), 0.1);
+            color: var(--success-color);
+            border-color: var(--success-color);
         }
 
         .alert-error {
-            background: rgba(255, 0, 64, 0.1);
-            color: #ff0040;
-            border-color: #ff0040;
+            background: rgba(var(--danger-color), 0.1);
+            color: var(--danger-color);
+            border-color: var(--danger-color);
         }
 
         .alert-info {
-            background: rgba(0, 255, 255, 0.1);
-            color: #00ffff;
-            border-color: #00ffff;
+            background: rgba(var(--info-color), 0.1);
+            color: var(--info-color);
+            border-color: var(--info-color);
         }
 
-        /* Media Player Modal */
+        /* Modal Styles */
         .modal {
             position: fixed;
             top: 0;
@@ -438,8 +551,8 @@
         }
 
         .modal-content {
-            background: #111;
-            border: 1px solid #333;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             padding: 20px;
             max-width: 90vw;
             max-height: 90vh;
@@ -454,12 +567,12 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .modal-header h3 {
             margin: 0;
-            color: #00ff00;
+            color: var(--color-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -471,13 +584,13 @@
             border: none;
             font-size: 20px;
             cursor: pointer;
-            color: #888;
+            color: var(--color-secondary);
             padding: 5px;
             font-family: inherit;
         }
 
         .close-btn:hover {
-            color: #00ff00;
+            color: var(--color-primary);
         }
 
         .media-content {
@@ -488,7 +601,7 @@
         .media-content audio {
             max-width: 100%;
             max-height: 70vh;
-            background: #000;
+            background: var(--bg-primary);
         }
 
         .media-content img {
@@ -497,8 +610,8 @@
         }
 
         .text-content {
-            background: #0a0a0a;
-            border: 1px solid #333;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
             padding: 20px;
             max-height: 60vh;
             overflow-y: auto;
@@ -506,7 +619,7 @@
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
             font-size: 12px;
-            color: #888;
+            color: var(--color-secondary);
             max-width: 80vw;
         }
 
@@ -514,11 +627,93 @@
             position: absolute;
             top: 5px;
             right: 5px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #00ff00;
+            background: rgba(var(--bg-primary), 0.8);
+            color: var(--color-primary);
             padding: 2px 6px;
             font-size: 10px;
             text-transform: uppercase;
+        }
+
+        /* Settings Modal Styles */
+        .settings-content {
+            min-width: 500px;
+            max-width: 600px;
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .settings-section h4 {
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .theme-option {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+        }
+
+        .theme-option:hover {
+            border-color: var(--color-primary);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent-color);
+            background: rgba(var(--accent-color), 0.1);
+        }
+
+        .theme-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--color-primary);
+        }
+
+        .theme-preview {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .theme-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-description {
+            font-size: 0.8em;
+            color: var(--color-secondary);
+        }
+
+        .settings-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
         }
 
         @media (max-width: 768px) {
@@ -547,10 +742,19 @@
             .modal-header h3 {
                 max-width: 200px;
             }
+
+            .settings-content {
+                min-width: 300px;
+                max-width: 95vw;
+            }
+
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body>
+<body data-theme="matrix">
     <div class="container">
         <div class="header">
             <h1>FAGINATOR</h1>
@@ -578,6 +782,7 @@
                 </div>
                 <button class="btn" onclick="fileStorage.toggleFavorites()">★ FAVORITES</button>
                 <button class="btn" onclick="uploadFiles()">UPLOAD</button>
+                <button class="btn" onclick="showSettings()">⚙ SETTINGS</button>
                 <button class="btn" onclick="logout()">LOGOUT</button>
             </div>
 
@@ -618,17 +823,98 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content settings-content">
+            <div class="modal-header">
+                <h3>SYSTEM SETTINGS</h3>
+                <button class="close-btn" onclick="closeSettings()">✕</button>
+            </div>
+            
+            <div class="settings-section">
+                <h4>VISUAL THEME</h4>
+                <div class="theme-grid" id="themeGrid">
+                    <div class="theme-option" data-theme="matrix" onclick="selectTheme('matrix')">
+                        <div class="theme-preview">
+                            <div class="theme-color" style="background: #00ff00;"></div>
+                            <div class="theme-color" style="background: #111;"></div>
+                            <div class="theme-color" style="background: #ffaa00;"></div>
+                        </div>
+                        <div class="theme-name">MATRIX</div>
+                        <div class="theme-description">Classic green terminal</div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="cyberpunk" onclick="selectTheme('cyberpunk')">
+                        <div class="theme-preview">
+                            <div class="theme-color" style="background: #ff0080;"></div>
+                            <div class="theme-color" style="background: #1a1a3a;"></div>
+                            <div class="theme-color" style="background: #00ffff;"></div>
+                        </div>
+                        <div class="theme-name">CYBERPUNK</div>
+                        <div class="theme-description">Neon pink & blue</div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="terminal" onclick="selectTheme('terminal')">
+                        <div class="theme-preview">
+                            <div class="theme-color" style="background: #0099ff;"></div>
+                            <div class="theme-color" style="background: #0d1117;"></div>
+                            <div class="theme-color" style="background: #ffa500;"></div>
+                        </div>
+                        <div class="theme-name">TERMINAL</div>
+                        <div class="theme-description">Blue command line</div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="amber" onclick="selectTheme('amber')">
+                        <div class="theme-preview">
+                            <div class="theme-color" style="background: #ffaa00;"></div>
+                            <div class="theme-color" style="background: #2a1f00;"></div>
+                            <div class="theme-color" style="background: #ff6600;"></div>
+                        </div>
+                        <div class="theme-name">AMBER</div>
+                        <div class="theme-description">Retro amber monitor</div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="neon" onclick="selectTheme('neon')">
+                        <div class="theme-preview">
+                            <div class="theme-color" style="background: #ff00ff;"></div>
+                            <div class="theme-color" style="background: #1a0a1a;"></div>
+                            <div class="theme-color" style="background: #00ffaa;"></div>
+                        </div>
+                        <div class="theme-name">NEON</div>
+                        <div class="theme-description">Bright magenta glow</div>
+                    </div>
+                    
+                    <div class="theme-option" data-theme="hacker" onclick="selectTheme('hacker')">
+                        <div class="theme-preview">
+                            <div class="theme-color" style="background: #00ff41;"></div>
+                            <div class="theme-color" style="background: #000000;"></div>
+                            <div class="theme-color" style="background: #ffff00;"></div>
+                        </div>
+                        <div class="theme-name">HACKER</div>
+                        <div class="theme-description">Bright green matrix</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-footer">
+                <button class="btn" onclick="resetSettings()">RESET</button>
+                <button class="btn" onclick="closeSettings()">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelect(event)">
 
     <script>
         class FileStorage {
             constructor() {
-                this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
+                this.apiUrl = 'https://terminal-storage.lolbiggesstlol.workers.dev';
                 this.token = null;
                 this.files = [];
                 this.filteredFiles = [];
                 this.favorites = [];
                 this.showingFavorites = false;
+                this.currentTheme = 'matrix';
                 
                 this.init();
             }
@@ -636,6 +922,7 @@
             init() {
                 this.setupEventListeners();
                 this.setupDragDrop();
+                this.loadSettings();
                 
                 // Check if already authenticated
                 const savedToken = localStorage.getItem('auth_token');
@@ -649,6 +936,32 @@
                 this.loadFavorites();
             }
 
+            loadSettings() {
+                // Load theme
+                const savedTheme = localStorage.getItem('app_theme') || 'matrix';
+                this.setTheme(savedTheme);
+            }
+
+            saveSettings() {
+                localStorage.setItem('app_theme', this.currentTheme);
+            }
+
+            setTheme(themeName) {
+                this.currentTheme = themeName;
+                document.body.setAttribute('data-theme', themeName);
+                this.saveSettings();
+                
+                // Update active theme in settings
+                const themeOptions = document.querySelectorAll('.theme-option');
+                themeOptions.forEach(option => {
+                    if (option.dataset.theme === themeName) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+
             setupEventListeners() {
                 // Enter key on password field
                 document.getElementById('password').addEventListener('keypress', (e) => {
@@ -657,10 +970,24 @@
                     }
                 });
 
-                // Close modal on click outside
+                // Close modals on click outside
                 document.getElementById('mediaModal').addEventListener('click', (e) => {
                     if (e.target.id === 'mediaModal') {
                         this.closeModal();
+                    }
+                });
+
+                document.getElementById('settingsModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'settingsModal') {
+                        this.closeSettings();
+                    }
+                });
+
+                // Escape key to close modals
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeModal();
+                        this.closeSettings();
                     }
                 });
             }
@@ -754,6 +1081,28 @@
             showMainContent() {
                 document.getElementById('authSection').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
+            }
+
+            showSettings() {
+                const modal = document.getElementById('settingsModal');
+                modal.style.display = 'flex';
+                this.setTheme(this.currentTheme); // Update active theme display
+            }
+
+            closeSettings() {
+                const modal = document.getElementById('settingsModal');
+                modal.style.display = 'none';
+            }
+
+            resetSettings() {
+                if (confirm('RESET ALL SETTINGS TO DEFAULT?')) {
+                    localStorage.removeItem('app_theme');
+                    localStorage.removeItem('file_favorites');
+                    this.setTheme('matrix');
+                    this.favorites = [];
+                    this.renderFiles();
+                    this.showAlert('SETTINGS RESET', 'info');
+                }
             }
 
             async loadFiles() {
@@ -900,7 +1249,7 @@
                 const grid = document.getElementById('favoritesGrid');
                 
                 if (this.favorites.length === 0) {
-                    grid.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">NO FAVORITES YET</div>';
+                    grid.innerHTML = '<div style="color: var(--color-tertiary); text-align: center; padding: 20px;">NO FAVORITES YET</div>';
                     return;
                 }
                 
@@ -1078,7 +1427,7 @@
                     content.innerHTML = `<div class="text-content">${text}</div>`;
                 } else {
                     content.innerHTML = `
-                        <div style="padding: 40px; text-align: center; color: #888;">
+                        <div style="padding: 40px; text-align: center; color: var(--color-secondary);">
                             <h4>CANNOT PREVIEW FILE</h4>
                             <p style="margin: 20px 0;">TYPE: ${contentType || 'UNKNOWN'}</p>
                             <button class="btn" onclick="fileStorage.downloadFile('${filename.replace(/'/g, "\\'")}')">
@@ -1191,6 +1540,23 @@
 
         function closeModal() {
             fileStorage.closeModal();
+        }
+
+        function showSettings() {
+            fileStorage.showSettings();
+        }
+
+        function closeSettings() {
+            fileStorage.closeSettings();
+        }
+
+        function selectTheme(themeName) {
+            fileStorage.setTheme(themeName);
+            fileStorage.showAlert(`THEME CHANGED: ${themeName.toUpperCase()}`, 'success');
+        }
+
+        function resetSettings() {
+            fileStorage.resetSettings();
         }
 
         function toggleFavorites() {
