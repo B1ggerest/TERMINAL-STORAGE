@@ -12,14 +12,15 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
             min-height: 100vh;
-            color: #333;
+            line-height: 1.4;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -27,41 +28,39 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
-            color: white;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
         }
 
         .header h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 300;
+            margin-bottom: 5px;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
 
         .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
+            color: #888;
+            font-size: 1em;
         }
 
         .auth-section {
-            background: white;
-            border-radius: 15px;
+            background: #111;
+            border: 1px solid #333;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
             margin-bottom: 30px;
+            max-width: 400px;
+            margin: 0 auto;
         }
 
         .auth-section.hidden {
             display: none;
         }
 
-        .auth-form {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .auth-form h2 {
+        .auth-section h2 {
             margin-bottom: 20px;
-            color: #333;
+            color: #00ff00;
         }
 
         .form-group {
@@ -72,67 +71,67 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: 500;
+            color: #888;
         }
 
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: inherit;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #2a5298;
+            border-color: #00ff00;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
         }
 
         .btn {
-            background: #2a5298;
-            color: white;
-            border: none;
+            background: #1a1a1a;
+            color: #00ff00;
+            border: 1px solid #00ff00;
             padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
+            font-family: inherit;
+            font-size: 14px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
-            background: #1e3c72;
+            background: #00ff00;
+            color: #000;
         }
 
         .btn:disabled {
-            background: #ccc;
+            background: #333;
+            color: #666;
+            border-color: #333;
             cursor: not-allowed;
         }
 
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-
         .btn-danger {
-            background: #dc3545;
+            border-color: #ff0040;
+            color: #ff0040;
         }
 
         .btn-danger:hover {
-            background: #c82333;
+            background: #ff0040;
+            color: #000;
         }
 
         .main-content {
-            background: white;
-            border-radius: 15px;
+            background: #111;
+            border: 1px solid #333;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .main-content.hidden {
@@ -145,7 +144,7 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #e1e5e9;
+            border-bottom: 1px solid #333;
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -157,20 +156,26 @@
 
         .search-box input {
             width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 12px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 14px;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: #2a5298;
+            border-color: #00ff00;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+        }
+
+        .search-box input::placeholder {
+            color: #666;
         }
 
         .upload-area {
-            border: 2px dashed #e1e5e9;
-            border-radius: 12px;
+            border: 2px dashed #333;
             padding: 40px;
             text-align: center;
             margin-bottom: 30px;
@@ -180,71 +185,95 @@
 
         .upload-area:hover,
         .upload-area.dragover {
-            border-color: #2a5298;
-            background: rgba(42, 82, 152, 0.05);
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.05);
         }
 
         .upload-area h3 {
             margin-bottom: 10px;
-            color: #666;
+            color: #00ff00;
         }
 
         .upload-area p {
-            color: #999;
+            color: #888;
             margin-bottom: 20px;
         }
 
         .file-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
         }
 
         .file-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
             transition: all 0.3s;
-            border: 1px solid #e1e5e9;
+            overflow: hidden;
         }
 
         .file-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
         }
 
-        .file-header {
+        .file-preview {
+            width: 100%;
+            height: 180px;
+            background: #0a0a0a;
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            justify-content: center;
+            border-bottom: 1px solid #333;
+            overflow: hidden;
+            position: relative;
         }
 
-        .file-icon {
-            font-size: 2em;
-            margin-right: 15px;
+        .file-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .file-info h4 {
-            margin-bottom: 5px;
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-preview .file-icon {
+            font-size: 3em;
             color: #333;
-            word-break: break-word;
+        }
+
+        .file-info {
+            padding: 15px;
+        }
+
+        .file-name {
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .file-meta {
-            color: #666;
-            font-size: 0.9em;
+            color: #888;
+            font-size: 0.85em;
+            margin-bottom: 15px;
         }
 
         .file-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
         }
 
         .file-actions .btn {
             flex: 1;
             justify-content: center;
-            font-size: 14px;
+            font-size: 11px;
             padding: 8px 12px;
         }
 
@@ -252,18 +281,20 @@
             text-align: center;
             padding: 60px 20px;
             color: #666;
+            border: 1px solid #333;
         }
 
         .empty-state h3 {
             margin-bottom: 10px;
+            color: #888;
         }
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #2a5298;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #333;
+            border-top: 2px solid #00ff00;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -274,27 +305,28 @@
         }
 
         .alert {
-            padding: 15px;
-            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid;
             margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-color: #00ff00;
         }
 
         .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: rgba(255, 0, 64, 0.1);
+            color: #ff0040;
+            border-color: #ff0040;
         }
 
         .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+            background: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            border-color: #00ffff;
         }
 
         /* Media Player Modal */
@@ -304,7 +336,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             justify-content: center;
             align-items: center;
@@ -312,12 +344,14 @@
         }
 
         .modal-content {
-            background: white;
-            border-radius: 12px;
+            background: #111;
+            border: 1px solid #333;
             padding: 20px;
             max-width: 90vw;
             max-height: 90vh;
             overflow: auto;
+            width: auto;
+            min-width: 400px;
         }
 
         .modal-header {
@@ -326,25 +360,30 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #e1e5e9;
+            border-bottom: 1px solid #333;
         }
 
         .modal-header h3 {
             margin: 0;
-            word-break: break-word;
+            color: #00ff00;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 400px;
         }
 
         .close-btn {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
-            color: #666;
+            color: #888;
             padding: 5px;
+            font-family: inherit;
         }
 
         .close-btn:hover {
-            color: #000;
+            color: #00ff00;
         }
 
         .media-content {
@@ -355,25 +394,37 @@
         .media-content audio {
             max-width: 100%;
             max-height: 70vh;
+            background: #000;
         }
 
         .media-content img {
             max-width: 100%;
             max-height: 70vh;
-            border-radius: 8px;
         }
 
         .text-content {
-            background: #f8f9fa;
-            border: 1px solid #e1e5e9;
-            border-radius: 8px;
+            background: #0a0a0a;
+            border: 1px solid #333;
             padding: 20px;
             max-height: 60vh;
             overflow-y: auto;
             text-align: left;
             white-space: pre-wrap;
             font-family: 'Courier New', monospace;
-            font-size: 14px;
+            font-size: 12px;
+            color: #888;
+            max-width: 80vw;
+        }
+
+        .preview-overlay {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 2px 6px;
+            font-size: 10px;
+            text-transform: uppercase;
         }
 
         @media (max-width: 768px) {
@@ -393,57 +444,60 @@
             .file-grid {
                 grid-template-columns: 1fr;
             }
+
+            .modal-content {
+                min-width: 300px;
+                max-width: 95vw;
+            }
+
+            .modal-header h3 {
+                max-width: 200px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Faginator File Storage</h1>
-            <p>Simple and secure file management</p>
+            <h1>FAGINATOR</h1>
+            <p>FILE STORAGE SYSTEM</p>
         </div>
 
         <!-- Authentication Section -->
         <div class="auth-section" id="authSection">
-            <div class="auth-form">
-                <h2>🔐 Login Required</h2>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password">
-                </div>
-                <button class="btn" onclick="authenticate()">
-                    <span id="authText">Login</span>
-                    <span id="authLoading" class="loading" style="display: none;"></span>
-                </button>
+            <h2>ACCESS REQUIRED</h2>
+            <div class="form-group">
+                <label for="password">PASSWORD</label>
+                <input type="password" id="password" placeholder="Enter access code">
             </div>
+            <button class="btn" onclick="authenticate()">
+                <span id="authText">LOGIN</span>
+                <span id="authLoading" class="loading" style="display: none;"></span>
+            </button>
         </div>
 
         <!-- Main Content -->
         <div class="main-content hidden" id="mainContent">
             <div class="toolbar">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="🔍 Search files..." oninput="searchFiles()">
+                    <input type="text" id="searchInput" placeholder="SEARCH FILES..." oninput="searchFiles()">
                 </div>
-                <button class="btn" onclick="uploadFiles()">
-                    📤 Upload Files
-                </button>
-                <button class="btn btn-secondary" onclick="logout()">
-                    🚪 Logout
-                </button>
+                <button class="btn" onclick="uploadFiles()">UPLOAD</button>
+                <button class="btn" onclick="logout()">LOGOUT</button>
             </div>
 
             <div class="upload-area" id="uploadArea" onclick="uploadFiles()">
-                <h3>📁 Drop files here or click to upload</h3>
-                <p>Supports multiple files of any type</p>
-                <button class="btn">Choose Files</button>
+                <h3>DROP FILES HERE</h3>
+                <p>OR CLICK TO SELECT</p>
+                <button class="btn">CHOOSE FILES</button>
             </div>
 
             <div id="alertContainer"></div>
 
             <div id="fileContainer">
                 <div class="empty-state">
-                    <h3>No files yet</h3>
-                    <p>Upload some files to get started</p>
+                    <h3>NO FILES FOUND</h3>
+                    <p>Upload files to begin</p>
                 </div>
             </div>
         </div>
@@ -453,8 +507,8 @@
     <div class="modal" id="mediaModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="mediaTitle">Media Player</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <h3 id="mediaTitle">MEDIA VIEWER</h3>
+                <button class="close-btn" onclick="closeModal()">✕</button>
             </div>
             <div class="media-content" id="mediaContent"></div>
         </div>
@@ -541,7 +595,7 @@
                 
                 setTimeout(() => {
                     alert.remove();
-                }, 5000);
+                }, 3000);
             }
 
             async authenticate() {
@@ -568,12 +622,12 @@
                         
                         this.showMainContent();
                         this.loadFiles();
-                        this.showAlert('Login successful!', 'success');
+                        this.showAlert('ACCESS GRANTED', 'success');
                     } else {
-                        this.showAlert('Invalid password', 'error');
+                        this.showAlert('ACCESS DENIED', 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`Authentication error: ${error.message}`, 'error');
+                    this.showAlert(`CONNECTION ERROR: ${error.message}`, 'error');
                 } finally {
                     authText.style.display = 'inline';
                     authLoading.style.display = 'none';
@@ -604,57 +658,100 @@
                         this.filteredFiles = [...this.files];
                         this.renderFiles();
                     } else {
-                        this.showAlert('Failed to load files', 'error');
+                        this.showAlert('FAILED TO LOAD FILES', 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`Error loading files: ${error.message}`, 'error');
+                    this.showAlert(`ERROR: ${error.message}`, 'error');
                 }
             }
 
-            renderFiles() {
+            async renderFiles() {
                 const container = document.getElementById('fileContainer');
                 
                 if (this.filteredFiles.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            <h3>No files found</h3>
-                            <p>Upload some files to get started</p>
+                            <h3>NO FILES FOUND</h3>
+                            <p>Upload files to begin</p>
                         </div>
                     `;
                     return;
                 }
 
-                const filesHTML = this.filteredFiles.map(file => {
+                const filesHTML = await Promise.all(this.filteredFiles.map(async (file) => {
                     const icon = this.getFileIcon(file.name);
                     const size = this.formatSize(file.size);
                     const type = this.getFileType(file.name);
                     const date = new Date(file.lastModified).toLocaleDateString();
                     
+                    let previewHTML = `<div class="file-icon">${icon}</div>`;
+                    
+                    // Generate preview for media files
+                    if (this.isVideoFile(file.name)) {
+                        try {
+                            const videoUrl = await this.getFileUrl(file.name);
+                            previewHTML = `
+                                <video muted>
+                                    <source src="${videoUrl}" type="video/mp4">
+                                </video>
+                                <div class="preview-overlay">VIDEO</div>
+                            `;
+                        } catch (e) {
+                            previewHTML = `<div class="file-icon">${icon}</div>`;
+                        }
+                    } else if (this.isImageFile(file.name)) {
+                        try {
+                            const imageUrl = await this.getFileUrl(file.name);
+                            previewHTML = `
+                                <img src="${imageUrl}" alt="${file.name}">
+                                <div class="preview-overlay">IMAGE</div>
+                            `;
+                        } catch (e) {
+                            previewHTML = `<div class="file-icon">${icon}</div>`;
+                        }
+                    }
+                    
                     return `
                         <div class="file-card">
-                            <div class="file-header">
-                                <div class="file-icon">${icon}</div>
-                                <div class="file-info">
-                                    <h4 title="${file.name}">${file.name}</h4>
-                                    <div class="file-meta">${type} • ${size} • ${date}</div>
-                                </div>
+                            <div class="file-preview">
+                                ${previewHTML}
                             </div>
-                            <div class="file-actions">
-                                <button class="btn" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">
-                                    👁️ View
-                                </button>
-                                <button class="btn btn-secondary" onclick="fileStorage.downloadFile('${file.name.replace(/'/g, "\\'")}')">
-                                    💾 Download
-                                </button>
-                                <button class="btn btn-danger" onclick="fileStorage.deleteFile('${file.name.replace(/'/g, "\\'")}')">
-                                    🗑️ Delete
-                                </button>
+                            <div class="file-info">
+                                <div class="file-name" title="${file.name}">${file.name}</div>
+                                <div class="file-meta">${type} • ${size} • ${date}</div>
+                                <div class="file-actions">
+                                    <button class="btn" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">VIEW</button>
+                                    <button class="btn" onclick="fileStorage.downloadFile('${file.name.replace(/'/g, "\\'")}')">DOWNLOAD</button>
+                                    <button class="btn btn-danger" onclick="fileStorage.deleteFile('${file.name.replace(/'/g, "\\'")}')">DELETE</button>
+                                </div>
                             </div>
                         </div>
                     `;
-                }).join('');
+                }));
 
-                container.innerHTML = `<div class="file-grid">${filesHTML}</div>`;
+                container.innerHTML = `<div class="file-grid">${filesHTML.join('')}</div>`;
+            }
+
+            async getFileUrl(filename) {
+                const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
+                    headers: { 'Authorization': this.token }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    return URL.createObjectURL(blob);
+                }
+                throw new Error('Failed to load file');
+            }
+
+            isVideoFile(filename) {
+                const ext = filename.split('.').pop()?.toLowerCase() || '';
+                return ['mp4', 'webm', 'avi', 'mov', 'mkv', 'm4v'].includes(ext);
+            }
+
+            isImageFile(filename) {
+                const ext = filename.split('.').pop()?.toLowerCase() || '';
+                return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext);
             }
 
             searchFiles() {
@@ -683,7 +780,7 @@
 
             async handleFiles(files) {
                 for (const file of files) {
-                    this.showAlert(`Uploading: ${file.name}...`, 'info');
+                    this.showAlert(`UPLOADING: ${file.name}`, 'info');
                     
                     try {
                         const formData = new FormData();
@@ -696,12 +793,12 @@
                         });
                         
                         if (response.ok) {
-                            this.showAlert(`✅ Uploaded: ${file.name}`, 'success');
+                            this.showAlert(`UPLOADED: ${file.name}`, 'success');
                         } else {
-                            this.showAlert(`❌ Failed to upload: ${file.name}`, 'error');
+                            this.showAlert(`FAILED: ${file.name}`, 'error');
                         }
                     } catch (error) {
-                        this.showAlert(`❌ Upload error: ${error.message}`, 'error');
+                        this.showAlert(`ERROR: ${error.message}`, 'error');
                     }
                 }
                 
@@ -722,12 +819,12 @@
                         a.download = filename;
                         a.click();
                         URL.revokeObjectURL(url);
-                        this.showAlert(`Downloaded: ${filename}`, 'success');
+                        this.showAlert(`DOWNLOADED: ${filename}`, 'success');
                     } else {
-                        this.showAlert(`File not found: ${filename}`, 'error');
+                        this.showAlert(`FILE NOT FOUND: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`Download error: ${error.message}`, 'error');
+                    this.showAlert(`ERROR: ${error.message}`, 'error');
                 }
             }
 
@@ -744,10 +841,10 @@
                         
                         this.showMediaModal(filename, url, contentType, blob);
                     } else {
-                        this.showAlert(`File not found: ${filename}`, 'error');
+                        this.showAlert(`FILE NOT FOUND: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`View error: ${error.message}`, 'error');
+                    this.showAlert(`ERROR: ${error.message}`, 'error');
                 }
             }
 
@@ -756,7 +853,10 @@
                 const title = document.getElementById('mediaTitle');
                 const content = document.getElementById('mediaContent');
                 
-                title.textContent = filename;
+                // Truncate filename for display
+                const displayName = filename.length > 50 ? filename.substring(0, 47) + '...' : filename;
+                title.textContent = displayName;
+                title.title = filename; // Show full name on hover
                 
                 if (contentType.startsWith('video/')) {
                     content.innerHTML = `
@@ -766,7 +866,7 @@
                     `;
                 } else if (contentType.startsWith('audio/')) {
                     content.innerHTML = `
-                        <audio controls autoplay style="width: 100%; max-width: 500px;">
+                        <audio controls autoplay style="width: 100%; max-width: 600px;">
                             <source src="${url}" type="${contentType}">
                         </audio>
                     `;
@@ -777,11 +877,11 @@
                     content.innerHTML = `<div class="text-content">${text}</div>`;
                 } else {
                     content.innerHTML = `
-                        <div style="padding: 40px; text-align: center;">
-                            <h4>Cannot preview this file type</h4>
-                            <p style="color: #666; margin: 20px 0;">File type: ${contentType || 'Unknown'}</p>
+                        <div style="padding: 40px; text-align: center; color: #888;">
+                            <h4>CANNOT PREVIEW FILE</h4>
+                            <p style="margin: 20px 0;">TYPE: ${contentType || 'UNKNOWN'}</p>
                             <button class="btn" onclick="fileStorage.downloadFile('${filename.replace(/'/g, "\\'")}')">
-                                💾 Download Instead
+                                DOWNLOAD
                             </button>
                         </div>
                     `;
@@ -798,7 +898,7 @@
             }
 
             async deleteFile(filename) {
-                if (!confirm(`Are you sure you want to delete "${filename}"?`)) return;
+                if (!confirm(`DELETE "${filename}"?`)) return;
 
                 try {
                     const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
@@ -807,13 +907,13 @@
                     });
 
                     if (response.ok) {
-                        this.showAlert(`Deleted: ${filename}`, 'success');
+                        this.showAlert(`DELETED: ${filename}`, 'success');
                         this.loadFiles();
                     } else {
-                        this.showAlert(`Failed to delete: ${filename}`, 'error');
+                        this.showAlert(`DELETE FAILED: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`Delete error: ${error.message}`, 'error');
+                    this.showAlert(`ERROR: ${error.message}`, 'error');
                 }
             }
 
@@ -821,34 +921,34 @@
                 const ext = filename.split('.').pop()?.toLowerCase() || '';
                 const icons = {
                     // Video
-                    mp4: '🎬', webm: '🎬', avi: '🎬', mov: '🎬', mkv: '🎬',
+                    mp4: '▶', webm: '▶', avi: '▶', mov: '▶', mkv: '▶',
                     // Audio  
-                    mp3: '🎵', wav: '🎵', ogg: '🎵', m4a: '🎵', flac: '🎵',
+                    mp3: '♪', wav: '♪', ogg: '♪', m4a: '♪', flac: '♪',
                     // Image
-                    jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️', svg: '🖼️',
+                    jpg: '□', jpeg: '□', png: '□', gif: '□', svg: '□',
                     // Text
-                    txt: '📄', md: '📝', json: '📋', js: '📜', css: '🎨',
-                    html: '🌐', xml: '📄', csv: '📊',
+                    txt: '≡', md: '≡', json: '{}', js: '<>', css: '#',
+                    html: '<>', xml: '<>', csv: '=',
                     // Archives
-                    zip: '📦', rar: '📦', '7z': '📦', tar: '📦',
+                    zip: '■', rar: '■', '7z': '■', tar: '■',
                     // Documents
-                    pdf: '📕', doc: '📘', docx: '📘', xls: '📗', xlsx: '📗'
+                    pdf: '⧨', doc: '⧨', docx: '⧨', xls: '⊞', xlsx: '⊞'
                 };
                 
-                return icons[ext] || '📄';
+                return icons[ext] || '◦';
             }
 
             getFileType(filename) {
                 const ext = filename.split('.').pop()?.toLowerCase() || '';
                 const types = {
-                    mp4: 'Video', webm: 'Video', avi: 'Video', mov: 'Video',
-                    mp3: 'Audio', wav: 'Audio', ogg: 'Audio', m4a: 'Audio',
-                    jpg: 'Image', jpeg: 'Image', png: 'Image', gif: 'Image',
-                    txt: 'Text', md: 'Markdown', json: 'JSON', js: 'JavaScript',
-                    zip: 'Archive', rar: 'Archive', pdf: 'PDF', doc: 'Document'
+                    mp4: 'VIDEO', webm: 'VIDEO', avi: 'VIDEO', mov: 'VIDEO',
+                    mp3: 'AUDIO', wav: 'AUDIO', ogg: 'AUDIO', m4a: 'AUDIO',
+                    jpg: 'IMAGE', jpeg: 'IMAGE', png: 'IMAGE', gif: 'IMAGE',
+                    txt: 'TEXT', md: 'MARKDOWN', json: 'JSON', js: 'JAVASCRIPT',
+                    zip: 'ARCHIVE', rar: 'ARCHIVE', pdf: 'DOCUMENT', doc: 'DOCUMENT'
                 };
                 
-                return types[ext] || 'File';
+                return types[ext] || 'FILE';
             }
 
             formatSize(bytes) {
