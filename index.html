@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Storage</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow: hidden;
+        }
+
+        .terminal {
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .output {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #00ff00;
+            margin-right: 10px;
+        }
+
+        .input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            flex: 1;
+            caret-color: #00ff00;
+        }
+
+        .file-item {
+            cursor: pointer;
+            padding: 2px 0;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid transparent;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-left-color: #00ff00;
+        }
+
+        .file-browser {
+            margin: 10px 0;
+            border: 1px solid #333;
+            background: rgba(0, 255, 0, 0.02);
+        }
+
+        .file-category {
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+        }
+
+        .category-header {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-header:hover {
+            background: rgba(0, 255, 0, 0.15);
+        }
+
+        .category-content {
+            padding: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .category-content.collapsed {
+            display: none;
+        }
+
+        .file-entry {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            margin: 2px 0;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .file-entry:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .file-icon {
+            margin-right: 8px;
+            width: 20px;
+            font-family: monospace;
+        }
+
+        .file-name {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .file-size {
+            margin-right: 10px;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #00ff00;
+            padding: 2px 6px;
+            font-size: 0.8em;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+        }
+
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .preview-content {
+            max-width: 90%;
+            max-height: 90%;
+            border: 2px solid #00ff00;
+            background: #000;
+            padding: 20px;
+            position: relative;
+        }
+
+        .preview-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #00ff00;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .preview-image, .preview-video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .preview-text {
+            color: #00ff00;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .stats-bar {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #333;
+            padding: 8px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+
+        .upload-zone {
+            border: 2px dashed #333;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            transition: border-color 0.3s;
+        }
+
+        .upload-zone.dragover {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            color: #ff4444;
+        }
+
+        .success {
+            color: #44ff44;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="header">
+            <div>Terminal Storage v1.0</div>
+            <div>Type 'help' for commands</div>
+        </div>
+
+        <div class="output" id="output"></div>
+
+        <div class="upload-zone hidden" id="uploadZone">
+            Drop files here to upload
+        </div>
+
+        <div class="input-line">
+            <span class="prompt">$</span>
+            <input type="text" class="input" id="commandInput" autofocus>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" class="hidden" multiple>
+
+    <script>
+        class TerminalStorage {
+            constructor() {
+                this.output = document.getElementById('output');
+                this.input = document.getElementById('commandInput');
+                this.uploadZone = document.getElementById('uploadZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
+                
+                this.setupEventListeners();
+                this.print('🖥️  Terminal Storage v2.0 - Interactive File Manager');
+                this.print('📁 Type "list" for interactive browser or "help" for commands');
+                this.print('🎯 Drag & drop files to upload instantly\n');
+            }
+
+            setupEventListeners() {
+                this.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.executeCommand(e.target.value);
+                        e.target.value = '';
+                    }
+                });
+
+                // Drag and drop
+                document.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.uploadZone.classList.remove('hidden');
+                    this.uploadZone.classList.add('dragover');
+                });
+
+                document.addEventListener('dragleave', (e) => {
+                    if (!e.relatedTarget) {
+                        this.uploadZone.classList.add('hidden');
+                        this.uploadZone.classList.remove('dragover');
+                    }
+                });
+
+                document.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.uploadZone.classList.add('hidden');
+                    this.uploadZone.classList.remove('dragover');
+                    this.uploadFiles(e.dataTransfer.files);
+                });
+
+                this.fileInput.addEventListener('change', (e) => {
+                    this.uploadFiles(e.target.files);
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        // Close any open modals
+                        const modals = document.querySelectorAll('.preview-modal');
+                        modals.forEach(modal => document.body.removeChild(modal));
+                    }
+                });
+            }
+
+            print(text, className = '') {
+                const line = document.createElement('div');
+                line.textContent = text;
+                if (className) line.className = className;
+                this.output.appendChild(line);
+                this.output.scrollTop = this.output.scrollHeight;
+            }
+
+            async executeCommand(command) {
+                const [cmd, ...args] = command.trim().split(' ');
+                this.print(`$ ${command}`);
+
+                switch (cmd.toLowerCase()) {
+                    case 'help':
+                        this.showHelp();
+                        break;
+                    case 'ls':
+                    case 'list':
+                        if (args.length > 0 && !args[0].startsWith('*')) {
+                            await this.listFiles(args.join(' '));
+                        } else {
+                            await this.showFileBrowser(args[0]);
+                        }
+                        break;
+                    case 'search':
+                    case 'find':
+                        if (args[0]) {
+                            await this.searchFiles(args.join(' '));
+                        } else {
+                            this.print('Usage: search <query>', 'error');
+                        }
+                        break;
+                    case 'info':
+                    case 'stat':
+                        if (args[0]) {
+                            await this.fileInfo(args[0]);
+                        } else {
+                            this.print('Usage: info <filename>', 'error');
+                        }
+                        break;
+                    case 'upload':
+                        this.fileInput.click();
+                        break;
+                    case 'rm':
+                    case 'delete':
+                        if (args[0]) {
+                            await this.deleteFile(args[0]);
+                        } else {
+                            this.print('Usage: rm <filename>', 'error');
+                        }
+                        break;
+                    case 'download':
+                        if (args[0]) {
+                            await this.downloadFile(args[0]);
+                        } else {
+                            this.print('Usage: download <filename>', 'error');
+                        }
+                        break;
+                    case 'sort':
+                        await this.listFiles('', args[0] || 'name');
+                        break;
+                    case 'count':
+                        await this.getFileCount();
+                        break;
+                    case 'size':
+                        await this.getTotalSize();
+                        break;
+                    case 'recent':
+                        await this.getRecentFiles(parseInt(args[0]) || 10);
+                        break;
+                    case 'types':
+                        await this.getFileTypes();
+                        break;
+                    case 'clear':
+                        this.output.innerHTML = '';
+                        break;
+                    default:
+                        if (cmd) {
+                            this.print(`Command not found: ${cmd}`, 'error');
+                        }
+                }
+                this.print('');
+            }
+
+            showHelp() {
+                const commands = [
+                    'Available commands:',
+                    '  ls, list             - Interactive file browser',
+                    '  ls [filter]          - List files with filter',
+                    '  search <query>       - Search files by name',
+                    '  info <file>          - Get file information',
+                    '  upload               - Upload files',
+                    '  rm <file>            - Delete a file',
+                    '  download <file>      - Download a file',
+                    '  sort [name|size|date] - List files sorted',
+                    '  count                - Show total file count',
+                    '  size                 - Show total storage used',
+                    '  recent [n]           - Show n recent files (default 10)',
+                    '  types                - Show file type breakdown',
+                    '  clear                - Clear terminal',
+                    '  help                 - Show this help',
+                    '',
+                    'Interactive Browser Features:',
+                    '  • Click file names to preview images, videos, text',
+                    '  • Use action buttons: View, Download, Delete, Info',
+                    '  • Files organized by type: Photos, Videos, Documents, etc.',
+                    '  • Click category headers to expand/collapse sections',
+                    '',
+                    'Examples:',
+                    '  list                 - Show interactive file browser',
+                    '  ls *.jpg             - List only JPG files',
+                    '  search document      - Find files containing "document"',
+                    '  sort size            - List files by size',
+                    '',
+                    'You can also drag and drop files to upload.'
+                ];
+                commands.forEach(cmd => this.print(cmd));
+            }
+
+            async listFiles(filter = '', sortBy = 'name') {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    let files = await response.json();
+                    
+                    if (files.length === 0) {
+                        this.print('No files found');
+                        return;
+                    }
+
+                    // Apply filter
+                    if (filter) {
+                        if (filter.includes('*')) {
+                            // Wildcard matching
+                            const regex = new RegExp(filter.replace(/\*/g, '.*'), 'i');
+                            files = files.filter(file => regex.test(file.name));
+                        } else {
+                            // Simple text filter
+                            files = files.filter(file => 
+                                file.name.toLowerCase().includes(filter.toLowerCase())
+                            );
+                        }
+                    }
+
+                    // Sort files
+                    switch (sortBy.toLowerCase()) {
+                        case 'size':
+                            files.sort((a, b) => b.size - a.size);
+                            break;
+                        case 'date':
+                        case 'time':
+                            files.sort((a, b) => new Date(b.uploaded) - new Date(a.uploaded));
+                            break;
+                        default:
+                            files.sort((a, b) => a.name.localeCompare(b.name));
+                    }
+
+                    if (files.length === 0) {
+                        this.print(`No files found matching "${filter}"`);
+                        return;
+                    }
+
+                    this.print(`Files (${files.length} found, sorted by ${sortBy}):`);
+                    files.forEach(file => {
+                        const size = this.formatFileSize(file.size);
+                        const date = new Date(file.uploaded).toLocaleString();
+                        const ext = this.getFileExtension(file.name);
+                        this.print(`  ${file.name.padEnd(25)} ${ext.padEnd(6)} ${size.padEnd(10)} ${date}`);
+                    });
+                } catch (error) {
+                    this.print(`Error listing files: ${error.message}`, 'error');
+                }
+            }
+
+            async searchFiles(query) {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    const files = await response.json();
+                    
+                    const results = files.filter(file => 
+                        file.name.toLowerCase().includes(query.toLowerCase())
+                    );
+
+                    if (results.length === 0) {
+                        this.print(`No files found matching "${query}"`);
+                        return;
+                    }
+
+                    this.print(`Search results for "${query}" (${results.length} found):`);
+                    results.forEach(file => {
+                        const size = this.formatFileSize(file.size);
+                        const date = new Date(file.uploaded).toLocaleString();
+                        // Highlight the search term
+                        const highlightedName = file.name.replace(
+                            new RegExp(query, 'gi'), 
+                            `[${query.toUpperCase()}]`
+                        );
+                        this.print(`  ${highlightedName.padEnd(30)} ${size.padEnd(10)} ${date}`);
+                    });
+                } catch (error) {
+                    this.print(`Error searching files: ${error.message}`, 'error');
+                }
+            }
+
+            async fileInfo(filename) {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    const files = await response.json();
+                    
+                    const file = files.find(f => f.name === filename);
+                    if (!file) {
+                        this.print(`File not found: ${filename}`, 'error');
+                        return;
+                    }
+
+                    this.print(`File Information: ${filename}`);
+                    this.print(`  Size: ${this.formatFileSize(file.size)}`);
+                    this.print(`  Type: ${this.getFileExtension(filename) || 'unknown'}`);
+                    this.print(`  Uploaded: ${new Date(file.uploaded).toLocaleString()}`);
+                    this.print(`  Days ago: ${Math.floor((Date.now() - new Date(file.uploaded)) / (1000 * 60 * 60 * 24))}`);
+                    
+                    // Add download URL
+                    this.print(`  Download: ${this.apiUrl}/files/${encodeURIComponent(filename)}`);
+                } catch (error) {
+                    this.print(`Error getting file info: ${error.message}`, 'error');
+                }
+            }
+
+            async getFileCount() {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    const files = await response.json();
+                    this.print(`Total files: ${files.length}`);
+                } catch (error) {
+                    this.print(`Error getting file count: ${error.message}`, 'error');
+                }
+            }
+
+            async getTotalSize() {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    const files = await response.json();
+                    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+                    this.print(`Total storage used: ${this.formatFileSize(totalSize)}`);
+                    
+                    const remaining = (10 * 1024 * 1024 * 1024) - totalSize; // 10GB limit
+                    this.print(`Remaining space: ${this.formatFileSize(remaining)}`);
+                } catch (error) {
+                    this.print(`Error getting total size: ${error.message}`, 'error');
+                }
+            }
+
+            async getRecentFiles(count = 10) {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    const files = await response.json();
+                    
+                    const recent = files
+                        .sort((a, b) => new Date(b.uploaded) - new Date(a.uploaded))
+                        .slice(0, count);
+
+                    if (recent.length === 0) {
+                        this.print('No files found');
+                        return;
+                    }
+
+                    this.print(`${count} most recent files:`);
+                    recent.forEach((file, index) => {
+                        const size = this.formatFileSize(file.size);
+                        const timeAgo = this.timeAgo(new Date(file.uploaded));
+                        this.print(`  ${(index + 1).toString().padEnd(3)} ${file.name.padEnd(25)} ${size.padEnd(10)} ${timeAgo}`);
+                    });
+                } catch (error) {
+                    this.print(`Error getting recent files: ${error.message}`, 'error');
+                }
+            }
+
+            async getFileTypes() {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    const files = await response.json();
+                    
+                    const types = {};
+                    files.forEach(file => {
+                        const ext = this.getFileExtension(file.name) || 'no extension';
+                        types[ext] = (types[ext] || 0) + 1;
+                    });
+
+                    this.print('File types:');
+                    Object.entries(types)
+                        .sort((a, b) => b[1] - a[1])
+                        .forEach(([type, count]) => {
+                            this.print(`  ${type.padEnd(15)} ${count} files`);
+                        });
+                } catch (error) {
+                    this.print(`Error getting file types: ${error.message}`, 'error');
+                }
+            }
+
+            getFileExtension(filename) {
+                const parts = filename.split('.');
+                return parts.length > 1 ? parts.pop().toLowerCase() : '';
+            }
+
+            timeAgo(date) {
+                const now = new Date();
+                const diffMs = now - date;
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+                if (diffDays > 0) return `${diffDays}d ago`;
+                if (diffHours > 0) return `${diffHours}h ago`;
+                if (diffMinutes > 0) return `${diffMinutes}m ago`;
+                return 'just now';
+            }
+
+            async uploadFiles(files) {
+                for (const file of files) {
+                    await this.uploadFile(file);
+                }
+            }
+
+            async uploadFile(file) {
+                try {
+                    this.print(`📤 Uploading ${file.name} (${this.formatFileSize(file.size)})...`);
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const response = await fetch(`${this.apiUrl}/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.print(`✅ ${file.name} → ${result.filename}`, 'success');
+                        this.print(`   Stored as: ${result.filename}`, 'success');
+                    } else {
+                        this.print(`❌ Failed to upload ${file.name}`, 'error');
+                    }
+                } catch (error) {
+                    this.print(`❌ Error uploading ${file.name}: ${error.message}`, 'error');
+                }
+            }
+
+            async deleteFile(filename) {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files/${encodeURIComponent(filename)}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        this.print(`✓ ${filename} deleted`, 'success');
+                    } else {
+                        this.print(`✗ Failed to delete ${filename}`, 'error');
+                    }
+                } catch (error) {
+                    this.print(`✗ Error deleting ${filename}: ${error.message}`, 'error');
+                }
+            }
+
+            async downloadFile(filename) {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files/${encodeURIComponent(filename)}`);
+                    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        this.print(`✓ ${filename} downloaded`, 'success');
+                    } else {
+                        this.print(`✗ File not found: ${filename}`, 'error');
+                    }
+                } catch (error) {
+                    this.print(`✗ Error downloading ${filename}: ${error.message}`, 'error');
+                }
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            async showFileBrowser(filter = '') {
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`);
+                    let files = await response.json();
+                    
+                    if (files.length === 0) {
+                        this.print('No files found');
+                        return;
+                    }
+
+                    // Apply filter if provided
+                    if (filter) {
+                        if (filter.includes('*')) {
+                            const regex = new RegExp(filter.replace(/\*/g, '.*'), 'i');
+                            files = files.filter(file => regex.test(file.name));
+                        }
+                    }
+
+                    // Create stats bar
+                    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+                    const statsDiv = document.createElement('div');
+                    statsDiv.className = 'stats-bar';
+                    statsDiv.innerHTML = `
+                        <span>📁 ${files.length} files</span>
+                        <span>💾 ${this.formatFileSize(totalSize)}</span>
+                        <span>🕒 Last updated: ${files.length > 0 ? this.timeAgo(new Date(Math.max(...files.map(f => new Date(f.uploaded))))) : 'never'}</span>
+                    `;
+                    this.output.appendChild(statsDiv);
+
+                    // Categorize files
+                    const categories = this.categorizeFiles(files);
+                    
+                    // Create file browser
+                    const browserDiv = document.createElement('div');
+                    browserDiv.className = 'file-browser';
+                    
+                    Object.entries(categories).forEach(([categoryName, categoryFiles]) => {
+                        if (categoryFiles.length === 0) return;
+                        
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.className = 'file-category';
+                        
+                        const headerDiv = document.createElement('div');
+                        headerDiv.className = 'category-header';
+                        headerDiv.innerHTML = `
+                            <span>${this.getCategoryIcon(categoryName)} ${categoryName.toUpperCase()} (${categoryFiles.length})</span>
+                            <span>[click to toggle]</span>
+                        `;
+                        
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'category-content';
+                        
+                        categoryFiles.forEach(file => {
+                            const fileDiv = document.createElement('div');
+                            fileDiv.className = 'file-entry';
+                            fileDiv.innerHTML = `
+                                <span class="file-icon">${this.getFileIcon(file.name)}</span>
+                                <span class="file-name" title="${file.name}">${this.truncateFilename(file.name)}</span>
+                                <span class="file-size">${this.formatFileSize(file.size)}</span>
+                                <div class="file-actions">
+                                    <button class="action-btn" onclick="terminalStorage.previewFile('${file.name}')">View</button>
+                                    <button class="action-btn" onclick="terminalStorage.downloadFile('${file.name}')">⬇</button>
+                                    <button class="action-btn" onclick="terminalStorage.fileInfo('${file.name}')">ℹ</button>
+                                    <button class="action-btn" onclick="terminalStorage.confirmDelete('${file.name}')">🗑</button>
+                                </div>
+                            `;
+                            contentDiv.appendChild(fileDiv);
+                        });
+                        
+                        headerDiv.addEventListener('click', () => {
+                            contentDiv.classList.toggle('collapsed');
+                        });
+                        
+                        categoryDiv.appendChild(headerDiv);
+                        categoryDiv.appendChild(contentDiv);
+                        browserDiv.appendChild(categoryDiv);
+                    });
+                    
+                    this.output.appendChild(browserDiv);
+                    this.output.scrollTop = this.output.scrollHeight;
+                    
+                } catch (error) {
+                    this.print(`Error loading file browser: ${error.message}`, 'error');
+                }
+            }
+
+            categorizeFiles(files) {
+                const categories = {
+                    'photos': [],
+                    'videos': [],
+                    'documents': [],
+                    'code': [],
+                    'archives': [],
+                    'audio': [],
+                    'other': []
+                };
+
+                files.forEach(file => {
+                    const ext = this.getFileExtension(file.name).toLowerCase();
+                    
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'].includes(ext)) {
+                        categories.photos.push(file);
+                    } else if (['mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm', 'm4v'].includes(ext)) {
+                        categories.videos.push(file);
+                    } else if (['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xlsx', 'xls', 'csv', 'ppt', 'pptx'].includes(ext)) {
+                        categories.documents.push(file);
+                    } else if (['js', 'html', 'css', 'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'json', 'xml', 'yaml'].includes(ext)) {
+                        categories.code.push(file);
+                    } else if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'].includes(ext)) {
+                        categories.archives.push(file);
+                    } else if (['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg'].includes(ext)) {
+                        categories.audio.push(file);
+                    } else {
+                        categories.other.push(file);
+                    }
+                });
+
+                return categories;
+            }
+
+            getCategoryIcon(category) {
+                const icons = {
+                    'photos': '🖼️',
+                    'videos': '🎬',
+                    'documents': '📄',
+                    'code': '💻',
+                    'archives': '📦',
+                    'audio': '🎵',
+                    'other': '📁'
+                };
+                return icons[category] || '📁';
+            }
+
+            getFileIcon(filename) {
+                const ext = this.getFileExtension(filename).toLowerCase();
+                
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return '🖼️';
+                if (['mp4', 'avi', 'mov', 'wmv', 'mkv'].includes(ext)) return '🎬';
+                if (['pdf'].includes(ext)) return '📕';
+                if (['doc', 'docx'].includes(ext)) return '📘';
+                if (['txt'].includes(ext)) return '📝';
+                if (['xlsx', 'xls', 'csv'].includes(ext)) return '📊';
+                if (['zip', 'rar', '7z'].includes(ext)) return '📦';
+                if (['js', 'html', 'css', 'py'].includes(ext)) return '💻';
+                if (['mp3', 'wav', 'flac'].includes(ext)) return '🎵';
+                return '📄';
+            }
+
+            truncateFilename(filename, maxLength = 25) {
+                if (filename.length <= maxLength) return filename;
+                const ext = this.getFileExtension(filename);
+                const nameWithoutExt = filename.slice(0, filename.lastIndexOf('.'));
+                const truncated = nameWithoutExt.slice(0, maxLength - ext.length - 4) + '...';
+                return ext ? `${truncated}.${ext}` : truncated;
+            }
+
+            async previewFile(filename) {
+                try {
+                    const ext = this.getFileExtension(filename).toLowerCase();
+                    const fileUrl = `${this.apiUrl}/files/${encodeURIComponent(filename)}`;
+                    
+                    // Create modal
+                    const modal = document.createElement('div');
+                    modal.className = 'preview-modal';
+                    
+                    const content = document.createElement('div');
+                    content.className = 'preview-content';
+                    
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'preview-close';
+                    closeBtn.innerHTML = '✕';
+                    closeBtn.onclick = () => document.body.removeChild(modal);
+                    
+                    content.appendChild(closeBtn);
+                    
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
+                        // Image preview
+                        const img = document.createElement('img');
+                        img.className = 'preview-image';
+                        img.src = fileUrl;
+                        img.alt = filename;
+                        content.appendChild(img);
+                        
+                    } else if (['mp4', 'webm', 'mov'].includes(ext)) {
+                        // Video preview
+                        const video = document.createElement('video');
+                        video.className = 'preview-video';
+                        video.controls = true;
+                        video.src = fileUrl;
+                        content.appendChild(video);
+                        
+                    } else if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(ext)) {
+                        // Audio preview
+                        const audio = document.createElement('audio');
+                        audio.controls = true;
+                        audio.src = fileUrl;
+                        audio.style.width = '100%';
+                        content.appendChild(audio);
+                        
+                    } else if (['txt', 'json', 'xml', 'csv', 'js', 'html', 'css', 'py'].includes(ext)) {
+                        // Text preview
+                        const response = await fetch(fileUrl);
+                        const text = await response.text();
+                        const pre = document.createElement('pre');
+                        pre.className = 'preview-text';
+                        pre.textContent = text.length > 5000 ? text.slice(0, 5000) + '\n\n[File truncated - download to see full content]' : text;
+                        content.appendChild(pre);
+                        
+                    } else {
+                        // Generic file info
+                        const info = document.createElement('div');
+                        info.className = 'preview-text';
+                        info.innerHTML = `
+File: ${filename}
+Type: ${ext.toUpperCase() || 'Unknown'}
+Preview not available for this file type.
+
+Click download to get the file.
+                        `;
+                        content.appendChild(info);
+                    }
+                    
+                    modal.appendChild(content);
+                    document.body.appendChild(modal);
+                    
+                    // Close on click outside
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            document.body.removeChild(modal);
+                        }
+                    });
+                    
+                } catch (error) {
+                    this.print(`Error previewing file: ${error.message}`, 'error');
+                }
+            }
+
+            async confirmDelete(filename) {
+                const modal = document.createElement('div');
+                modal.className = 'preview-modal';
+                
+                const content = document.createElement('div');
+                content.className = 'preview-content';
+                content.style.padding = '30px';
+                content.style.textAlign = 'center';
+                
+                content.innerHTML = `
+                    <h3 style="color: #ff4444; margin-bottom: 20px;">⚠️ DELETE FILE</h3>
+                    <p style="margin-bottom: 20px;">Are you sure you want to delete:</p>
+                    <p style="color: #00ff00; margin-bottom: 30px; font-weight: bold;">${filename}</p>
+                    <button class="action-btn" onclick="terminalStorage.deleteFile('${filename}'); document.body.removeChild(this.closest('.preview-modal'))" style="margin-right: 10px; background: #ff4444;">Delete</button>
+                    <button class="action-btn" onclick="document.body.removeChild(this.closest('.preview-modal'))">Cancel</button>
+                `;
+                
+                modal.appendChild(content);
+                document.body.appendChild(modal);
+                
+                // Close on click outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            }
+        }
+
+        const terminalStorage = new TerminalStorage();
+        window.terminalStorage = terminalStorage; // Make globally accessible
+    </script>
+</body>
+</html>
