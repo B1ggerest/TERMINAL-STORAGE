@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faginator Terminal Storage</title>
+    <title>Terminal File Storage</title>
     <style>
         * {
             margin: 0;
@@ -13,240 +13,79 @@
 
         body {
             background: #0a0a0a;
-            color: #00ff41;
+            color: #00ff00;
             font-family: 'Courier New', monospace;
+            height: 100vh;
             overflow: hidden;
+        }
+
+        .terminal {
             height: 100vh;
-        }
-
-        .terminal-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            border: 2px solid #00ff41;
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
-        }
-
-        .terminal-header {
-            background: #00ff41;
-            color: #000;
-            padding: 8px 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #00ff41;
-        }
-
-        .terminal-title {
-            font-size: 14px;
-        }
-
-        .terminal-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .control-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .minimize { background: #ffbd2e; }
-        .maximize { background: #28ca42; }
-        .close { background: #ff5f56; }
-
-        .terminal-body {
-            flex: 1;
             display: flex;
             flex-direction: column;
             padding: 20px;
-            overflow: hidden;
         }
 
-        .auth-section {
-            text-align: center;
-            margin-top: 100px;
+        .header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        .auth-section h1 {
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px #00ff41;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .auth-input {
-            background: transparent;
-            border: 2px solid #00ff41;
-            color: #00ff41;
-            padding: 10px 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
-            margin: 10px;
-            width: 300px;
-            outline: none;
-        }
-
-        .auth-input:focus {
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-        }
-
-        .terminal-btn {
-            background: transparent;
-            border: 2px solid #00ff41;
-            color: #00ff41;
-            padding: 10px 20px;
-            font-family: 'Courier New', monospace;
-            cursor: pointer;
-            margin: 5px;
-            transition: all 0.3s;
-        }
-
-        .terminal-btn:hover {
-            background: #00ff41;
-            color: #000;
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.8);
-        }
-
-        .terminal-output {
+        .output {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 0;
-            font-size: 14px;
-            line-height: 1.4;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
-        .command-line {
+        .input-line {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
 
         .prompt {
-            color: #00ff41;
+            color: #00ff00;
             margin-right: 10px;
         }
 
-        .command-input {
+        .input {
             background: transparent;
             border: none;
-            color: #00ff41;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            outline: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: inherit;
             flex: 1;
+            outline: none;
         }
 
-        .search-section {
-            margin: 15px 0;
-            padding: 15px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            background: rgba(0, 255, 65, 0.02);
+        .cursor {
+            animation: blink 1s infinite;
         }
 
-        .search-highlight {
-            background: rgba(255, 255, 0, 0.3);
-            color: #ffff00;
-            padding: 1px 2px;
-            border-radius: 2px;
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
-        .file-list {
-            margin: 15px 0;
+        .media-container {
+            margin: 10px 0;
+            max-width: 100%;
         }
 
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #333;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .file-item:hover {
-            background: rgba(0, 255, 65, 0.1);
-            padding-left: 10px;
+        video, audio {
+            max-width: 100%;
+            max-height: 300px;
+            background: #333;
         }
 
         .file-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            background: transparent;
-            border: 1px solid #666;
-            color: #666;
-            padding: 3px 8px;
-            font-size: 10px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-        }
-
-        .action-btn:hover {
-            border-color: #00ff41;
-            color: #00ff41;
-        }
-
-        .media-player {
-            margin: 20px 0;
-            padding: 20px;
-            border: 2px solid #00ff41;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 10px;
+            margin: 10px 0;
             border-radius: 5px;
-            background: rgba(0, 255, 65, 0.05);
-        }
-
-        .media-player video,
-        .media-player audio {
-            width: 100%;
-            max-height: 400px;
-            outline: none;
-        }
-
-        .media-player video {
-            border-radius: 5px;
-        }
-
-        .drop-zone {
-            border: 2px dashed #666;
-            padding: 40px;
-            text-align: center;
-            margin: 20px 0;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .drop-zone.dragover {
-            border-color: #00ff41;
-            background: rgba(0, 255, 65, 0.1);
-        }
-
-        .upload-input {
-            display: none;
-        }
-
-        .status-line {
-            color: #888;
-            font-size: 12px;
-            margin: 5px 0;
         }
 
         .error {
@@ -257,571 +96,496 @@
             color: #44ff44;
         }
 
-        .loading {
-            animation: dots 1.5s infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60% { content: '...'; }
-            80%, 100% { content: ''; }
+        .warning {
+            color: #ffaa44;
         }
 
         .hidden {
             display: none;
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
+        .search-results {
             background: #1a1a1a;
+            border: 1px solid #333;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 5px 0;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #00ff41;
-            border-radius: 4px;
+        .search-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
         }
 
-        .file-icon {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
+        .search-item:hover {
+            background: #333;
         }
     </style>
 </head>
 <body>
-    <div class="terminal-container">
-        <div class="terminal-header">
-            <div class="terminal-title">faginator@terminal:~/storage</div>
-            <div class="terminal-controls">
-                <div class="control-btn minimize"></div>
-                <div class="control-btn maximize"></div>
-                <div class="control-btn close"></div>
-            </div>
+    <div class="terminal">
+        <div class="header">
+            <div>Terminal File Storage v1.0</div>
+            <div>Type 'help' for available commands</div>
         </div>
-
-        <div class="terminal-body">
-            <!-- Authentication Section -->
-            <div id="auth-section" class="auth-section">
-                <h1>FAGINATOR TERMINAL STORAGE</h1>
-                <div>
-                    <input type="password" id="password-input" class="auth-input" placeholder="Enter storage password" />
-                    <br>
-                    <button onclick="authenticate()" class="terminal-btn">ACCESS STORAGE</button>
-                </div>
-                <div id="auth-status" class="status-line"></div>
-            </div>
-
-            <!-- Main Terminal Section -->
-            <div id="main-section" class="hidden">
-                <div class="terminal-output" id="terminal-output">
-                    <div>Faginator Terminal Storage v2.0</div>
-                    <div>Type 'help' for available commands</div>
-                    <div>─────────────────────────────────────</div>
-                </div>
-
-                <div class="command-line">
-                    <span class="prompt">faginator@storage:~$</span>
-                    <input type="text" id="command-input" class="command-input" placeholder="Type command here..." />
-                </div>
-
-                <!-- File Upload Zone -->
-                <div id="drop-zone" class="drop-zone">
-                    <div>Drop files here to upload or click to browse</div>
-                    <input type="file" id="file-input" class="upload-input" multiple />
-                </div>
-
-                <!-- Search Section -->
-                <div class="search-section">
-                    <div class="command-line">
-                        <span class="prompt">search:</span>
-                        <input type="text" id="search-input" class="command-input" placeholder="Live search files..." />
-                        <button id="clear-search" class="action-btn" style="margin-left: 10px;">CLEAR</button>
-                    </div>
-                    <div id="search-status" class="status-line"></div>
-                </div>
-
-                <!-- File List -->
-                <div id="file-list" class="file-list"></div>
-
-                <!-- Media Player -->
-                <div id="media-player" class="media-player hidden">
-                    <div id="media-title" style="margin-bottom: 10px; font-weight: bold;"></div>
-                    <div id="media-content"></div>
-                </div>
-            </div>
+        
+        <div class="output" id="output"></div>
+        
+        <div class="input-line">
+            <span class="prompt">$</span>
+            <input type="text" class="input" id="input" autocomplete="off" spellcheck="false">
+            <span class="cursor">_</span>
         </div>
     </div>
 
     <script>
-        const API_BASE = 'https://terminal-storage.lolbiggerestlol.workers.dev';
-        let authToken = '';
-        let files = [];
-        let filteredFiles = [];
-        let currentSearchTerm = '';
-
-        // Authentication
-        async function authenticate() {
-            const password = document.getElementById('password-input').value;
-            const statusEl = document.getElementById('auth-status');
-            
-            try {
-                statusEl.textContent = 'Authenticating...';
-                statusEl.className = 'status-line';
+        class Terminal {
+            constructor() {
+                this.output = document.getElementById('output');
+                this.input = document.getElementById('input');
+                this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
+                this.token = null;
+                this.files = [];
+                this.history = [];
+                this.historyIndex = -1;
                 
-                const response = await fetch(`${API_BASE}/auth`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
-                });
+                this.init();
+            }
 
-                if (response.ok) {
-                    const data = await response.json();
-                    authToken = data.token;
-                    statusEl.textContent = 'Access granted. Welcome to the system.';
-                    statusEl.className = 'status-line success';
-                    
-                    setTimeout(() => {
-                        document.getElementById('auth-section').classList.add('hidden');
-                        document.getElementById('main-section').classList.remove('hidden');
-                        loadFiles();
-                    }, 1000);
-                } else {
-                    statusEl.textContent = 'Access denied. Invalid password.';
-                    statusEl.className = 'status-line error';
+            init() {
+                this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+                this.input.focus();
+                this.print('Welcome to Terminal File Storage!');
+                this.print('Please authenticate with the "auth" command first.');
+                this.print('');
+            }
+
+            handleKeydown(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const command = this.input.value.trim();
+                    if (command) {
+                        this.history.unshift(command);
+                        this.historyIndex = -1;
+                        this.executeCommand(command);
+                    }
+                    this.input.value = '';
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (this.historyIndex < this.history.length - 1) {
+                        this.historyIndex++;
+                        this.input.value = this.history[this.historyIndex];
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (this.historyIndex > 0) {
+                        this.historyIndex--;
+                        this.input.value = this.history[this.historyIndex];
+                    } else if (this.historyIndex === 0) {
+                        this.historyIndex = -1;
+                        this.input.value = '';
+                    }
                 }
-            } catch (error) {
-                statusEl.textContent = 'Connection error. Check network.';
-                statusEl.className = 'status-line error';
-            }
-        }
-
-        // File operations
-        async function loadFiles() {
-            try {
-                const response = await fetch(`${API_BASE}/files`, {
-                    headers: { 'Authorization': authToken }
-                });
-
-                if (response.ok) {
-                    files = await response.json();
-                    displayFiles();
-                    addOutput(`Loaded ${files.length} files from storage.`);
-                } else {
-                    addOutput('Failed to load files.', 'error');
-                }
-            } catch (error) {
-                addOutput('Network error loading files.', 'error');
-            }
-        }
-
-        function displayFiles() {
-            const listEl = document.getElementById('file-list');
-            listEl.innerHTML = '';
-
-            const filesToShow = currentSearchTerm ? filteredFiles : files;
-
-            if (filesToShow.length === 0) {
-                if (currentSearchTerm) {
-                    listEl.innerHTML = '<div class="status-line">No files match your search.</div>';
-                } else {
-                    listEl.innerHTML = '<div class="status-line">No files in storage.</div>';
-                }
-                return;
             }
 
-            filesToShow.forEach(file => {
-                const fileEl = document.createElement('div');
-                fileEl.className = 'file-item';
-                
-                const icon = getFileIcon(file.name);
-                const size = formatFileSize(file.size);
-                const escapedFilename = escapeForJs(file.name);
-                
-                // Highlight search terms in filename
-                let displayName = escapeHtml(file.name);
-                if (currentSearchTerm) {
-                    const regex = new RegExp(`(${escapeRegex(currentSearchTerm)})`, 'gi');
-                    displayName = displayName.replace(regex, '<span class="search-highlight">$1</span>');
-                }
-                
-                fileEl.innerHTML = `
-                    <div class="file-info">
-                        <span class="file-icon">${icon}</span>
-                        <span>${displayName}</span>
-                        <span class="status-line">${size}</span>
-                    </div>
-                    <div class="file-actions">
-                        <button class="action-btn" onclick="viewFile('${escapedFilename}')">VIEW</button>
-                        <button class="action-btn" onclick="downloadFile('${escapedFilename}')">DOWNLOAD</button>
-                        <button class="action-btn" onclick="deleteFile('${escapedFilename}')">DELETE</button>
-                    </div>
-                `;
-                
-                listEl.appendChild(fileEl);
-            });
-
-            // Update search status
-            updateSearchStatus();
-        }
-
-        function escapeRegex(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\        function displayFiles() {
-            const listEl = document.getElementById('file-list');
-            listEl.innerHTML = '';
-
-            files.forEach(file => {
-                const fileEl = document.createElement('div');
-                fileEl.className = 'file-item';
-                
-                const icon = getFileIcon(file.name);
-                const size = formatFileSize(file.size);
-                
-                fileEl.innerHTML = `
-                    <div class="file-info">
-                        <span class="file-icon">${icon}</span>
-                        <span>${file.name}</span>
-                        <span class="status-line">${size}</span>
-                    </div>
-                    <div class="file-actions">
-                        <button class="action-btn" onclick="viewFile('${file.name}')">VIEW</button>
-                        <button class="action-btn" onclick="downloadFile('${file.name}')">DOWNLOAD</button>
-                        <button class="action-btn" onclick="deleteFile('${file.name}')">DELETE</button>
-                    </div>
-                `;
-                
-                listEl.appendChild(fileEl);
-            });
-        }');
-        }
-
-        function updateSearchStatus() {
-            const statusEl = document.getElementById('search-status');
-            if (currentSearchTerm) {
-                const total = files.length;
-                const matches = filteredFiles.length;
-                statusEl.textContent = `Found ${matches} of ${total} files matching "${currentSearchTerm}"`;
-                statusEl.className = 'status-line success';
-            } else {
-                statusEl.textContent = '';
-            }
-        }
-
-        function performSearch(searchTerm) {
-            currentSearchTerm = searchTerm.toLowerCase().trim();
-            
-            if (!currentSearchTerm) {
-                filteredFiles = [];
-                displayFiles();
-                return;
+            print(text, className = '') {
+                const line = document.createElement('div');
+                if (className) line.className = className;
+                line.textContent = text;
+                this.output.appendChild(line);
+                this.scrollToBottom();
             }
 
-            filteredFiles = files.filter(file => {
-                return file.name.toLowerCase().includes(currentSearchTerm);
-            });
-
-            displayFiles();
-            
-            // Add to terminal output
-            if (filteredFiles.length > 0) {
-                addOutput(`Search "${searchTerm}": ${filteredFiles.length} files found`);
-            } else {
-                addOutput(`Search "${searchTerm}": No matches found`, 'error');
+            printHTML(html) {
+                const container = document.createElement('div');
+                container.innerHTML = html;
+                this.output.appendChild(container);
+                this.scrollToBottom();
             }
-        }
 
-        function clearSearch() {
-            currentSearchTerm = '';
-            filteredFiles = [];
-            document.getElementById('search-input').value = '';
-            displayFiles();
-            addOutput('Search cleared');
-        }
-
-        function getFileIcon(filename) {
-            const ext = filename.toLowerCase().split('.').pop();
-            const videoFormats = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'm4v', '3gp'];
-            const audioFormats = ['mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a', 'wma', 'opus'];
-            const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
-            
-            if (videoFormats.includes(ext)) return '🎬';
-            if (audioFormats.includes(ext)) return '🎵';
-            if (imageFormats.includes(ext)) return '🖼️';
-            return '📄';
-        }
-
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        async function viewFile(filename) {
-            const ext = filename.toLowerCase().split('.').pop();
-            const videoFormats = ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'm4v', '3gp'];
-            const audioFormats = ['mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a', 'wma', 'opus'];
-            const imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
-            
-            const playerEl = document.getElementById('media-player');
-            const titleEl = document.getElementById('media-title');
-            const contentEl = document.getElementById('media-content');
-            
-            titleEl.textContent = `Playing: ${filename}`;
-            const fileUrl = `${API_BASE}/file/${encodeURIComponent(filename)}`;
-            
-            if (videoFormats.includes(ext)) {
-                contentEl.innerHTML = `
-                    <video controls autoplay>
-                        <source src="${fileUrl}" type="video/${ext}">
-                        Your browser does not support video playback.
-                    </video>
-                `;
-                playerEl.classList.remove('hidden');
-                addOutput(`Playing video: ${filename}`);
-            } else if (audioFormats.includes(ext)) {
-                contentEl.innerHTML = `
-                    <audio controls autoplay>
-                        <source src="${fileUrl}" type="audio/${ext}">
-                        Your browser does not support audio playback.
-                    </audio>
-                `;
-                playerEl.classList.remove('hidden');
-                addOutput(`Playing audio: ${filename}`);
-            } else if (imageFormats.includes(ext)) {
-                contentEl.innerHTML = `<img src="${fileUrl}" style="max-width: 100%; border-radius: 5px;" alt="${filename}">`;
-                playerEl.classList.remove('hidden');
-                addOutput(`Viewing image: ${filename}`);
-            } else {
-                downloadFile(filename);
+            scrollToBottom() {
+                this.output.scrollTop = this.output.scrollHeight;
             }
-        }
 
-        function downloadFile(filename) {
-            const url = `${API_BASE}/file/${encodeURIComponent(filename)}`;
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            addOutput(`Downloading: ${filename}`);
-        }
-
-        async function deleteFile(filename) {
-            if (!confirm(`Delete ${filename}? This cannot be undone.`)) return;
-            
-            try {
-                const response = await fetch(`${API_BASE}/file/${encodeURIComponent(filename)}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': authToken }
-                });
-
-                if (response.ok) {
-                    addOutput(`Deleted: ${filename}`, 'success');
-                    loadFiles();
-                } else {
-                    addOutput(`Failed to delete: ${filename}`, 'error');
-                }
-            } catch (error) {
-                addOutput('Network error during deletion.', 'error');
-            }
-        }
-
-        // File upload
-        async function uploadFiles(fileList) {
-            for (const file of fileList) {
-                const formData = new FormData();
-                formData.append('file', file);
+            async executeCommand(command) {
+                this.print(`$ ${command}`);
                 
+                const parts = command.split(' ');
+                const cmd = parts[0].toLowerCase();
+                const args = parts.slice(1);
+
                 try {
-                    addOutput(`Uploading: ${file.name}...`);
-                    
-                    const response = await fetch(`${API_BASE}/upload`, {
-                        method: 'POST',
-                        headers: { 'Authorization': authToken },
-                        body: formData
+                    switch (cmd) {
+                        case 'help':
+                            this.showHelp();
+                            break;
+                        case 'auth':
+                            await this.authenticate();
+                            break;
+                        case 'ls':
+                        case 'list':
+                            await this.listFiles();
+                            break;
+                        case 'upload':
+                            this.uploadFile();
+                            break;
+                        case 'download':
+                        case 'get':
+                            if (args.length > 0) {
+                                await this.downloadFile(args.join(' '));
+                            } else {
+                                this.print('Usage: download <filename>', 'error');
+                            }
+                            break;
+                        case 'play':
+                        case 'view':
+                            if (args.length > 0) {
+                                await this.viewFile(args.join(' '));
+                            } else {
+                                this.print('Usage: play <filename>', 'error');
+                            }
+                            break;
+                        case 'info':
+                            if (args.length > 0) {
+                                await this.showFileInfo(args.join(' '));
+                            } else {
+                                this.print('Usage: info <filename>', 'error');
+                            }
+                            break;
+                        case 'search':
+                            if (args.length > 0) {
+                                this.searchFiles(args.join(' '));
+                            } else {
+                                this.print('Usage: search <query>', 'error');
+                            }
+                            break;
+                        case 'delete':
+                        case 'rm':
+                            if (args.length > 0) {
+                                await this.deleteFile(args.join(' '));
+                            } else {
+                                this.print('Usage: delete <filename>', 'error');
+                            }
+                            break;
+                        case 'clear':
+                            this.output.innerHTML = '';
+                            break;
+                        default:
+                            this.print(`Command not found: ${cmd}`, 'error');
+                            this.print('Type "help" for available commands');
+                    }
+                } catch (error) {
+                    this.print(`Error: ${error.message}`, 'error');
+                }
+                
+                this.print('');
+            }
+
+            showHelp() {
+                const commands = [
+                    'auth                 - Authenticate with password',
+                    'ls, list             - List all files',
+                    'upload               - Upload a file',
+                    'download <file>      - Download a file',
+                    'play <file>          - Play/view media file',
+                    'info <file>          - Show file information',
+                    'search <query>       - Search files by name',
+                    'delete <file>        - Delete a file',
+                    'clear                - Clear terminal',
+                    'help                 - Show this help'
+                ];
+                
+                this.print('Available commands:');
+                commands.forEach(cmd => this.print(`  ${cmd}`));
+            }
+
+            async authenticate() {
+                if (!this.token) {
+                    const password = prompt('Enter password:');
+                    if (!password) {
+                        this.print('Authentication cancelled', 'warning');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`${this.apiUrl}/auth`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.token = data.token;
+                            this.print('Authentication successful!', 'success');
+                            await this.listFiles();
+                        } else {
+                            this.print('Authentication failed', 'error');
+                        }
+                    } catch (error) {
+                        this.print(`Authentication error: ${error.message}`, 'error');
+                    }
+                } else {
+                    this.print('Already authenticated', 'success');
+                }
+            }
+
+            checkAuth() {
+                if (!this.token) {
+                    this.print('Please authenticate first with "auth" command', 'error');
+                    return false;
+                }
+                return true;
+            }
+
+            async listFiles() {
+                if (!this.checkAuth()) return;
+
+                try {
+                    const response = await fetch(`${this.apiUrl}/files`, {
+                        headers: { 'Authorization': this.token }
                     });
 
                     if (response.ok) {
-                        addOutput(`Uploaded: ${file.name}`, 'success');
+                        this.files = await response.json();
+                        if (this.files.length === 0) {
+                            this.print('No files found');
+                        } else {
+                            this.print(`Found ${this.files.length} files:`);
+                            this.files.forEach(file => {
+                                const size = this.formatSize(file.size);
+                                const date = new Date(file.lastModified).toLocaleString();
+                                this.print(`  ${file.name} (${size}) - ${date}`);
+                            });
+                        }
                     } else {
-                        addOutput(`Failed to upload: ${file.name}`, 'error');
+                        this.print('Failed to list files', 'error');
                     }
                 } catch (error) {
-                    addOutput(`Upload error: ${file.name}`, 'error');
+                    this.print(`Error listing files: ${error.message}`, 'error');
                 }
             }
-            
-            loadFiles();
-        }
 
-        // Terminal commands
-        function addOutput(text, type = '') {
-            const outputEl = document.getElementById('terminal-output');
-            const line = document.createElement('div');
-            line.textContent = `> ${text}`;
-            if (type) line.className = type;
-            outputEl.appendChild(line);
-            outputEl.scrollTop = outputEl.scrollHeight;
-        }
+            uploadFile() {
+                if (!this.checkAuth()) return;
 
-        function processCommand(cmd) {
-            const parts = cmd.trim().split(' ');
-            const command = parts[0].toLowerCase();
-            
-            addOutput(cmd);
-            
-            switch (command) {
-                case 'help':
-                    addOutput('Available commands:');
-                    addOutput('  ls, list     - List all files');
-                    addOutput('  search <term>- Search files by name');
-                    addOutput('  clear-search - Clear current search');
-                    addOutput('  upload       - Open file browser');
-                    addOutput('  clear        - Clear terminal');
-                    addOutput('  refresh      - Reload file list');
-                    addOutput('  play <file>  - Play media file');
-                    addOutput('  stop         - Stop current media');
-                    addOutput('  exit         - Logout');
-                    break;
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.multiple = true;
+                
+                input.onchange = async (e) => {
+                    const files = Array.from(e.target.files);
                     
-                case 'ls':
-                case 'list':
-                    const filesToList = currentSearchTerm ? filteredFiles : files;
-                    if (filesToList.length === 0) {
-                        if (currentSearchTerm) {
-                            addOutput('No files match current search.');
-                        } else {
-                            addOutput('No files in storage.');
-                        }
-                    } else {
-                        if (currentSearchTerm) {
-                            addOutput(`Files matching "${currentSearchTerm}":`);
-                        }
-                        filesToList.forEach(file => {
-                            const icon = getFileIcon(file.name);
-                            const size = formatFileSize(file.size);
-                            addOutput(`${icon} ${file.name} (${size})`);
-                        });
-                    }
-                    break;
-                    
-                case 'search':
-                    if (parts[1]) {
-                        const searchTerm = parts.slice(1).join(' ');
-                        document.getElementById('search-input').value = searchTerm;
-                        performSearch(searchTerm);
-                    } else {
-                        addOutput('Usage: search <term>', 'error');
-                    }
-                    break;
-                    
-                case 'clear-search':
-                    clearSearch();
-                    break;
-                    
-                case 'upload':
-                    document.getElementById('file-input').click();
-                    break;
-                    
-                case 'clear':
-                    document.getElementById('terminal-output').innerHTML = '';
-                    break;
-                    
-                case 'refresh':
-                    loadFiles();
-                    break;
-                    
-                case 'play':
-                    if (parts[1]) {
-                        const filename = parts.slice(1).join(' ');
-                        const searchList = currentSearchTerm ? filteredFiles : files;
-                        const file = searchList.find(f => f.name.toLowerCase().includes(filename.toLowerCase()));
-                        if (file) {
-                            viewFile(file.name);
-                        } else {
-                            addOutput(`File not found: ${filename}`, 'error');
-                            if (currentSearchTerm) {
-                                addOutput(`Note: Currently showing search results for "${currentSearchTerm}"`);
+                    for (const file of files) {
+                        this.print(`Uploading: ${file.name}...`);
+                        
+                        try {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            
+                            const response = await fetch(`${this.apiUrl}/upload`, {
+                                method: 'POST',
+                                headers: { 'Authorization': this.token },
+                                body: formData
+                            });
+                            
+                            if (response.ok) {
+                                this.print(`✓ Uploaded: ${file.name}`, 'success');
+                            } else {
+                                this.print(`✗ Failed to upload: ${file.name}`, 'error');
                             }
+                        } catch (error) {
+                            this.print(`✗ Upload error for ${file.name}: ${error.message}`, 'error');
+                        }
+                    }
+                    
+                    // Refresh file list
+                    await this.listFiles();
+                };
+                
+                input.click();
+            }
+
+            async downloadFile(filename) {
+                if (!this.checkAuth()) return;
+
+                try {
+                    const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
+                        headers: { 'Authorization': this.token }
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        this.print(`Downloaded: ${filename}`, 'success');
+                    } else {
+                        this.print(`File not found: ${filename}`, 'error');
+                    }
+                } catch (error) {
+                    this.print(`Download error: ${error.message}`, 'error');
+                }
+            }
+
+            async viewFile(filename) {
+                if (!this.checkAuth()) return;
+
+                try {
+                    const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
+                        headers: { 'Authorization': this.token }
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const contentType = response.headers.get('content-type') || '';
+                        
+                        this.print(`Playing: ${filename}`);
+                        
+                        if (contentType.startsWith('video/')) {
+                            this.printHTML(`
+                                <div class="media-container">
+                                    <video controls>
+                                        <source src="${url}" type="${contentType}">
+                                        Your browser doesn't support this video format.
+                                    </video>
+                                </div>
+                            `);
+                        } else if (contentType.startsWith('audio/')) {
+                            this.printHTML(`
+                                <div class="media-container">
+                                    <audio controls>
+                                        <source src="${url}" type="${contentType}">
+                                        Your browser doesn't support this audio format.
+                                    </audio>
+                                </div>
+                            `);
+                        } else if (contentType.startsWith('image/')) {
+                            this.printHTML(`
+                                <div class="media-container">
+                                    <img src="${url}" alt="${filename}" style="max-width: 100%; max-height: 400px;">
+                                </div>
+                            `);
+                        } else if (contentType.startsWith('text/')) {
+                            const text = await blob.text();
+                            this.print('--- File Contents ---');
+                            this.print(text);
+                            this.print('--- End of File ---');
+                        } else {
+                            this.print(`Cannot preview this file type: ${contentType}`, 'warning');
+                            await this.showFileInfo(filename);
                         }
                     } else {
-                        addOutput('Usage: play <filename>', 'error');
+                        this.print(`File not found: ${filename}`, 'error');
                     }
-                    break;
-                    
-                case 'stop':
-                    document.getElementById('media-player').classList.add('hidden');
-                    addOutput('Media playback stopped.');
-                    break;
-                    
-                case 'exit':
-                    location.reload();
-                    break;
-                    
-                default:
-                    addOutput(`Command not found: ${command}`, 'error');
+                } catch (error) {
+                    this.print(`View error: ${error.message}`, 'error');
+                }
+            }
+
+            async showFileInfo(filename) {
+                if (!this.checkAuth()) return;
+
+                const file = this.files.find(f => f.name === filename);
+                if (file) {
+                    this.printHTML(`
+                        <div class="file-info">
+                            <strong>File Information:</strong><br>
+                            Name: ${file.name}<br>
+                            Size: ${this.formatSize(file.size)}<br>
+                            Last Modified: ${new Date(file.lastModified).toLocaleString()}<br>
+                            Type: ${this.getFileType(file.name)}
+                        </div>
+                    `);
+                } else {
+                    this.print(`File not found: ${filename}`, 'error');
+                }
+            }
+
+            searchFiles(query) {
+                const results = this.files.filter(file => 
+                    file.name.toLowerCase().includes(query.toLowerCase())
+                );
+
+                if (results.length === 0) {
+                    this.print(`No files found matching: ${query}`, 'warning');
+                } else {
+                    this.print(`Found ${results.length} files matching "${query}":`);
+                    results.forEach(file => {
+                        const size = this.formatSize(file.size);
+                        this.print(`  ${file.name} (${size})`);
+                    });
+                }
+            }
+
+            async deleteFile(filename) {
+                if (!this.checkAuth()) return;
+
+                if (!confirm(`Are you sure you want to delete "${filename}"?`)) {
+                    this.print('Delete cancelled', 'warning');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': this.token }
+                    });
+
+                    if (response.ok) {
+                        this.print(`Deleted: ${filename}`, 'success');
+                        await this.listFiles();
+                    } else {
+                        this.print(`Failed to delete: ${filename}`, 'error');
+                    }
+                } catch (error) {
+                    this.print(`Delete error: ${error.message}`, 'error');
+                }
+            }
+
+            formatSize(bytes) {
+                const units = ['B', 'KB', 'MB', 'GB'];
+                let size = bytes;
+                let unitIndex = 0;
+
+                while (size >= 1024 && unitIndex < units.length - 1) {
+                    size /= 1024;
+                    unitIndex++;
+                }
+
+                return `${size.toFixed(1)} ${units[unitIndex]}`;
+            }
+
+            getFileType(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                const types = {
+                    // Video
+                    mp4: 'Video', webm: 'Video', avi: 'Video', mov: 'Video', mkv: 'Video',
+                    // Audio  
+                    mp3: 'Audio', wav: 'Audio', ogg: 'Audio', m4a: 'Audio', flac: 'Audio',
+                    // Image
+                    jpg: 'Image', jpeg: 'Image', png: 'Image', gif: 'Image', svg: 'Image',
+                    // Text
+                    txt: 'Text', md: 'Markdown', json: 'JSON', js: 'JavaScript', css: 'CSS',
+                    html: 'HTML', xml: 'XML', csv: 'CSV',
+                    // Archives
+                    zip: 'Archive', rar: 'Archive', '7z': 'Archive', tar: 'Archive',
+                    // Documents
+                    pdf: 'PDF', doc: 'Document', docx: 'Document', xls: 'Spreadsheet', xlsx: 'Spreadsheet'
+                };
+                
+                return types[ext] || 'Unknown';
             }
         }
 
-        // Event listeners
-        document.getElementById('password-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') authenticate();
-        });
-
-        document.getElementById('command-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const cmd = e.target.value;
-                if (cmd.trim()) {
-                    processCommand(cmd);
-                    e.target.value = '';
-                }
-            }
-        });
-
-        // Drag and drop
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-
-        dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            uploadFiles(e.dataTransfer.files);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                uploadFiles(e.target.files);
-            }
-        });
-
-        // Search functionality
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            const searchTerm = e.target.value;
-            performSearch(searchTerm);
-        });
-
-        document.getElementById('clear-search').addEventListener('click', clearSearch);
-
-        // Auto-focus command input
-        document.addEventListener('click', () => {
-            if (!document.getElementById('main-section').classList.contains('hidden')) {
-                document.getElementById('command-input').focus();
-            }
+        // Initialize terminal when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            new Terminal();
         });
     </script>
 </body>
