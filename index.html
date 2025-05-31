@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal File Storage</title>
+    <title>Terminal File Storage Pro</title>
     <style>
         * {
             margin: 0;
@@ -28,8 +28,52 @@
 
         .header {
             border-bottom: 1px solid #333;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            color: #00ff00;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .header-left .subtitle {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            border: 1px solid;
+        }
+
+        .status.authenticated {
+            color: #44ff44;
+            border-color: #44ff44;
+            background: rgba(68, 255, 68, 0.1);
+        }
+
+        .status.unauthenticated {
+            color: #ff4444;
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .file-count {
+            color: #ffaa44;
+            font-size: 0.9em;
         }
 
         .output {
@@ -40,14 +84,26 @@
             word-wrap: break-word;
         }
 
+        .input-section {
+            border-top: 1px solid #333;
+            padding-top: 15px;
+        }
+
         .input-line {
             display: flex;
             align-items: center;
+            position: relative;
         }
 
         .prompt {
             color: #00ff00;
             margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .input-container {
+            flex: 1;
+            position: relative;
         }
 
         .input {
@@ -56,12 +112,14 @@
             color: #00ff00;
             font-family: inherit;
             font-size: inherit;
-            flex: 1;
+            width: 100%;
             outline: none;
+            padding: 5px 0;
         }
 
         .cursor {
             animation: blink 1s infinite;
+            color: #00ff00;
         }
 
         @keyframes blink {
@@ -69,21 +127,149 @@
             51%, 100% { opacity: 0; }
         }
 
-        .media-container {
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background: #333;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-type {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .file-list {
             margin: 10px 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .file-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+            width: 20px;
+        }
+
+        .file-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .file-details {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid;
+            color: inherit;
+            padding: 4px 8px;
+            font-family: inherit;
+            font-size: 0.8em;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-view {
+            border-color: #44ff44;
+            color: #44ff44;
+        }
+
+        .btn-download {
+            border-color: #4488ff;
+            color: #4488ff;
+        }
+
+        .btn-info {
+            border-color: #ffaa44;
+            color: #ffaa44;
+        }
+
+        .btn-delete {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .btn-upload {
+            border-color: #00ff00;
+            color: #00ff00;
+            padding: 6px 12px;
+            margin-bottom: 10px;
+        }
+
+        .media-container {
+            margin: 15px 0;
             max-width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
         }
 
         video, audio {
             max-width: 100%;
             max-height: 300px;
-            background: #333;
+            width: 100%;
         }
 
-        .file-info {
+        .file-info-box {
             background: #1a1a1a;
             border: 1px solid #333;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
             border-radius: 5px;
         }
@@ -100,70 +286,225 @@
             color: #ffaa44;
         }
 
-        .hidden {
-            display: none;
-        }
-
-        .search-results {
+        .progress-bar {
+            width: 100%;
+            height: 20px;
             background: #1a1a1a;
             border: 1px solid #333;
-            max-height: 200px;
-            overflow-y: auto;
+            border-radius: 3px;
+            overflow: hidden;
             margin: 5px 0;
         }
 
-        .search-item {
-            padding: 5px 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #333;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #44ff44, #00ff00);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 0.8em;
+            font-weight: bold;
         }
 
-        .search-item:hover {
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .command-help {
+            background: #1a1a1a;
+            border-left: 3px solid #00ff00;
+            padding: 10px 15px;
+            margin: 10px 0;
+        }
+
+        .drag-drop-zone {
+            border: 2px dashed #333;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            color: #888;
+            transition: all 0.3s ease;
+        }
+
+        .drag-drop-zone.dragover {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+        }
+
+        .search-highlight {
+            background: rgba(255, 255, 0, 0.3);
+            color: #fff;
+        }
+
+        .keyboard-shortcuts {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.7em;
+            color: #888;
+            display: none;
+        }
+
+        .keyboard-shortcuts.show {
+            display: block;
+        }
+
+        .shortcut {
+            margin: 2px 0;
+        }
+
+        .key {
             background: #333;
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin: 0 2px;
         }
     </style>
 </head>
 <body>
     <div class="terminal">
         <div class="header">
-            <div>Terminal File Storage v1.0</div>
-            <div>Type 'help' for available commands</div>
+            <div class="header-left">
+                <h1>Terminal File Storage Pro</h1>
+                <div class="subtitle">Advanced file management system</div>
+            </div>
+            <div class="header-right">
+                <div class="status unauthenticated" id="status">Unauthenticated</div>
+                <div class="file-count" id="fileCount">0 files</div>
+            </div>
         </div>
         
         <div class="output" id="output"></div>
         
-        <div class="input-line">
-            <span class="prompt">$</span>
-            <input type="text" class="input" id="input" autocomplete="off" spellcheck="false">
-            <span class="cursor">_</span>
+        <div class="input-section">
+            <div class="input-line">
+                <span class="prompt">$</span>
+                <div class="input-container">
+                    <input type="text" class="input" id="input" autocomplete="off" spellcheck="false" placeholder="Type a command or press Tab for suggestions...">
+                    <div class="autocomplete-dropdown" id="autocomplete"></div>
+                </div>
+                <span class="cursor">_</span>
+            </div>
         </div>
     </div>
 
+    <div class="keyboard-shortcuts" id="shortcuts">
+        <div class="shortcut"><span class="key">Tab</span> Auto-complete</div>
+        <div class="shortcut"><span class="key">↑</span><span class="key">↓</span> History</div>
+        <div class="shortcut"><span class="key">Ctrl+L</span> Clear</div>
+        <div class="shortcut"><span class="key">Ctrl+U</span> Upload</div>
+        <div class="shortcut"><span class="key">F1</span> Help</div>
+    </div>
+
     <script>
-        class Terminal {
+        class AdvancedTerminal {
             constructor() {
                 this.output = document.getElementById('output');
                 this.input = document.getElementById('input');
+                this.autocomplete = document.getElementById('autocomplete');
+                this.status = document.getElementById('status');
+                this.fileCount = document.getElementById('fileCount');
+                this.shortcuts = document.getElementById('shortcuts');
+                
                 this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
                 this.token = null;
                 this.files = [];
                 this.history = [];
                 this.historyIndex = -1;
+                this.autocompleteIndex = -1;
+                this.currentSuggestions = [];
+                
+                this.commands = [
+                    'auth', 'help', 'ls', 'list', 'upload', 'download', 'get',
+                    'play', 'view', 'info', 'search', 'delete', 'rm', 'clear'
+                ];
                 
                 this.init();
             }
 
             init() {
-                this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+                this.setupEventListeners();
+                this.setupDragDrop();
                 this.input.focus();
-                this.print('Welcome to Terminal File Storage!');
-                this.print('Please authenticate with the "auth" command first.');
-                this.print('');
+                
+                this.typewriterEffect('Welcome to Terminal File Storage Pro!', () => {
+                    this.print('Enhanced terminal with advanced file management capabilities.');
+                    this.print('Please authenticate with the "auth" command to begin.');
+                    this.print('Press F1 for help or Tab for auto-completion.');
+                    this.print('');
+                });
+            }
+
+            setupEventListeners() {
+                this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+                this.input.addEventListener('input', (e) => this.handleInput(e));
+                this.input.addEventListener('blur', () => this.hideAutocomplete());
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'l') {
+                        e.preventDefault();
+                        this.executeCommand('clear');
+                    } else if (e.ctrlKey && e.key === 'u') {
+                        e.preventDefault();
+                        if (this.token) this.uploadFile();
+                    } else if (e.key === 'F1') {
+                        e.preventDefault();
+                        this.executeCommand('help');
+                    } else if (e.key === 'F2') {
+                        e.preventDefault();
+                        this.shortcuts.classList.toggle('show');
+                    }
+                });
+            }
+
+            setupDragDrop() {
+                const terminal = document.querySelector('.terminal');
+                
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    terminal.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+
+                terminal.addEventListener('dragover', () => {
+                    if (this.token) {
+                        this.showDragDropZone();
+                    }
+                });
+
+                terminal.addEventListener('dragleave', (e) => {
+                    if (!terminal.contains(e.relatedTarget)) {
+                        this.hideDragDropZone();
+                    }
+                });
+
+                terminal.addEventListener('drop', (e) => {
+                    this.hideDragDropZone();
+                    if (this.token && e.dataTransfer.files.length > 0) {
+                        this.handleFileDrop(Array.from(e.dataTransfer.files));
+                    }
+                });
             }
 
             handleKeydown(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
+                    this.hideAutocomplete();
                     const command = this.input.value.trim();
                     if (command) {
                         this.history.unshift(command);
@@ -171,14 +512,169 @@
                         this.executeCommand(command);
                     }
                     this.input.value = '';
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    this.handleTabCompletion();
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    if (this.historyIndex < this.history.length - 1) {
-                        this.historyIndex++;
-                        this.input.value = this.history[this.historyIndex];
+                    if (this.autocomplete.style.display === 'block') {
+                        this.navigateAutocomplete(-1);
+                    } else {
+                        this.navigateHistory(1);
                     }
                 } else if (e.key === 'ArrowDown') {
                     e.preventDefault();
+                    if (this.autocomplete.style.display === 'block') {
+                        this.navigateAutocomplete(1);
+                    } else {
+                        this.navigateHistory(-1);
+                    }
+                } else if (e.key === 'Escape') {
+                    this.hideAutocomplete();
+                }
+            }
+
+            handleInput(e) {
+                const value = e.target.value;
+                if (value.length > 0) {
+                    this.showAutocomplete(value);
+                } else {
+                    this.hideAutocomplete();
+                }
+            }
+
+            handleTabCompletion() {
+                const input = this.input.value;
+                const parts = input.split(' ');
+                
+                if (parts.length === 1) {
+                    // Complete command
+                    const matches = this.commands.filter(cmd => cmd.startsWith(parts[0]));
+                    if (matches.length === 1) {
+                        this.input.value = matches[0] + ' ';
+                    } else if (matches.length > 1) {
+                        this.showCommandSuggestions(matches);
+                    }
+                } else if (parts.length > 1) {
+                    // Complete filename
+                    const filename = parts[parts.length - 1];
+                    const matches = this.files.filter(file => 
+                        file.name.toLowerCase().startsWith(filename.toLowerCase())
+                    );
+                    
+                    if (matches.length === 1) {
+                        parts[parts.length - 1] = matches[0].name;
+                        this.input.value = parts.join(' ');
+                    } else if (matches.length > 1) {
+                        this.showFileSuggestions(matches);
+                    }
+                }
+            }
+
+            showAutocomplete(value) {
+                const parts = value.split(' ');
+                let suggestions = [];
+
+                if (parts.length === 1) {
+                    suggestions = this.commands.filter(cmd => 
+                        cmd.toLowerCase().startsWith(parts[0].toLowerCase())
+                    );
+                } else {
+                    const filename = parts[parts.length - 1];
+                    suggestions = this.files
+                        .filter(file => file.name.toLowerCase().includes(filename.toLowerCase()))
+                        .map(file => file.name);
+                }
+
+                this.displayAutocomplete(suggestions);
+            }
+
+            displayAutocomplete(suggestions) {
+                if (suggestions.length === 0) {
+                    this.hideAutocomplete();
+                    return;
+                }
+
+                this.currentSuggestions = suggestions;
+                this.autocompleteIndex = -1;
+                
+                this.autocomplete.innerHTML = suggestions.map((suggestion, index) => {
+                    const file = this.files.find(f => f.name === suggestion);
+                    const type = file ? this.getFileType(file.name) : 'Command';
+                    
+                    return `
+                        <div class="autocomplete-item" data-index="${index}">
+                            <span>${suggestion}</span>
+                            <span class="file-type">${type}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                this.autocomplete.style.display = 'block';
+                
+                // Add click handlers
+                this.autocomplete.querySelectorAll('.autocomplete-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.selectSuggestion(item.textContent.trim().split('\n')[0]);
+                    });
+                });
+            }
+
+            navigateAutocomplete(direction) {
+                if (this.currentSuggestions.length === 0) return;
+                
+                this.autocompleteIndex += direction;
+                
+                if (this.autocompleteIndex < -1) {
+                    this.autocompleteIndex = this.currentSuggestions.length - 1;
+                } else if (this.autocompleteIndex >= this.currentSuggestions.length) {
+                    this.autocompleteIndex = -1;
+                }
+                
+                // Update visual selection
+                this.autocomplete.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                    item.classList.toggle('selected', index === this.autocompleteIndex);
+                });
+                
+                // Auto-complete in input
+                if (this.autocompleteIndex >= 0) {
+                    const suggestion = this.currentSuggestions[this.autocompleteIndex];
+                    const parts = this.input.value.split(' ');
+                    
+                    if (parts.length === 1) {
+                        this.input.value = suggestion + ' ';
+                    } else {
+                        parts[parts.length - 1] = suggestion;
+                        this.input.value = parts.join(' ');
+                    }
+                }
+            }
+
+            selectSuggestion(suggestion) {
+                const parts = this.input.value.split(' ');
+                
+                if (parts.length === 1) {
+                    this.input.value = suggestion + ' ';
+                } else {
+                    parts[parts.length - 1] = suggestion;
+                    this.input.value = parts.join(' ');
+                }
+                
+                this.hideAutocomplete();
+                this.input.focus();
+            }
+
+            hideAutocomplete() {
+                this.autocomplete.style.display = 'none';
+                this.currentSuggestions = [];
+                this.autocompleteIndex = -1;
+            }
+
+            navigateHistory(direction) {
+                if (direction > 0 && this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.input.value = this.history[this.historyIndex];
+                } else if (direction < 0) {
                     if (this.historyIndex > 0) {
                         this.historyIndex--;
                         this.input.value = this.history[this.historyIndex];
@@ -187,6 +683,27 @@
                         this.input.value = '';
                     }
                 }
+            }
+
+            typewriterEffect(text, callback) {
+                let i = 0;
+                const speed = 30;
+                const element = document.createElement('div');
+                element.className = 'success';
+                this.output.appendChild(element);
+                
+                const type = () => {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    } else if (callback) {
+                        setTimeout(callback, 500);
+                    }
+                };
+                
+                type();
+                this.scrollToBottom();
             }
 
             print(text, className = '') {
@@ -206,6 +723,59 @@
 
             scrollToBottom() {
                 this.output.scrollTop = this.output.scrollHeight;
+            }
+
+            updateStatus() {
+                if (this.token) {
+                    this.status.textContent = 'Authenticated';
+                    this.status.className = 'status authenticated';
+                } else {
+                    this.status.textContent = 'Unauthenticated';
+                    this.status.className = 'status unauthenticated';
+                }
+                
+                this.fileCount.textContent = `${this.files.length} files`;
+            }
+
+            showProgress(text, progress = 0) {
+                const progressHTML = `
+                    <div style="margin: 10px 0;">
+                        <div>${text}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%">${progress}%</div>
+                        </div>
+                    </div>
+                `;
+                this.printHTML(progressHTML);
+                return this.output.lastElementChild;
+            }
+
+            updateProgress(element, progress, text) {
+                const progressFill = element.querySelector('.progress-fill');
+                const textElement = element.querySelector('div');
+                
+                progressFill.style.width = `${progress}%`;
+                progressFill.textContent = `${progress}%`;
+                textElement.textContent = text;
+            }
+
+            showDragDropZone() {
+                if (document.querySelector('.drag-drop-zone')) return;
+                
+                const zone = document.createElement('div');
+                zone.className = 'drag-drop-zone dragover';
+                zone.innerHTML = `
+                    <div>📁 Drop files here to upload</div>
+                    <div style="font-size: 0.8em; margin-top: 5px;">Multiple files supported</div>
+                `;
+                
+                this.output.appendChild(zone);
+                this.scrollToBottom();
+            }
+
+            hideDragDropZone() {
+                const zone = document.querySelector('.drag-drop-zone');
+                if (zone) zone.remove();
             }
 
             async executeCommand(command) {
@@ -283,30 +853,54 @@
             }
 
             showHelp() {
-                const commands = [
-                    'auth                 - Authenticate with password',
-                    'ls, list             - List all files',
-                    'upload               - Upload a file',
-                    'download <file>      - Download a file',
-                    'play <file>          - Play/view media file',
-                    'info <file>          - Show file information',
-                    'search <query>       - Search files by name',
-                    'delete <file>        - Delete a file',
-                    'clear                - Clear terminal',
-                    'help                 - Show this help'
-                ];
+                const helpHTML = `
+                    <div class="command-help">
+                        <strong>Terminal File Storage Pro - Commands</strong><br><br>
+                        <strong>Authentication:</strong><br>
+                        • auth - Authenticate with password<br><br>
+                        
+                        <strong>File Management:</strong><br>
+                        • ls, list - List all files with actions<br>
+                        • upload - Upload files (or drag & drop)<br>
+                        • download &lt;file&gt; - Download a file<br>
+                        • view &lt;file&gt; - View/play media files<br>
+                        • info &lt;file&gt; - Show detailed file information<br>
+                        • delete &lt;file&gt; - Delete a file<br><br>
+                        
+                        <strong>Utilities:</strong><br>
+                        • search &lt;query&gt; - Search files by name<br>
+                        • clear - Clear terminal output<br>
+                        • help - Show this help message<br><br>
+                        
+                        <strong>Keyboard Shortcuts:</strong><br>
+                        • Tab - Auto-complete commands and filenames<br>
+                        • ↑/↓ - Navigate command history<br>
+                        • Ctrl+L - Clear terminal<br>
+                        • Ctrl+U - Quick upload<br>
+                        • F1 - Show help<br>
+                        • F2 - Toggle shortcuts panel<br><br>
+                        
+                        <strong>Features:</strong><br>
+                        • Drag & drop file upload<br>
+                        • Interactive file management<br>
+                        • Media preview (video/audio/images)<br>
+                        • Smart auto-completion<br>
+                        • Command history<br>
+                    </div>
+                `;
                 
-                this.print('Available commands:');
-                commands.forEach(cmd => this.print(`  ${cmd}`));
+                this.printHTML(helpHTML);
             }
 
             async authenticate() {
                 if (!this.token) {
-                    const password = prompt('Enter password:');
+                    const password = prompt('🔐 Enter authentication password:');
                     if (!password) {
                         this.print('Authentication cancelled', 'warning');
                         return;
                     }
+
+                    const loadingMsg = this.print('🔄 Authenticating...', 'warning');
 
                     try {
                         const response = await fetch(`${this.apiUrl}/auth`, {
@@ -318,22 +912,23 @@
                         if (response.ok) {
                             const data = await response.json();
                             this.token = data.token;
-                            this.print('Authentication successful!', 'success');
+                            this.print('✅ Authentication successful!', 'success');
+                            this.updateStatus();
                             await this.listFiles();
                         } else {
-                            this.print('Authentication failed', 'error');
+                            this.print('❌ Authentication failed - Invalid password', 'error');
                         }
                     } catch (error) {
-                        this.print(`Authentication error: ${error.message}`, 'error');
+                        this.print(`❌ Authentication error: ${error.message}`, 'error');
                     }
                 } else {
-                    this.print('Already authenticated', 'success');
+                    this.print('✅ Already authenticated', 'success');
                 }
             }
 
             checkAuth() {
                 if (!this.token) {
-                    this.print('Please authenticate first with "auth" command', 'error');
+                    this.print('🔒 Please authenticate first with "auth" command', 'error');
                     return false;
                 }
                 return true;
@@ -349,21 +944,57 @@
 
                     if (response.ok) {
                         this.files = await response.json();
+                        this.updateStatus();
+                        
                         if (this.files.length === 0) {
-                            this.print('No files found');
+                            this.printHTML(`
+                                <div class="file-info-box">
+                                    <div>📁 No files found</div>
+                                    <div style="margin-top: 10px;">
+                                        <button class="btn btn-upload" onclick="terminal.uploadFile()">📤 Upload Files</button>
+                                    </div>
+                                </div>
+                            `);
                         } else {
-                            this.print(`Found ${this.files.length} files:`);
-                            this.files.forEach(file => {
+                            this.print(`📂 Found ${this.files.length} files:`);
+                            
+                            const fileListHTML = this.files.map(file => {
+                                const icon = this.getFileIcon(file.name);
                                 const size = this.formatSize(file.size);
                                 const date = new Date(file.lastModified).toLocaleString();
-                                this.print(`  ${file.name} (${size}) - ${date}`);
-                            });
+                                const type = this.getFileType(file.name);
+                                
+                                return `
+                                    <div class="file-item">
+                                        <div class="file-icon">${icon}</div>
+                                        <div class="file-info">
+                                            <div class="file-name">${file.name}</div>
+                                            <div class="file-details">${size} • ${type} • ${date}</div>
+                                        </div>
+                                        <div class="file-actions">
+                                            <button class="btn btn-view" onclick="terminal.viewFile('${file.name}')" title="View/Play">👁️</button>
+                                            <button class="btn btn-download" onclick="terminal.downloadFile('${file.name}')" title="Download">💾</button>
+                                            <button class="btn btn-info" onclick="terminal.showFileInfo('${file.name}')" title="Info">ℹ️</button>
+                                            <button class="btn btn-delete" onclick="terminal.deleteFile('${file.name}')" title="Delete">🗑️</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                            
+                            this.printHTML(`
+                                <div class="file-list">
+                                    <div style="margin-bottom: 10px;">
+                                        <button class="btn btn-upload" onclick="terminal.uploadFile()">📤 Upload More Files</button>
+                                    </div>
+                                    ${fileListHTML}
+                                </div>
+                            `);
                         }
                     } else {
-                        this.print('Failed to list files', 'error');
+                        this.print('❌ Failed to list files', 'error');
                     }
                 } catch (error) {
-                    this.print(`Error listing files: ${error.message}`, 'error');
+                    this.print(`❌ Error listing files: ${error.message}`, 'error');
                 }
             }
 
@@ -376,41 +1007,51 @@
                 
                 input.onchange = async (e) => {
                     const files = Array.from(e.target.files);
-                    
-                    for (const file of files) {
-                        this.print(`Uploading: ${file.name}...`);
-                        
-                        try {
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            
-                            const response = await fetch(`${this.apiUrl}/upload`, {
-                                method: 'POST',
-                                headers: { 'Authorization': this.token },
-                                body: formData
-                            });
-                            
-                            if (response.ok) {
-                                this.print(`✓ Uploaded: ${file.name}`, 'success');
-                            } else {
-                                this.print(`✗ Failed to upload: ${file.name}`, 'error');
-                            }
-                        } catch (error) {
-                            this.print(`✗ Upload error for ${file.name}: ${error.message}`, 'error');
-                        }
-                    }
-                    
-                    // Refresh file list
-                    await this.listFiles();
+                    await this.handleFileDrop(files);
                 };
                 
                 input.click();
+            }
+
+            async handleFileDrop(files) {
+                if (!this.checkAuth()) return;
+                
+                this.print(`📤 Uploading ${files.length} file(s)...`);
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const progressElement = this.showProgress(`Uploading: ${file.name}`, 0);
+                    
+                    try {
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        
+                        const response = await fetch(`${this.apiUrl}/upload`, {
+                            method: 'POST',
+                            headers: { 'Authorization': this.token },
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            this.updateProgress(progressElement, 100, `✅ Uploaded: ${file.name}`);
+                        } else {
+                            this.updateProgress(progressElement, 0, `❌ Failed: ${file.name}`);
+                        }
+                    } catch (error) {
+                        this.updateProgress(progressElement, 0, `❌ Error uploading ${file.name}: ${error.message}`);
+                    }
+                }
+                
+                // Refresh file list
+                await this.listFiles();
             }
 
             async downloadFile(filename) {
                 if (!this.checkAuth()) return;
 
                 try {
+                    this.print(`💾 Downloading: ${filename}...`);
+                    
                     const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
                         headers: { 'Authorization': this.token }
                     });
@@ -423,12 +1064,12 @@
                         a.download = filename;
                         a.click();
                         URL.revokeObjectURL(url);
-                        this.print(`Downloaded: ${filename}`, 'success');
+                        this.print(`✅ Downloaded: ${filename}`, 'success');
                     } else {
-                        this.print(`File not found: ${filename}`, 'error');
+                        this.print(`❌ File not found: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.print(`Download error: ${error.message}`, 'error');
+                    this.print(`❌ Download error: ${error.message}`, 'error');
                 }
             }
 
@@ -436,6 +1077,8 @@
                 if (!this.checkAuth()) return;
 
                 try {
+                    this.print(`👁️ Loading: ${filename}...`);
+                    
                     const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
                         headers: { 'Authorization': this.token }
                     });
@@ -445,11 +1088,12 @@
                         const url = URL.createObjectURL(blob);
                         const contentType = response.headers.get('content-type') || '';
                         
-                        this.print(`Playing: ${filename}`);
+                        this.print(`📱 Viewing: ${filename}`);
                         
                         if (contentType.startsWith('video/')) {
                             this.printHTML(`
                                 <div class="media-container">
+                                    <div style="margin-bottom: 10px; color: #888;">🎬 Video Player</div>
                                     <video controls>
                                         <source src="${url}" type="${contentType}">
                                         Your browser doesn't support this video format.
@@ -459,7 +1103,8 @@
                         } else if (contentType.startsWith('audio/')) {
                             this.printHTML(`
                                 <div class="media-container">
-                                    <audio controls>
+                                    <div style="margin-bottom: 10px; color: #888;">🎵 Audio Player</div>
+                                    <audio controls style="width: 100%;">
                                         <source src="${url}" type="${contentType}">
                                         Your browser doesn't support this audio format.
                                     </audio>
@@ -468,23 +1113,27 @@
                         } else if (contentType.startsWith('image/')) {
                             this.printHTML(`
                                 <div class="media-container">
-                                    <img src="${url}" alt="${filename}" style="max-width: 100%; max-height: 400px;">
+                                    <div style="margin-bottom: 10px; color: #888;">🖼️ Image Viewer</div>
+                                    <img src="${url}" alt="${filename}" style="max-width: 100%; max-height: 400px; border-radius: 3px;">
                                 </div>
                             `);
                         } else if (contentType.startsWith('text/')) {
                             const text = await blob.text();
-                            this.print('--- File Contents ---');
-                            this.print(text);
-                            this.print('--- End of File ---');
+                            this.printHTML(`
+                                <div class="media-container">
+                                    <div style="margin-bottom: 10px; color: #888;">📄 Text File Content</div>
+                                    <pre style="white-space: pre-wrap; color: #ccc; max-height: 300px; overflow-y: auto;">${text}</pre>
+                                </div>
+                            `);
                         } else {
-                            this.print(`Cannot preview this file type: ${contentType}`, 'warning');
+                            this.print(`⚠️ Cannot preview this file type: ${contentType}`, 'warning');
                             await this.showFileInfo(filename);
                         }
                     } else {
-                        this.print(`File not found: ${filename}`, 'error');
+                        this.print(`❌ File not found: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.print(`View error: ${error.message}`, 'error');
+                    this.print(`❌ View error: ${error.message}`, 'error');
                 }
             }
 
@@ -493,17 +1142,35 @@
 
                 const file = this.files.find(f => f.name === filename);
                 if (file) {
+                    const icon = this.getFileIcon(file.name);
+                    const type = this.getFileType(file.name);
+                    const size = this.formatSize(file.size);
+                    const date = new Date(file.lastModified).toLocaleString();
+                    
                     this.printHTML(`
-                        <div class="file-info">
-                            <strong>File Information:</strong><br>
-                            Name: ${file.name}<br>
-                            Size: ${this.formatSize(file.size)}<br>
-                            Last Modified: ${new Date(file.lastModified).toLocaleString()}<br>
-                            Type: ${this.getFileType(file.name)}
+                        <div class="file-info-box">
+                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <span style="font-size: 2em; margin-right: 10px;">${icon}</span>
+                                <div>
+                                    <div style="font-size: 1.1em; font-weight: bold; color: #00ff00;">${file.name}</div>
+                                    <div style="color: #888; font-size: 0.9em;">${type} File</div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                                <div><strong>Size:</strong> ${size}</div>
+                                <div><strong>Type:</strong> ${type}</div>
+                                <div><strong>Modified:</strong> ${date}</div>
+                                <div><strong>Extension:</strong> .${file.name.split('.').pop()}</div>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-view" onclick="terminal.viewFile('${file.name}')">👁️ View</button>
+                                <button class="btn btn-download" onclick="terminal.downloadFile('${file.name}')">💾 Download</button>
+                                <button class="btn btn-delete" onclick="terminal.deleteFile('${file.name}')">🗑️ Delete</button>
+                            </div>
                         </div>
                     `);
                 } else {
-                    this.print(`File not found: ${filename}`, 'error');
+                    this.print(`❌ File not found: ${filename}`, 'error');
                 }
             }
 
@@ -513,39 +1180,84 @@
                 );
 
                 if (results.length === 0) {
-                    this.print(`No files found matching: ${query}`, 'warning');
+                    this.print(`🔍 No files found matching: "${query}"`, 'warning');
                 } else {
-                    this.print(`Found ${results.length} files matching "${query}":`);
-                    results.forEach(file => {
+                    this.print(`🔍 Found ${results.length} files matching "${query}":`);
+                    
+                    const resultsHTML = results.map(file => {
+                        const icon = this.getFileIcon(file.name);
                         const size = this.formatSize(file.size);
-                        this.print(`  ${file.name} (${size})`);
-                    });
+                        const highlightedName = file.name.replace(
+                            new RegExp(query, 'gi'), 
+                            match => `<span class="search-highlight">${match}</span>`
+                        );
+                        
+                        return `
+                            <div class="file-item">
+                                <div class="file-icon">${icon}</div>
+                                <div class="file-info">
+                                    <div class="file-name">${highlightedName}</div>
+                                    <div class="file-details">${size} • ${this.getFileType(file.name)}</div>
+                                </div>
+                                <div class="file-actions">
+                                    <button class="btn btn-view" onclick="terminal.viewFile('${file.name}')">👁️</button>
+                                    <button class="btn btn-download" onclick="terminal.downloadFile('${file.name}')">💾</button>
+                                    <button class="btn btn-info" onclick="terminal.showFileInfo('${file.name}')">ℹ️</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    this.printHTML(`<div class="file-list">${resultsHTML}</div>`);
                 }
             }
 
             async deleteFile(filename) {
                 if (!this.checkAuth()) return;
 
-                if (!confirm(`Are you sure you want to delete "${filename}"?`)) {
-                    this.print('Delete cancelled', 'warning');
+                if (!confirm(`⚠️ Are you sure you want to delete "${filename}"?`)) {
+                    this.print('🚫 Delete cancelled', 'warning');
                     return;
                 }
 
                 try {
+                    this.print(`🗑️ Deleting: ${filename}...`);
+                    
                     const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': this.token }
                     });
 
                     if (response.ok) {
-                        this.print(`Deleted: ${filename}`, 'success');
+                        this.print(`✅ Deleted: ${filename}`, 'success');
                         await this.listFiles();
                     } else {
-                        this.print(`Failed to delete: ${filename}`, 'error');
+                        this.print(`❌ Failed to delete: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.print(`Delete error: ${error.message}`, 'error');
+                    this.print(`❌ Delete error: ${error.message}`, 'error');
                 }
+            }
+
+            getFileIcon(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                const icons = {
+                    // Video
+                    mp4: '🎬', webm: '🎬', avi: '🎬', mov: '🎬', mkv: '🎬',
+                    // Audio  
+                    mp3: '🎵', wav: '🎵', ogg: '🎵', m4a: '🎵', flac: '🎵',
+                    // Image
+                    jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️', svg: '🖼️',
+                    // Text
+                    txt: '📄', md: '📝', json: '📋', js: '📜', css: '🎨',
+                    html: '🌐', xml: '📄', csv: '📊',
+                    // Archives
+                    zip: '📦', rar: '📦', '7z': '📦', tar: '📦',
+                    // Documents
+                    pdf: '📕', doc: '📘', docx: '📘', xls: '📗', xlsx: '📗'
+                };
+                
+                return icons[ext] || '📄';
             }
 
             formatSize(bytes) {
@@ -584,8 +1296,9 @@
         }
 
         // Initialize terminal when page loads
+        let terminal;
         window.addEventListener('DOMContentLoaded', () => {
-            new Terminal();
+            terminal = new AdvancedTerminal();
         });
     </script>
 </body>
