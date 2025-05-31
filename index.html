@@ -210,6 +210,7 @@
             border: 1px solid #333;
             transition: all 0.3s;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .file-card:hover {
@@ -242,8 +243,19 @@
         }
 
         .file-preview .file-icon {
-            font-size: 3em;
+            font-size: 4em;
             color: #333;
+        }
+
+        .file-preview .file-type-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .file-info {
@@ -684,7 +696,10 @@
                     const type = this.getFileType(file.name);
                     const date = new Date(file.lastModified).toLocaleDateString();
                     
-                    let previewHTML = `<div class="file-icon">${icon}</div>`;
+                    let previewHTML = `
+                        <div class="file-icon">${icon}</div>
+                        <div class="file-type-label">${type}</div>
+                    `;
                     
                     // Generate preview for media files
                     if (this.isVideoFile(file.name)) {
@@ -697,7 +712,10 @@
                                 <div class="preview-overlay">VIDEO</div>
                             `;
                         } catch (e) {
-                            previewHTML = `<div class="file-icon">${icon}</div>`;
+                            previewHTML = `
+                                <div class="file-icon">${icon}</div>
+                                <div class="file-type-label">${type}</div>
+                            `;
                         }
                     } else if (this.isImageFile(file.name)) {
                         try {
@@ -707,19 +725,22 @@
                                 <div class="preview-overlay">IMAGE</div>
                             `;
                         } catch (e) {
-                            previewHTML = `<div class="file-icon">${icon}</div>`;
+                            previewHTML = `
+                                <div class="file-icon">${icon}</div>
+                                <div class="file-type-label">${type}</div>
+                            `;
                         }
                     }
                     
                     return `
-                        <div class="file-card">
+                        <div class="file-card" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">
                             <div class="file-preview">
                                 ${previewHTML}
                             </div>
                             <div class="file-info">
                                 <div class="file-name" title="${file.name}">${file.name}</div>
                                 <div class="file-meta">${type} • ${size} • ${date}</div>
-                                <div class="file-actions">
+                                <div class="file-actions" onclick="event.stopPropagation()">
                                     <button class="btn" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">VIEW</button>
                                     <button class="btn" onclick="fileStorage.downloadFile('${file.name.replace(/'/g, "\\'")}')">DOWNLOAD</button>
                                     <button class="btn btn-danger" onclick="fileStorage.deleteFile('${file.name.replace(/'/g, "\\'")}')">DELETE</button>
