@@ -231,21 +231,6 @@
             cursor: not-allowed;
         }
 
-        .btn-favorite {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        .btn-favorite:hover {
-            background: var(--accent-color);
-            color: var(--bg-primary);
-        }
-
-        .btn-favorite.active {
-            background: var(--accent-color);
-            color: var(--bg-primary);
-        }
-
         .btn-danger {
             border-color: var(--danger-color);
             color: var(--danger-color);
@@ -254,73 +239,6 @@
         .btn-danger:hover {
             background: var(--danger-color);
             color: var(--bg-primary);
-        }
-
-        .favorites-section {
-            margin-bottom: 30px;
-        }
-
-        .favorites-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .favorites-header h3 {
-            color: var(--accent-color);
-            margin: 0;
-        }
-
-        .favorites-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .favorite-item {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--accent-color);
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .favorite-item:hover {
-            background: rgba(var(--accent-color), 0.1);
-        }
-
-        .favorite-icon {
-            color: var(--accent-color);
-            font-size: 1.2em;
-        }
-
-        .favorite-name {
-            flex: 1;
-            color: var(--accent-color);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 0.9em;
-        }
-
-        .favorite-remove {
-            background: none;
-            border: none;
-            color: var(--color-tertiary);
-            cursor: pointer;
-            padding: 2px;
-            font-family: inherit;
-        }
-
-        .favorite-remove:hover {
-            color: var(--danger-color);
         }
 
         .main-content {
@@ -396,7 +314,7 @@
 
         .file-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
         }
 
@@ -415,7 +333,7 @@
 
         .file-preview {
             width: 100%;
-            height: 180px;
+            height: 120px;
             background: var(--bg-primary);
             display: flex;
             align-items: center;
@@ -425,30 +343,19 @@
             position: relative;
         }
 
-        .file-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .file-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         .file-preview .file-icon {
-            font-size: 4em;
+            font-size: 3em;
             color: var(--border-color);
         }
 
         .file-preview .file-type-label {
             position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--color-tertiary);
-            font-size: 12px;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(var(--bg-primary), 0.8);
+            color: var(--color-primary);
+            padding: 2px 6px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -623,17 +530,6 @@
             max-width: 80vw;
         }
 
-        .preview-overlay {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(var(--bg-primary), 0.8);
-            color: var(--color-primary);
-            padding: 2px 6px;
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-
         /* Settings Modal Styles */
         .settings-content {
             min-width: 500px;
@@ -780,7 +676,6 @@
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="SEARCH FILES..." oninput="searchFiles()">
                 </div>
-                <button class="btn" onclick="fileStorage.toggleFavorites()">★ FAVORITES</button>
                 <button class="btn" onclick="uploadFiles()">UPLOAD</button>
                 <button class="btn" onclick="showSettings()">⚙ SETTINGS</button>
                 <button class="btn" onclick="logout()">LOGOUT</button>
@@ -793,15 +688,6 @@
             </div>
 
             <div id="alertContainer"></div>
-
-            <!-- Favorites Section -->
-            <div class="favorites-section" id="favoritesSection" style="display: none;">
-                <div class="favorites-header">
-                    <h3>★ FAVORITES</h3>
-                    <button class="btn" onclick="fileStorage.toggleFavorites()">HIDE FAVORITES</button>
-                </div>
-                <div class="favorites-grid" id="favoritesGrid"></div>
-            </div>
 
             <div id="fileContainer">
                 <div class="empty-state">
@@ -912,9 +798,8 @@
                 this.token = null;
                 this.files = [];
                 this.filteredFiles = [];
-                this.favorites = [];
-                this.showingFavorites = false;
                 this.currentTheme = 'matrix';
+                this.objectUrls = new Set(); // Track URLs for cleanup
                 
                 this.init();
             }
@@ -931,9 +816,6 @@
                     this.showMainContent();
                     this.loadFiles();
                 }
-                
-                // Load favorites
-                this.loadFavorites();
             }
 
             loadSettings() {
@@ -960,6 +842,18 @@
                         option.classList.remove('active');
                     }
                 });
+            }
+
+            // Clean up object URLs to prevent memory leaks
+            cleanupUrls() {
+                this.objectUrls.forEach(url => {
+                    try {
+                        URL.revokeObjectURL(url);
+                    } catch (e) {
+                        // Ignore errors during cleanup
+                    }
+                });
+                this.objectUrls.clear();
             }
 
             setupEventListeners() {
@@ -989,6 +883,11 @@
                         this.closeModal();
                         this.closeSettings();
                     }
+                });
+
+                // Clean up URLs when page unloads
+                window.addEventListener('beforeunload', () => {
+                    this.cleanupUrls();
                 });
             }
 
@@ -1072,6 +971,7 @@
 
             logout() {
                 this.token = null;
+                this.cleanupUrls(); // Clean up when logging out
                 localStorage.removeItem('auth_token');
                 document.getElementById('authSection').classList.remove('hidden');
                 document.getElementById('mainContent').classList.add('hidden');
@@ -1097,10 +997,7 @@
             resetSettings() {
                 if (confirm('RESET ALL SETTINGS TO DEFAULT?')) {
                     localStorage.removeItem('app_theme');
-                    localStorage.removeItem('file_favorites');
                     this.setTheme('matrix');
-                    this.favorites = [];
-                    this.renderFiles();
                     this.showAlert('SETTINGS RESET', 'info');
                 }
             }
@@ -1123,7 +1020,7 @@
                 }
             }
 
-            async renderFiles() {
+            renderFiles() {
                 const container = document.getElementById('fileContainer');
                 
                 if (this.filteredFiles.length === 0) {
@@ -1136,47 +1033,20 @@
                     return;
                 }
 
-                const filesHTML = await Promise.all(this.filteredFiles.map(async (file) => {
+                // Clean up old URLs before rendering new ones
+                this.cleanupUrls();
+
+                const filesHTML = this.filteredFiles.map((file) => {
                     const icon = this.getFileIcon(file.name);
                     const size = this.formatSize(file.size);
                     const type = this.getFileType(file.name);
                     const date = new Date(file.lastModified).toLocaleDateString();
                     
-                    let previewHTML = `
+                    // Simplified preview - no more loading videos/images in grid to improve performance
+                    const previewHTML = `
                         <div class="file-icon">${icon}</div>
                         <div class="file-type-label">${type}</div>
                     `;
-                    
-                    // Generate preview for media files
-                    if (this.isVideoFile(file.name)) {
-                        try {
-                            const videoUrl = await this.getFileUrl(file.name);
-                            previewHTML = `
-                                <video muted>
-                                    <source src="${videoUrl}" type="video/mp4">
-                                </video>
-                                <div class="preview-overlay">VIDEO</div>
-                            `;
-                        } catch (e) {
-                            previewHTML = `
-                                <div class="file-icon">${icon}</div>
-                                <div class="file-type-label">${type}</div>
-                            `;
-                        }
-                    } else if (this.isImageFile(file.name)) {
-                        try {
-                            const imageUrl = await this.getFileUrl(file.name);
-                            previewHTML = `
-                                <img src="${imageUrl}" alt="${file.name}">
-                                <div class="preview-overlay">IMAGE</div>
-                            `;
-                        } catch (e) {
-                            previewHTML = `
-                                <div class="file-icon">${icon}</div>
-                                <div class="file-type-label">${type}</div>
-                            `;
-                        }
-                    }
                     
                     return `
                         <div class="file-card" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">
@@ -1187,7 +1057,6 @@
                                 <div class="file-name" title="${file.name}">${file.name}</div>
                                 <div class="file-meta">${type} • ${size} • ${date}</div>
                                 <div class="file-actions" onclick="event.stopPropagation()">
-                                    <button class="btn btn-favorite ${this.isFavorite(file.name) ? 'active' : ''}" onclick="fileStorage.toggleFavorite('${file.name.replace(/'/g, "\\'")}')">★</button>
                                     <button class="btn" onclick="fileStorage.viewFile('${file.name.replace(/'/g, "\\'")}')">VIEW</button>
                                     <button class="btn" onclick="fileStorage.downloadFile('${file.name.replace(/'/g, "\\'")}')">DOWNLOAD</button>
                                     <button class="btn btn-danger" onclick="fileStorage.deleteFile('${file.name.replace(/'/g, "\\'")}')">DELETE</button>
@@ -1195,113 +1064,9 @@
                             </div>
                         </div>
                     `;
-                }));
+                });
 
                 container.innerHTML = `<div class="file-grid">${filesHTML.join('')}</div>`;
-                
-                // Update favorites display
-                this.renderFavorites();
-            }
-
-            loadFavorites() {
-                const saved = localStorage.getItem('file_favorites');
-                this.favorites = saved ? JSON.parse(saved) : [];
-            }
-
-            saveFavorites() {
-                localStorage.setItem('file_favorites', JSON.stringify(this.favorites));
-            }
-
-            isFavorite(filename) {
-                return this.favorites.includes(filename);
-            }
-
-            toggleFavorite(filename) {
-                if (this.isFavorite(filename)) {
-                    this.favorites = this.favorites.filter(f => f !== filename);
-                    this.showAlert(`REMOVED FROM FAVORITES: ${filename}`, 'info');
-                } else {
-                    this.favorites.push(filename);
-                    this.showAlert(`ADDED TO FAVORITES: ${filename}`, 'success');
-                }
-                
-                this.saveFavorites();
-                this.renderFiles();
-            }
-
-            toggleFavorites() {
-                const section = document.getElementById('favoritesSection');
-                const btn = event.target;
-                
-                this.showingFavorites = !this.showingFavorites;
-                
-                if (this.showingFavorites) {
-                    section.style.display = 'block';
-                    btn.textContent = 'HIDE FAVORITES';
-                    this.renderFavorites();
-                } else {
-                    section.style.display = 'none';
-                    btn.textContent = '★ FAVORITES';
-                }
-            }
-
-            renderFavorites() {
-                const grid = document.getElementById('favoritesGrid');
-                
-                if (this.favorites.length === 0) {
-                    grid.innerHTML = '<div style="color: var(--color-tertiary); text-align: center; padding: 20px;">NO FAVORITES YET</div>';
-                    return;
-                }
-                
-                // Filter favorites to only show files that still exist
-                const existingFavorites = this.favorites.filter(fav => 
-                    this.files.some(file => file.name === fav)
-                );
-                
-                // Update favorites list if some were removed
-                if (existingFavorites.length !== this.favorites.length) {
-                    this.favorites = existingFavorites;
-                    this.saveFavorites();
-                }
-                
-                const favoritesHTML = this.favorites.map(filename => {
-                    const file = this.files.find(f => f.name === filename);
-                    if (!file) return '';
-                    
-                    const icon = this.getFileIcon(filename);
-                    
-                    return `
-                        <div class="favorite-item" onclick="fileStorage.viewFile('${filename.replace(/'/g, "\\'")}')">
-                            <div class="favorite-icon">${icon}</div>
-                            <div class="favorite-name" title="${filename}">${filename}</div>
-                            <button class="favorite-remove" onclick="event.stopPropagation(); fileStorage.toggleFavorite('${filename.replace(/'/g, "\\'")}')">✕</button>
-                        </div>
-                    `;
-                }).filter(html => html).join('');
-                
-                grid.innerHTML = favoritesHTML;
-            }
-
-            async getFileUrl(filename) {
-                const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
-                    headers: { 'Authorization': this.token }
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    return URL.createObjectURL(blob);
-                }
-                throw new Error('Failed to load file');
-            }
-
-            isVideoFile(filename) {
-                const ext = filename.split('.').pop()?.toLowerCase() || '';
-                return ['mp4', 'webm', 'avi', 'mov', 'mkv', 'm4v'].includes(ext);
-            }
-
-            isImageFile(filename) {
-                const ext = filename.split('.').pop()?.toLowerCase() || '';
-                return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext);
             }
 
             searchFiles() {
@@ -1368,7 +1133,10 @@
                         a.href = url;
                         a.download = filename;
                         a.click();
-                        URL.revokeObjectURL(url);
+                        
+                        // Clean up immediately after download
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                        
                         this.showAlert(`DOWNLOADED: ${filename}`, 'success');
                     } else {
                         this.showAlert(`FILE NOT FOUND: ${filename}`, 'error');
@@ -1379,6 +1147,9 @@
             }
 
             async viewFile(filename) {
+                // Show loading state
+                this.showAlert(`LOADING: ${filename}`, 'info');
+                
                 try {
                     const response = await fetch(`${this.apiUrl}/file/${encodeURIComponent(filename)}`, {
                         headers: { 'Authorization': this.token }
@@ -1386,15 +1157,24 @@
 
                     if (response.ok) {
                         const blob = await response.blob();
-                        const url = URL.createObjectURL(blob);
                         const contentType = response.headers.get('content-type') || '';
+                        
+                        // Check file size to prevent crashes
+                        const maxSize = 50 * 1024 * 1024; // 50MB limit
+                        if (blob.size > maxSize) {
+                            this.showAlert(`FILE TOO LARGE: ${filename} (${this.formatSize(blob.size)})`, 'error');
+                            return;
+                        }
+                        
+                        const url = URL.createObjectURL(blob);
+                        this.objectUrls.add(url); // Track for cleanup
                         
                         this.showMediaModal(filename, url, contentType, blob);
                     } else {
                         this.showAlert(`FILE NOT FOUND: ${filename}`, 'error');
                     }
                 } catch (error) {
-                    this.showAlert(`ERROR: ${error.message}`, 'error');
+                    this.showAlert(`ERROR LOADING FILE: ${error.message}`, 'error');
                 }
             }
 
@@ -1408,31 +1188,44 @@
                 title.textContent = displayName;
                 title.title = filename; // Show full name on hover
                 
-                if (contentType.startsWith('video/')) {
+                try {
+                    if (contentType.startsWith('video/')) {
+                        content.innerHTML = `
+                            <video controls style="max-width: 100%; max-height: 70vh;" preload="metadata">
+                                <source src="${url}" type="${contentType}">
+                                Your browser does not support video playback.
+                            </video>
+                        `;
+                    } else if (contentType.startsWith('audio/')) {
+                        content.innerHTML = `
+                            <audio controls style="width: 100%; max-width: 600px;" preload="metadata">
+                                <source src="${url}" type="${contentType}">
+                                Your browser does not support audio playback.
+                            </audio>
+                        `;
+                    } else if (contentType.startsWith('image/')) {
+                        content.innerHTML = `<img src="${url}" alt="${filename}" style="max-width: 100%; max-height: 70vh;" loading="lazy">`;
+                    } else if (contentType.startsWith('text/') && blob.size < 1024 * 1024) { // Only load text files under 1MB
+                        const text = await blob.text();
+                        const truncatedText = text.length > 50000 ? text.substring(0, 50000) + '\n\n... [FILE TRUNCATED]' : text;
+                        content.innerHTML = `<div class="text-content">${truncatedText}</div>`;
+                    } else {
+                        content.innerHTML = `
+                            <div style="padding: 40px; text-align: center; color: var(--color-secondary);">
+                                <h4>CANNOT PREVIEW FILE</h4>
+                                <p style="margin: 20px 0;">TYPE: ${contentType || 'UNKNOWN'}</p>
+                                <p style="margin: 20px 0;">SIZE: ${this.formatSize(blob.size)}</p>
+                                <button class="btn" onclick="fileStorage.downloadFile('${filename.replace(/'/g, "\\'")}')">
+                                    DOWNLOAD
+                                </button>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
                     content.innerHTML = `
-                        <video controls autoplay style="max-width: 100%; max-height: 70vh;">
-                            <source src="${url}" type="${contentType}">
-                        </video>
-                    `;
-                } else if (contentType.startsWith('audio/')) {
-                    content.innerHTML = `
-                        <audio controls autoplay style="width: 100%; max-width: 600px;">
-                            <source src="${url}" type="${contentType}">
-                        </audio>
-                    `;
-                } else if (contentType.startsWith('image/')) {
-                    content.innerHTML = `<img src="${url}" alt="${filename}" style="max-width: 100%; max-height: 70vh;">`;
-                } else if (contentType.startsWith('text/')) {
-                    const text = await blob.text();
-                    content.innerHTML = `<div class="text-content">${text}</div>`;
-                } else {
-                    content.innerHTML = `
-                        <div style="padding: 40px; text-align: center; color: var(--color-secondary);">
-                            <h4>CANNOT PREVIEW FILE</h4>
-                            <p style="margin: 20px 0;">TYPE: ${contentType || 'UNKNOWN'}</p>
-                            <button class="btn" onclick="fileStorage.downloadFile('${filename.replace(/'/g, "\\'")}')">
-                                DOWNLOAD
-                            </button>
+                        <div style="padding: 40px; text-align: center; color: var(--danger-color);">
+                            <h4>ERROR LOADING FILE</h4>
+                            <p style="margin: 20px 0;">${error.message}</p>
                         </div>
                     `;
                 }
@@ -1445,6 +1238,9 @@
                 const content = document.getElementById('mediaContent');
                 modal.style.display = 'none';
                 content.innerHTML = '';
+                
+                // Clean up URLs when closing modal
+                this.cleanupUrls();
             }
 
             async deleteFile(filename) {
@@ -1471,11 +1267,11 @@
                 const ext = filename.split('.').pop()?.toLowerCase() || '';
                 const icons = {
                     // Video
-                    mp4: '▶', webm: '▶', avi: '▶', mov: '▶', mkv: '▶',
+                    mp4: '▶', webm: '▶', avi: '▶', mov: '▶', mkv: '▶', m4v: '▶',
                     // Audio  
-                    mp3: '♪', wav: '♪', ogg: '♪', m4a: '♪', flac: '♪',
+                    mp3: '♪', wav: '♪', ogg: '♪', m4a: '♪', flac: '♪', aac: '♪',
                     // Image
-                    jpg: '□', jpeg: '□', png: '□', gif: '□', svg: '□',
+                    jpg: '□', jpeg: '□', png: '□', gif: '□', svg: '□', webp: '□',
                     // Text
                     txt: '≡', md: '≡', json: '{}', js: '<>', css: '#',
                     html: '<>', xml: '<>', csv: '=',
@@ -1491,9 +1287,9 @@
             getFileType(filename) {
                 const ext = filename.split('.').pop()?.toLowerCase() || '';
                 const types = {
-                    mp4: 'VIDEO', webm: 'VIDEO', avi: 'VIDEO', mov: 'VIDEO',
-                    mp3: 'AUDIO', wav: 'AUDIO', ogg: 'AUDIO', m4a: 'AUDIO',
-                    jpg: 'IMAGE', jpeg: 'IMAGE', png: 'IMAGE', gif: 'IMAGE',
+                    mp4: 'VIDEO', webm: 'VIDEO', avi: 'VIDEO', mov: 'VIDEO', mkv: 'VIDEO',
+                    mp3: 'AUDIO', wav: 'AUDIO', ogg: 'AUDIO', m4a: 'AUDIO', flac: 'AUDIO',
+                    jpg: 'IMAGE', jpeg: 'IMAGE', png: 'IMAGE', gif: 'IMAGE', svg: 'IMAGE',
                     txt: 'TEXT', md: 'MARKDOWN', json: 'JSON', js: 'JAVASCRIPT',
                     zip: 'ARCHIVE', rar: 'ARCHIVE', pdf: 'DOCUMENT', doc: 'DOCUMENT'
                 };
@@ -1557,10 +1353,6 @@
 
         function resetSettings() {
             fileStorage.resetSettings();
-        }
-
-        function toggleFavorites() {
-            fileStorage.toggleFavorites();
         }
 
         // Initialize when page loads
