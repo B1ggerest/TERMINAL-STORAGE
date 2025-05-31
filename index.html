@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureFS Terminal Pro</title>
+    <title>Terminal File Storage</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
@@ -14,1146 +12,485 @@
         }
         
         body {
-            font-family: 'JetBrains Mono', monospace;
-            background: #0a0a0a;
-            color: #00ff41;
-            overflow: hidden;
-            height: 100vh;
-        }
-        
-        .terminal-container {
-            height: 100vh;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .terminal-header {
-            background: #1a1a1a;
-            padding: 8px 16px;
-            border-bottom: 2px solid #00ff41;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0, 255, 65, 0.2);
-        }
-        
-        .terminal-title {
-            color: #00ff41;
-            font-weight: 700;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .status-info {
-            font-size: 12px;
-            color: #888;
-        }
-        
-        .terminal-controls {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .control-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .control-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .control-btn.close { background: #ff5f57; }
-        .control-btn.minimize { background: #ffbd2e; }
-        .control-btn.maximize { background: #28ca42; }
-        
-        .terminal-body {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-        
-        .sidebar {
-            width: 250px;
-            background: #0f0f0f;
-            border-right: 1px solid #333;
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            min-height: 100vh;
             padding: 20px;
-            overflow-y: auto;
         }
         
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
-        .toolbar {
-            background: #1a1a1a;
+        .header {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        .terminal {
+            border: 1px solid #00ff00;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            min-height: 500px;
+        }
+        
+        .auth-form {
+            text-align: center;
+            padding: 50px 0;
+        }
+        
+        .auth-form input {
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            font-family: inherit;
+            margin: 10px;
+        }
+        
+        .auth-form button {
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
             padding: 10px 20px;
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .file-area {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #0a0a0a;
-        }
-        
-        /* Login Screen */
-        .login-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .logo {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            color: #00ff41;
-            text-shadow: 0 0 20px rgba(0, 255, 65, 0.8);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .login-form {
-            background: rgba(26, 26, 26, 0.9);
-            padding: 40px;
-            border-radius: 12px;
-            border: 2px solid #00ff41;
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
-            min-width: 350px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #00ff41;
-            font-weight: 500;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #00ff41;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #00ff41;
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-        }
-        
-        .btn {
-            background: #00ff41;
-            color: #0a0a0a;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-family: inherit;
-            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-family: inherit;
         }
         
-        .btn:hover {
-            background: #00cc33;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
+        .auth-form button:hover {
+            background: rgba(0, 255, 0, 0.2);
         }
         
-        .btn-secondary {
-            background: transparent;
-            color: #00ff41;
-            border: 1px solid #00ff41;
-        }
-        
-        .btn-secondary:hover {
-            background: #00ff41;
-            color: #0a0a0a;
-        }
-        
-        /* File Browser */
-        .breadcrumb {
-            color: #888;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .breadcrumb span {
-            color: #00ff41;
-            cursor: pointer;
-        }
-        
-        .breadcrumb span:hover {
-            text-decoration: underline;
-        }
-        
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        .file-list {
+            margin: 20px 0;
         }
         
         .file-item {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
+            padding: 5px 0;
             cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
         }
         
         .file-item:hover {
-            border-color: #00ff41;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 255, 65, 0.2);
+            background: rgba(0, 255, 0, 0.1);
         }
         
-        .file-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .file-name {
-            font-size: 12px;
-            text-align: center;
-            word-break: break-word;
-            margin-bottom: 5px;
-        }
-        
-        .file-size {
-            font-size: 10px;
-            color: #666;
-            text-align: center;
-        }
-        
-        .file-type-video { color: #ff6b6b; }
-        .file-type-audio { color: #4ecdc4; }
-        .file-type-image { color: #45b7d1; }
-        .file-type-document { color: #96ceb4; }
-        .file-type-archive { color: #feca57; }
-        .file-type-folder { color: #00ff41; }
-        
-        /* Media Player */
-        .media-player {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-        }
-        
-        .player-header {
-            background: #1a1a1a;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-        
-        .player-title {
-            color: #00ff41;
-            font-weight: 700;
-        }
-        
-        .player-close {
-            background: #ff5f57;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .player-content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .file-viewer {
+            margin: 20px 0;
+            border: 1px solid #00ff00;
             padding: 20px;
+            background: rgba(0, 0, 0, 0.9);
         }
         
-        .video-player, .audio-player {
-            max-width: 100%;
-            max-height: 100%;
-            background: #000;
-            border-radius: 8px;
-        }
-        
-        .audio-player {
-            width: 100%;
-            max-width: 600px;
-        }
-        
-        .image-viewer {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
-        }
-        
-        .text-viewer {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            max-width: 80%;
-            max-height: 80%;
-            overflow: auto;
-            font-family: 'JetBrains Mono', monospace;
-            white-space: pre-wrap;
-            color: #00ff41;
-        }
-        
-        /* Upload Area */
         .upload-area {
-            border: 2px dashed #333;
-            border-radius: 12px;
+            border: 2px dashed #00ff00;
             padding: 40px;
             text-align: center;
-            margin-bottom: 20px;
-            transition: all 0.3s;
+            margin: 20px 0;
             cursor: pointer;
         }
         
-        .upload-area:hover, .upload-area.drag-over {
-            border-color: #00ff41;
-            background: rgba(0, 255, 65, 0.05);
+        .upload-area:hover {
+            background: rgba(0, 255, 0, 0.1);
         }
         
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #666;
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         
-        .upload-area:hover .upload-icon {
-            color: #00ff41;
-        }
-        
-        .sidebar-section {
-            margin-bottom: 30px;
-        }
-        
-        .sidebar-title {
-            color: #00ff41;
-            font-weight: 700;
-            margin-bottom: 15px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .sidebar-item {
-            padding: 8px 0;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 4px;
-            padding-left: 10px;
-        }
-        
-        .sidebar-item:hover {
-            background: rgba(0, 255, 65, 0.1);
-            color: #00ff41;
-        }
-        
-        .search-box {
-            width: 100%;
-            padding: 10px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #00ff41;
-            font-family: inherit;
-            margin-bottom: 20px;
-        }
-        
-        .search-box:focus {
-            outline: none;
-            border-color: #00ff41;
-        }
-        
-        .toolbar-btn {
-            background: transparent;
-            border: 1px solid #333;
-            color: #00ff41;
-            padding: 8px 12px;
-            border-radius: 4px;
+        .btn {
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 16px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        
-        .toolbar-btn:hover {
-            border-color: #00ff41;
-            background: rgba(0, 255, 65, 0.1);
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff41, #00cc33);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .context-menu {
-            position: fixed;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            padding: 5px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            z-index: 3000;
-            display: none;
-        }
-        
-        .context-item {
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-        
-        .context-item:hover {
-            background: rgba(0, 255, 65, 0.1);
-            color: #00ff41;
-        }
-        
-        .loading {
+            text-decoration: none;
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #333;
-            border-radius: 50%;
-            border-top-color: #00ff41;
-            animation: spin 1s ease-in-out infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .btn:hover {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        
+        video, audio, img {
+            max-width: 100%;
+            background: #000;
+        }
+        
+        .file-info {
+            color: #00ff00;
+            line-height: 1.6;
         }
         
         .hidden {
-            display: none !important;
+            display: none;
         }
         
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
+        .error {
+            color: #ff0000;
+            padding: 10px;
+            margin: 10px 0;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .success {
+            color: #00ff00;
+            padding: 10px;
+            margin: 10px 0;
         }
         
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: 200px;
-                border-right: none;
-                border-bottom: 1px solid #333;
-            }
-            
-            .terminal-body {
-                flex-direction: column;
-            }
-            
-            .file-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+            padding: 15px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <div class="terminal-container">
-        <!-- Terminal Header -->
-        <div class="terminal-header">
-            <div class="terminal-title">
-                <span>🔒</span>
-                <span>SecureFS Terminal Pro</span>
-            </div>
-            <div class="status-info">
-                <span id="connectionStatus">Connected</span> | 
-                <span id="storageInfo">Storage: 0 GB used</span>
-            </div>
-            <div class="terminal-controls">
-                <button class="control-btn close"></button>
-                <button class="control-btn minimize"></button>
-                <button class="control-btn maximize"></button>
+    <div class="container">
+        <div class="header">
+            <h1>>>> TERMINAL FILE STORAGE SYSTEM v1.0 <<<</h1>
+            <p>Secure file storage and viewing system</p>
+        </div>
+        
+        <div id="authSection" class="terminal">
+            <div class="auth-form">
+                <h2>AUTHENTICATION REQUIRED</h2>
+                <br>
+                <input type="password" id="passwordInput" placeholder="Enter password" />
+                <br>
+                <button onclick="authenticate()">ACCESS SYSTEM</button>
+                <div id="authError" class="error hidden"></div>
             </div>
         </div>
-
-        <!-- Terminal Body -->
-        <div class="terminal-body">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-section">
-                    <div class="sidebar-title">Quick Access</div>
-                    <div class="sidebar-item" onclick="navigateTo('/')">📁 Root</div>
-                    <div class="sidebar-item" onclick="navigateTo('/videos')">🎬 Videos</div>
-                    <div class="sidebar-item" onclick="navigateTo('/audio')">🎵 Audio</div>
-                    <div class="sidebar-item" onclick="navigateTo('/images')">🖼️ Images</div>
-                    <div class="sidebar-item" onclick="navigateTo('/documents')">📄 Documents</div>
-                </div>
-                
-                <div class="sidebar-section">
-                    <div class="sidebar-title">Search</div>
-                    <input type="text" class="search-box" placeholder="Search files..." id="searchInput">
-                </div>
-                
-                <div class="sidebar-section">
-                    <div class="sidebar-title">File Types</div>
-                    <div class="sidebar-item" onclick="filterByType('video')">Video Files</div>
-                    <div class="sidebar-item" onclick="filterByType('audio')">Audio Files</div>
-                    <div class="sidebar-item" onclick="filterByType('image')">Images</div>
-                    <div class="sidebar-item" onclick="filterByType('document')">Documents</div>
-                    <div class="sidebar-item" onclick="filterByType('all')">All Files</div>
-                </div>
+        
+        <div id="mainSection" class="terminal hidden">
+            <div class="controls">
+                <button class="btn" onclick="listFiles()">LIST FILES</button>
+                <button class="btn" onclick="showUpload()">UPLOAD FILE</button>
+                <button class="btn" onclick="logout()">LOGOUT</button>
             </div>
-
-            <!-- Main Content -->
-            <div class="main-content">
-                <!-- Toolbar -->
-                <div class="toolbar">
-                    <button class="toolbar-btn" onclick="createFolder()">📁 New Folder</button>
-                    <button class="toolbar-btn" onclick="uploadFiles()">⬆️ Upload</button>
-                    <button class="toolbar-btn" onclick="refresh()">🔄 Refresh</button>
-                    <button class="toolbar-btn" onclick="viewList()">📋 List View</button>
-                    <button class="toolbar-btn" onclick="viewGrid()">🔲 Grid View</button>
-                    <div style="margin-left: auto;">
-                        <button class="toolbar-btn" onclick="logout()">🚪 Logout</button>
-                    </div>
+            
+            <div id="uploadSection" class="hidden">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <p>>>> CLICK TO SELECT FILE OR DRAG & DROP <<<</p>
+                    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()" multiple />
                 </div>
-
-                <!-- File Area -->
-                <div class="file-area">
-                    <!-- Breadcrumb -->
-                    <div class="breadcrumb" id="breadcrumb">
-                        <span onclick="navigateTo('/')">🏠 Home</span>
-                    </div>
-
-                    <!-- Upload Area -->
-                    <div class="upload-area" onclick="uploadFiles()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                        <div class="upload-icon">⬆️</div>
-                        <div>Drop files here or click to upload</div>
-                        <div style="font-size: 12px; color: #666; margin-top: 10px;">
-                            Supports: Videos (MP4, MKV, AVI, MOV), Audio (MP3, OGG, WAV, FLAC), Images (JPG, PNG, GIF), Documents & more
-                        </div>
-                    </div>
-
-                    <!-- File Grid -->
-                    <div class="file-grid" id="fileGrid">
-                        <!-- Files will be loaded here -->
-                    </div>
-                </div>
+                <div id="uploadStatus"></div>
             </div>
-        </div>
-
-        <!-- Login Screen -->
-        <div class="login-screen" id="loginScreen">
-            <div class="logo">🔒 SecureFS Terminal Pro</div>
-            <div class="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" placeholder="Enter your username">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password">
-                </div>
-                <div class="form-group">
-                    <button class="btn" onclick="login()" style="width: 100%;">Access Terminal</button>
-                </div>
-                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
-                    Secure file storage with advanced media viewing capabilities
-                </div>
+            
+            <div id="fileListSection">
+                <h3>>>> FILE DIRECTORY <<<</h3>
+                <div id="fileList" class="file-list"></div>
             </div>
-        </div>
-
-        <!-- Media Player -->
-        <div class="media-player" id="mediaPlayer">
-            <div class="player-header">
-                <div class="player-title" id="playerTitle">Media Player</div>
-                <button class="player-close" onclick="closePlayer()">×</button>
+            
+            <div id="viewerSection" class="hidden">
+                <div class="controls">
+                    <button class="btn" onclick="closeViewer()">← BACK TO LIST</button>
+                    <button class="btn" onclick="downloadFile()">DOWNLOAD</button>
+                    <button class="btn" onclick="deleteFile()" style="color: #ff0000; border-color: #ff0000;">DELETE</button>
+                </div>
+                <div id="fileViewer" class="file-viewer"></div>
             </div>
-            <div class="player-content" id="playerContent">
-                <!-- Media content will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Context Menu -->
-        <div class="context-menu" id="contextMenu">
-            <div class="context-item" onclick="downloadFile()">⬇️ Download</div>
-            <div class="context-item" onclick="renameFile()">✏️ Rename</div>
-            <div class="context-item" onclick="deleteFile()">🗑️ Delete</div>
-            <div class="context-item" onclick="shareFile()">🔗 Share</div>
-            <div class="context-item" onclick="getFileInfo()">ℹ️ Properties</div>
         </div>
     </div>
-
-    <input type="file" id="fileInput" multiple style="display: none;">
-
+    
     <script>
-        // Global state
-        let isLoggedIn = false;
-        let currentPath = '/';
-        let currentFiles = [];
-        let selectedFile = null;
-        let workerUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev'; // Replace with your worker URL
-
-        // Authentication
-        async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (!username || !password) {
-                alert('Please enter both username and password');
-                return;
-            }
-
+        // CHANGE THIS TO YOUR WORKER URL
+        const WORKER_URL = 'https://terminal-storage.lolbiggerestlol.workers.dev';
+        
+        let authToken = null;
+        let currentFile = null;
+        let files = [];
+        
+        // Check if already authenticated
+        if (localStorage.getItem('authToken')) {
+            authToken = localStorage.getItem('authToken');
+            showMainSection();
+            listFiles();
+        }
+        
+        async function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            
             try {
-                const response = await fetch(`${workerUrl}/auth`, {
+                const response = await fetch(`${WORKER_URL}/auth`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
                 });
-
+                
                 if (response.ok) {
                     const data = await response.json();
-                    localStorage.setItem('authToken', data.token);
-                    isLoggedIn = true;
-                    document.getElementById('loginScreen').style.display = 'none';
-                    loadFiles();
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    showMainSection();
+                    listFiles();
                 } else {
-                    alert('Invalid credentials');
+                    showError('authError', 'Invalid password');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                // For demo purposes, allow any login
-                isLoggedIn = true;
-                document.getElementById('loginScreen').style.display = 'none';
-                loadDemoFiles();
+                showError('authError', 'Authentication failed');
             }
         }
-
+        
         function logout() {
+            authToken = null;
             localStorage.removeItem('authToken');
-            isLoggedIn = false;
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('mainSection').classList.add('hidden');
+            document.getElementById('passwordInput').value = '';
         }
-
-        // File operations
-        async function loadFiles(path = '/') {
-            currentPath = path;
-            updateBreadcrumb();
-            
+        
+        function showMainSection() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('mainSection').classList.remove('hidden');
+        }
+        
+        async function listFiles() {
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${workerUrl}/files?path=${encodeURIComponent(path)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                const response = await fetch(`${WORKER_URL}/files`, {
+                    headers: { 'Authorization': authToken }
                 });
-
+                
                 if (response.ok) {
-                    const files = await response.json();
-                    currentFiles = files;
-                    renderFiles(files);
+                    files = await response.json();
+                    displayFileList();
                 } else {
-                    console.error('Failed to load files');
-                    loadDemoFiles(); // Fallback to demo
+                    showError('fileList', 'Failed to load files');
                 }
             } catch (error) {
-                console.error('Error loading files:', error);
-                loadDemoFiles(); // Fallback to demo
+                showError('fileList', 'Error loading files');
             }
         }
-
-        function loadDemoFiles() {
-            // Demo files for testing
-            const demoFiles = [
-                {
-                    name: 'sample_video.mp4',
-                    type: 'video',
-                    size: '15.2 MB',
-                    url: 'https://www.w3schools.com/html/mov_bbb.mp4'
-                },
-                {
-                    name: 'demo_audio.mp3',
-                    type: 'audio',
-                    size: '3.8 MB',
-                    url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav'
-                },
-                {
-                    name: 'test_image.jpg',
-                    type: 'image',
-                    size: '1.2 MB',
-                    url: 'https://picsum.photos/800/600'
-                },
-                {
-                    name: 'document.txt',
-                    type: 'document',
-                    size: '2.1 KB',
-                    content: 'This is a sample text document loaded in the SecureFS Terminal Pro system.\n\nFeatures:\n- Video playback (MP4, MKV, AVI, MOV)\n- Audio playback (MP3, OGG, WAV, FLAC)\n- Image viewing (JPG, PNG, GIF, SVG)\n- Document viewing (TXT, MD, JSON, XML)\n- File management operations\n- Secure authentication\n- Cloudflare R2 integration'
-                },
-                {
-                    name: 'Videos',
-                    type: 'folder',
-                    size: '-'
-                },
-                {
-                    name: 'Audio',
-                    type: 'folder',
-                    size: '-'
-                },
-                {
-                    name: 'Images',
-                    type: 'folder',
-                    size: '-'
-                }
-            ];
+        
+        function displayFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
             
-            currentFiles = demoFiles;
-            renderFiles(demoFiles);
-        }
-
-        function renderFiles(files) {
-            const grid = document.getElementById('fileGrid');
-            grid.innerHTML = '';
-
+            if (files.length === 0) {
+                fileList.innerHTML = '<p>No files found. Upload some files to get started.</p>';
+                return;
+            }
+            
             files.forEach(file => {
                 const fileItem = document.createElement('div');
-                fileItem.className = 'file-item fade-in';
-                fileItem.onclick = () => selectFile(file);
-                fileItem.oncontextmenu = (e) => showContextMenu(e, file);
-
-                const icon = getFileIcon(file.type);
-                const typeClass = `file-type-${getFileCategory(file.type)}`;
-
+                fileItem.className = 'file-item';
                 fileItem.innerHTML = `
-                    <div class="file-icon ${typeClass}">${icon}</div>
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-size">${file.size}</div>
+                    <span onclick="viewFile('${file.name}')">[VIEW] ${file.name}</span>
+                    <span style="float: right;">${formatFileSize(file.size)} | ${new Date(file.lastModified).toLocaleString()}</span>
                 `;
-
-                grid.appendChild(fileItem);
+                fileList.appendChild(fileItem);
             });
         }
-
-        function getFileIcon(type) {
-            const icons = {
-                'video': '🎬',
-                'audio': '🎵',
-                'image': '🖼️',
-                'document': '📄',
-                'folder': '📁',
-                'archive': '📦',
-                'code': '💻',
-                'pdf': '📕'
-            };
-            return icons[type] || '📄';
-        }
-
-        function getFileCategory(type) {
-            const categories = {
-                'mp4': 'video', 'mkv': 'video', 'avi': 'video', 'mov': 'video', 'wmv': 'video',
-                'mp3': 'audio', 'ogg': 'audio', 'wav': 'audio', 'flac': 'audio', 'm4a': 'audio',
-                'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image', 'svg': 'image',
-                'txt': 'document', 'md': 'document', 'json': 'document', 'xml': 'document',
-                'zip': 'archive', 'rar': 'archive', '7z': 'archive',
-                'js': 'code', 'html': 'code', 'css': 'code', 'py': 'code',
-                'pdf': 'pdf'
-            };
+        
+        async function viewFile(filename) {
+            currentFile = filename;
             
-            return categories[type] || type;
-        }
-
-        function selectFile(file) {
-            selectedFile = file;
-            
-            if (file.type === 'folder') {
-                navigateTo(`${currentPath}/${file.name}`);
-                return;
-            }
-
-            openFile(file);
-        }
-
-        function openFile(file) {
-            const player = document.getElementById('mediaPlayer');
-            const content = document.getElementById('playerContent');
-            const title = document.getElementById('playerTitle');
-            
-            title.textContent = file.name;
-            content.innerHTML = '';
-
-            if (isVideoFile(file.name)) {
-                const video = document.createElement('video');
-                video.className = 'video-player';
-                video.controls = true;
-                video.autoplay = true;
-                video.src = file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`;
-                content.appendChild(video);
-            } else if (isAudioFile(file.name)) {
-                const audio = document.createElement('audio');
-                audio.className = 'audio-player';
-                audio.controls = true;
-                audio.autoplay = true;
-                audio.src = file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`;
-                content.appendChild(audio);
-            } else if (isImageFile(file.name)) {
-                const img = document.createElement('img');
-                img.className = 'image-viewer';
-                img.src = file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`;
-                content.appendChild(img);
-            } else if (isTextFile(file.name) || file.content) {
-                const textDiv = document.createElement('div');
-                textDiv.className = 'text-viewer';
-                if (file.content) {
-                    textDiv.textContent = file.content;
-                    content.appendChild(textDiv);
-                } else {
-                    // Load text content from server
-                    fetch(file.url || `${workerUrl}/file/${encodeURIComponent(file.name)}`)
-                        .then(response => response.text())
-                        .then(text => {
-                            textDiv.textContent = text;
-                        })
-                        .catch(error => {
-                            textDiv.textContent = 'Error loading file content: ' + error.message;
-                        });
-                    content.appendChild(textDiv);
-                }
-            } else {
-                content.innerHTML = `
-                    <div style="text-align: center; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
-                        <div>File type not supported for preview</div>
-                        <div style="margin-top: 20px;">
-                            <button class="btn" onclick="downloadFile('${file.name}')">Download File</button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            player.style.display = 'flex';
-        }
-
-        function isVideoFile(filename) {
-            return /\.(mp4|mkv|avi|mov|wmv|flv|webm|m4v)$/i.test(filename);
-        }
-
-        function isAudioFile(filename) {
-            return /\.(mp3|ogg|wav|flac|m4a|aac|wma)$/i.test(filename);
-        }
-
-        function isImageFile(filename) {
-            return /\.(jpg|jpeg|png|gif|svg|bmp|webp)$/i.test(filename);
-        }
-
-        function isTextFile(filename) {
-            return /\.(txt|md|json|xml|csv|log|js|html|css|py|java|cpp|c|h|php|rb|go|rs|ts|jsx|tsx)$/i.test(filename);
-        }
-
-        function closePlayer() {
-            const player = document.getElementById('mediaPlayer');
-            const content = document.getElementById('playerContent');
-            player.style.display = 'none';
-            content.innerHTML = '';
-        }
-
-        // File upload
-        function uploadFiles() {
-            document.getElementById('fileInput').click();
-        }
-
-        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-
-        async function handleFileUpload(event) {
-            const files = event.target.files;
-            if (!files.length) return;
-
-            for (const file of files) {
-                await uploadFile(file);
-            }
-            
-            loadFiles(currentPath);
-        }
-
-        async function uploadFile(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('path', currentPath);
-
             try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${workerUrl}/upload`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
+                const response = await fetch(`${WORKER_URL}/file/${encodeURIComponent(filename)}`, {
+                    headers: { 'Authorization': authToken }
                 });
-
+                
                 if (!response.ok) {
-                    throw new Error('Upload failed');
+                    throw new Error('Failed to load file');
+                }
+                
+                const contentType = response.headers.get('content-type') || '';
+                const fileViewer = document.getElementById('fileViewer');
+                
+                document.getElementById('fileListSection').classList.add('hidden');
+                document.getElementById('viewerSection').classList.remove('hidden');
+                
+                if (contentType.startsWith('image/')) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    fileViewer.innerHTML = `<img src="${url}" alt="${filename}" />`;
+                } else if (contentType.startsWith('video/')) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    fileViewer.innerHTML = `<video controls><source src="${url}" type="${contentType}">Your browser does not support video playback.</video>`;
+                } else if (contentType.startsWith('audio/')) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    fileViewer.innerHTML = `<audio controls><source src="${url}" type="${contentType}">Your browser does not support audio playback.</audio>`;
+                } else if (contentType === 'application/pdf') {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    fileViewer.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="600px" />`;
+                } else if (contentType.startsWith('text/') || contentType === 'application/json' || filename.match(/\.(txt|js|html|css|md|json|xml|csv)$/i)) {
+                    const text = await response.text();
+                    fileViewer.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
+                } else {
+                    // Show file info for unsupported files
+                    const fileInfo = files.find(f => f.name === filename);
+                    fileViewer.innerHTML = `
+                        <div class="file-info">
+                            <h3>>>> FILE INFORMATION <<<</h3>
+                            <p><strong>Name:</strong> ${filename}</p>
+                            <p><strong>Size:</strong> ${formatFileSize(fileInfo.size)}</p>
+                            <p><strong>Type:</strong> ${contentType || 'Unknown'}</p>
+                            <p><strong>Last Modified:</strong> ${new Date(fileInfo.lastModified).toLocaleString()}</p>
+                            <p><strong>Status:</strong> File type not supported for preview</p>
+                            <p><strong>Action:</strong> Use DOWNLOAD button to save file</p>
+                        </div>
+                    `;
                 }
             } catch (error) {
-                console.error('Upload error:', error);
-                alert('Upload failed: ' + error.message);
+                showError('fileViewer', 'Error loading file: ' + error.message);
             }
         }
-
-        // Drag and drop
-        function handleDrop(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            const uploadArea = event.currentTarget;
-            uploadArea.classList.remove('drag-over');
-            
-            const files = event.dataTransfer.files;
-            if (files.length) {
-                handleFileUpload({ target: { files } });
-            }
+        
+        function closeViewer() {
+            document.getElementById('viewerSection').classList.add('hidden');
+            document.getElementById('fileListSection').classList.remove('hidden');
+            currentFile = null;
         }
-
-        function handleDragOver(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.currentTarget.classList.add('drag-over');
-        }
-
-        function handleDragLeave(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.currentTarget.classList.remove('drag-over');
-        }
-
-        // Navigation
-        function navigateTo(path) {
-            loadFiles(path);
-        }
-
-        function updateBreadcrumb() {
-            const breadcrumb = document.getElementById('breadcrumb');
-            const parts = currentPath.split('/').filter(Boolean);
-            
-            let html = '<span onclick="navigateTo(\'/\')">🏠 Home</span>';
-            let buildPath = '';
-            
-            parts.forEach(part => {
-                buildPath += '/' + part;
-                html += ` / <span onclick="navigateTo('${buildPath}')">${part}</span>`;
-            });
-            
-            breadcrumb.innerHTML = html;
-        }
-
-        // Context menu
-        function showContextMenu(event, file) {
-            event.preventDefault();
-            selectedFile = file;
-            
-            const menu = document.getElementById('contextMenu');
-            menu.style.display = 'block';
-            menu.style.left = event.pageX + 'px';
-            menu.style.top = event.pageY + 'px';
-        }
-
-        // Hide context menu on click
-        document.addEventListener('click', () => {
-            document.getElementById('contextMenu').style.display = 'none';
-        });
-
-        // Context menu actions
+        
         async function downloadFile() {
-            if (!selectedFile) return;
+            if (!currentFile) return;
             
-            const link = document.createElement('a');
-            link.href = selectedFile.url || `${workerUrl}/file/${encodeURIComponent(selectedFile.name)}`;
-            link.download = selectedFile.name;
-            link.click();
-        }
-
-        function renameFile() {
-            if (!selectedFile) return;
-            
-            const newName = prompt('Enter new name:', selectedFile.name);
-            if (newName && newName !== selectedFile.name) {
-                // Implement rename functionality
-                console.log('Rename', selectedFile.name, 'to', newName);
+            try {
+                const response = await fetch(`${WORKER_URL}/file/${encodeURIComponent(currentFile)}`, {
+                    headers: { 'Authorization': authToken }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentFile;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            } catch (error) {
+                alert('Download failed');
             }
         }
-
-        function deleteFile() {
-            if (!selectedFile) return;
+        
+        async function deleteFile() {
+            if (!currentFile || !confirm(`Delete ${currentFile}?`)) return;
             
-            if (confirm(`Are you sure you want to delete "${selectedFile.name}"?`)) {
-                // Implement delete functionality
-                console.log('Delete', selectedFile.name);
+            try {
+                const response = await fetch(`${WORKER_URL}/file/${encodeURIComponent(currentFile)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': authToken }
+                });
+                
+                if (response.ok) {
+                    closeViewer();
+                    listFiles();
+                    showSuccess('uploadStatus', 'File deleted successfully');
+                } else {
+                    showError('uploadStatus', 'Delete failed');
+                }
+            } catch (error) {
+                showError('uploadStatus', 'Delete failed');
             }
         }
-
-        function shareFile() {
-            if (!selectedFile) return;
+        
+        function showUpload() {
+            document.getElementById('uploadSection').classList.toggle('hidden');
+        }
+        
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
             
-            // Generate share link
-            const shareUrl = `${window.location.origin}/share/${selectedFile.name}`;
-            navigator.clipboard.writeText(shareUrl);
-            alert('Share link copied to clipboard!');
-        }
-
-        function getFileInfo() {
-            if (!selectedFile) return;
+            if (files.length === 0) return;
             
-            alert(`File: ${selectedFile.name}\nType: ${selectedFile.type}\nSize: ${selectedFile.size}`);
-        }
-
-        // Utility functions
-        function createFolder() {
-            const name = prompt('Enter folder name:');
-            if (name) {
-                // Implement create folder functionality
-                console.log('Create folder:', name);
-            }
-        }
-
-        function refresh() {
-            loadFiles(currentPath);
-        }
-
-        function viewList() {
-            alert('List view not implemented yet');
-        }
-
-        function viewGrid() {
-            alert('Already in grid view');
-        }
-
-        function filterByType(type) {
-            if (type === 'all') {
-                renderFiles(currentFiles);
-                return;
+            for (let file of files) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    showStatus('uploadStatus', `Uploading ${file.name}...`);
+                    
+                    const response = await fetch(`${WORKER_URL}/upload`, {
+                        method: 'POST',
+                        headers: { 'Authorization': authToken },
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        showSuccess('uploadStatus', `${file.name} uploaded successfully`);
+                    } else {
+                        showError('uploadStatus', `Failed to upload ${file.name}`);
+                    }
+                } catch (error) {
+                    showError('uploadStatus', `Error uploading ${file.name}`);
+                }
             }
             
-            const filtered = currentFiles.filter(file => {
-                const category = getFileCategory(file.type);
-                return category === type || file.type === type;
-            });
-            
-            renderFiles(filtered);
+            fileInput.value = '';
+            setTimeout(() => listFiles(), 1000);
         }
-
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            if (!query) {
-                renderFiles(currentFiles);
-                return;
-            }
-            
-            const filtered = currentFiles.filter(file => 
-                file.name.toLowerCase().includes(query)
-            );
-            
-            renderFiles(filtered);
+        
+        // Drag and drop
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
         });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closePlayer();
-            } else if (e.ctrlKey && e.key === 'u') {
-                e.preventDefault();
-                uploadFiles();
-            } else if (e.key === 'F5') {
-                e.preventDefault();
-                refresh();
+        
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                uploadFile();
             }
         });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                // Verify token and auto-login
-                isLoggedIn = true;
-                document.getElementById('loginScreen').style.display = 'none';
-                loadDemoFiles(); // Start with demo files
-            }
-        });
-
-        // Allow Enter key to login
-        document.getElementById('password').addEventListener('keypress', (e) => {
+        
+        // Helper functions
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'error';
+            element.classList.remove('hidden');
+        }
+        
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'success';
+            element.classList.remove('hidden');
+        }
+        
+        function showStatus(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = '';
+            element.classList.remove('hidden');
+        }
+        
+        // Handle enter key in password field
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                login();
+                authenticate();
             }
         });
     </script>
