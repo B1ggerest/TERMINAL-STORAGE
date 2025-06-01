@@ -905,18 +905,18 @@
                 <input type="password" id="password" placeholder="Enter access code">
             </div>
 
-            <!-- Storage Usage Indicator -->
-            <div class="storage-indicator" id="storageIndicator">
+            <!-- Storage Usage Indicator for Login Page -->
+            <div class="storage-indicator">
                 <div class="storage-header">
                     <div class="storage-title">R2 Storage Usage</div>
-                    <div class="storage-stats" id="storageStats">Loading...</div>
+                    <div class="storage-stats" id="authStorageStats">Loading...</div>
                 </div>
                 <div class="storage-bar">
-                    <div class="storage-fill" id="storageFill" style="width: 0%"></div>
+                    <div class="storage-fill" id="authStorageFill" style="width: 0%"></div>
                 </div>
                 <div class="storage-details">
-                    <span id="storageUsed">-- GB</span>
-                    <span id="storageTotal">-- GB Total</span>
+                    <span id="authStorageUsed">-- GB</span>
+                    <span id="authStorageTotal">-- GB Total</span>
                 </div>
             </div>
             <button class="btn" onclick="authenticate()">
@@ -936,18 +936,18 @@
                 <button class="btn" onclick="logout()">LOGOUT</button>
             </div>
 
-            <!-- Storage Usage Indicator -->
-            <div class="storage-indicator" id="storageIndicator">
+            <!-- Storage Usage Indicator for Main Page -->
+            <div class="storage-indicator">
                 <div class="storage-header">
                     <div class="storage-title">R2 Storage Usage</div>
-                    <div class="storage-stats" id="storageStats">Loading...</div>
+                    <div class="storage-stats" id="mainStorageStats">Loading...</div>
                 </div>
                 <div class="storage-bar">
-                    <div class="storage-fill" id="storageFill" style="width: 0%"></div>
+                    <div class="storage-fill" id="mainStorageFill" style="width: 0%"></div>
                 </div>
                 <div class="storage-details">
-                    <span id="storageUsed">-- GB</span>
-                    <span id="storageTotal">-- GB Total</span>
+                    <span id="mainStorageUsed">-- GB</span>
+                    <span id="mainStorageTotal">-- GB Total</span>
                 </div>
             </div>
 
@@ -1079,6 +1079,9 @@
                 this.setupEventListeners();
                 this.setupDragDrop();
                 this.loadSettings();
+                
+                // Load storage usage for login page on initial load
+                this.loadStorageUsage();
                 
                 // Check if already authenticated
                 const savedToken = localStorage.getItem('auth_token');
@@ -1297,6 +1300,8 @@
             showMainContent() {
                 document.getElementById('authSection').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
+                // Load storage for main page after showing it
+                this.loadStorageUsage();
             }
 
             showSettings() {
@@ -1352,7 +1357,7 @@
                 try {
                     console.log('Loading storage usage...');
                     const response = await fetch(`${this.apiUrl}/storage`, {
-                        headers: { 'Authorization': this.token }
+                        headers: this.token ? { 'Authorization': this.token } : {}
                     });
 
                     console.log('Storage response status:', response.status);
@@ -1385,13 +1390,27 @@
                 
                 console.log('Calculated usage percent:', usagePercent);
                 
-                // Update elements
-                const statsEl = document.getElementById('storageStats');
-                const fillEl = document.getElementById('storageFill');
-                const usedEl = document.getElementById('storageUsed');
-                const totalEl = document.getElementById('storageTotal');
+                // Update both auth and main storage indicators
+                this.updateStorageElements('auth', used, total, fileCount, usagePercent);
+                this.updateStorageElements('main', used, total, fileCount, usagePercent);
                 
-                console.log('Found elements:', { statsEl, fillEl, usedEl, totalEl });
+                console.log('Storage display updated successfully');
+                
+                // Show warning if almost full
+                if (usagePercent > 95) {
+                    this.showAlert('STORAGE ALMOST FULL!', 'error');
+                } else if (usagePercent > 85) {
+                    this.showAlert('Storage getting full', 'info');
+                }
+            }
+
+            updateStorageElements(prefix, used, total, fileCount, usagePercent) {
+                const statsEl = document.getElementById(`${prefix}StorageStats`);
+                const fillEl = document.getElementById(`${prefix}StorageFill`);
+                const usedEl = document.getElementById(`${prefix}StorageUsed`);
+                const totalEl = document.getElementById(`${prefix}StorageTotal`);
+                
+                console.log(`Updating ${prefix} elements:`, { statsEl, fillEl, usedEl, totalEl });
                 
                 if (statsEl) statsEl.textContent = `${fileCount} files • ${usagePercent.toFixed(1)}% used`;
                 if (fillEl) fillEl.style.width = `${Math.min(usagePercent, 100)}%`;
@@ -1407,35 +1426,35 @@
                         fillEl.classList.add('warning');
                     }
                 }
-                
-                console.log('Storage display updated successfully');
-                
-                // Show warning if almost full
-                if (usagePercent > 95) {
-                    this.showAlert('STORAGE ALMOST FULL!', 'error');
-                } else if (usagePercent > 85) {
-                    this.showAlert('Storage getting full', 'info');
-                }
             }
 
             showStorageError(message) {
-                const statsEl = document.getElementById('storageStats');
-                const usedEl = document.getElementById('storageUsed');
-                const totalEl = document.getElementById('storageTotal');
-                
-                statsEl.textContent = message;
-                statsEl.className = 'storage-error';
-                usedEl.textContent = '--';
-                totalEl.textContent = '--';
-                
-                const fillEl = document.getElementById('storageFill');
-                fillEl.style.width = '0%';
+                // Update both storage indicators with error
+                ['auth', 'main'].forEach(prefix => {
+                    const statsEl = document.getElementById(`${prefix}StorageStats`);
+                    const usedEl = document.getElementById(`${prefix}StorageUsed`);
+                    const totalEl = document.getElementById(`${prefix}StorageTotal`);
+                    const fillEl = document.getElementById(`${prefix}StorageFill`);
+                    
+                    if (statsEl) {
+                        statsEl.textContent = message;
+                        statsEl.className = 'storage-error';
+                    }
+                    if (usedEl) usedEl.textContent = '--';
+                    if (totalEl) totalEl.textContent = '--';
+                    if (fillEl) fillEl.style.width = '0%';
+                });
             }
 
             refreshStorageDisplay() {
-                const statsEl = document.getElementById('storageStats');
-                statsEl.textContent = 'Refreshing...';
-                statsEl.className = 'storage-refreshing';
+                // Update both storage indicators to show refreshing
+                ['auth', 'main'].forEach(prefix => {
+                    const statsEl = document.getElementById(`${prefix}StorageStats`);
+                    if (statsEl) {
+                        statsEl.textContent = 'Refreshing...';
+                        statsEl.className = 'storage-refreshing';
+                    }
+                });
                 
                 this.loadStorageUsage();
             }
