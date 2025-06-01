@@ -936,6 +936,21 @@
                 <button class="btn" onclick="logout()">LOGOUT</button>
             </div>
 
+            <!-- Storage Usage Indicator -->
+            <div class="storage-indicator" id="storageIndicator">
+                <div class="storage-header">
+                    <div class="storage-title">R2 Storage Usage</div>
+                    <div class="storage-stats" id="storageStats">Loading...</div>
+                </div>
+                <div class="storage-bar">
+                    <div class="storage-fill" id="storageFill" style="width: 0%"></div>
+                </div>
+                <div class="storage-details">
+                    <span id="storageUsed">-- GB</span>
+                    <span id="storageTotal">-- GB Total</span>
+                </div>
+            </div>
+
             <div class="upload-area" id="uploadArea" onclick="uploadFiles()">
                 <h3>DROP FILES HERE</h3>
                 <p>OR CLICK TO SELECT</p>
@@ -1049,7 +1064,7 @@
     <script>
         class FileStorage {
             constructor() {
-                this.apiUrl = 'https://terminal-storage.lolbiggerestlol.workers.dev';
+                this.apiUrl = 'https://terminal-storage.lolbiggeestlol.workers.dev';
                 this.token = null;
                 this.files = [];
                 this.filteredFiles = [];
@@ -1497,7 +1512,18 @@
                         });
                         
                         if (response.ok) {
+                            const result = await response.json();
                             this.showAlert(`UPLOADED: ${file.name}`, 'success');
+                            
+                            // Show storage warning if included
+                            if (result.message && result.message.includes('Warning')) {
+                                this.showAlert(result.message, 'info', 5000);
+                            }
+                        } else if (response.status === 413) {
+                            // Storage limit exceeded
+                            const error = await response.json();
+                            const remaining = this.formatSize(error.currentUsage ? (error.storageLimit * 0.95 - error.currentUsage) : 0);
+                            this.showAlert(`STORAGE FULL: Cannot upload ${file.name}. Only ${remaining} remaining.`, 'error', 8000);
                         } else {
                             this.showAlert(`FAILED: ${file.name}`, 'error');
                         }
@@ -1507,7 +1533,7 @@
                 }
                 
                 this.loadFiles();
-                // Refresh storage after upload
+                // Refresh storage after upload attempts
                 setTimeout(() => this.refreshStorageDisplay(), 1000);
             }
 
