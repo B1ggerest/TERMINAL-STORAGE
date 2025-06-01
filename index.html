@@ -1350,24 +1350,32 @@
 
             async loadStorageUsage() {
                 try {
+                    console.log('Loading storage usage...');
                     const response = await fetch(`${this.apiUrl}/storage`, {
                         headers: { 'Authorization': this.token }
                     });
 
+                    console.log('Storage response status:', response.status);
+                    
                     if (response.ok) {
                         this.storageData = await response.json();
+                        console.log('Storage data received:', this.storageData);
                         this.updateStorageDisplay();
                     } else {
+                        console.error('Storage response not ok:', response.status);
                         this.showStorageError('Failed to load storage data');
                     }
                 } catch (error) {
-                    this.showStorageError('Storage data unavailable');
                     console.error('Storage load error:', error);
+                    this.showStorageError('Storage data unavailable');
                 }
             }
 
             updateStorageDisplay() {
+                console.log('Updating storage display with:', this.storageData);
+                
                 if (!this.storageData) {
+                    console.error('No storage data available');
                     this.showStorageError('No storage data');
                     return;
                 }
@@ -1375,24 +1383,32 @@
                 const { used, total, fileCount } = this.storageData;
                 const usagePercent = (used / total) * 100;
                 
+                console.log('Calculated usage percent:', usagePercent);
+                
                 // Update elements
                 const statsEl = document.getElementById('storageStats');
                 const fillEl = document.getElementById('storageFill');
                 const usedEl = document.getElementById('storageUsed');
                 const totalEl = document.getElementById('storageTotal');
                 
-                statsEl.textContent = `${fileCount} files • ${usagePercent.toFixed(1)}% used`;
-                fillEl.style.width = `${Math.min(usagePercent, 100)}%`;
-                usedEl.textContent = `${this.formatSize(used)} used`;
-                totalEl.textContent = `${this.formatSize(total)} total`;
+                console.log('Found elements:', { statsEl, fillEl, usedEl, totalEl });
+                
+                if (statsEl) statsEl.textContent = `${fileCount} files • ${usagePercent.toFixed(1)}% used`;
+                if (fillEl) fillEl.style.width = `${Math.min(usagePercent, 100)}%`;
+                if (usedEl) usedEl.textContent = `${this.formatSize(used)} used`;
+                if (totalEl) totalEl.textContent = `${this.formatSize(total)} total`;
                 
                 // Update fill color based on usage
-                fillEl.className = 'storage-fill';
-                if (usagePercent > 90) {
-                    fillEl.classList.add('critical');
-                } else if (usagePercent > 75) {
-                    fillEl.classList.add('warning');
+                if (fillEl) {
+                    fillEl.className = 'storage-fill';
+                    if (usagePercent > 90) {
+                        fillEl.classList.add('critical');
+                    } else if (usagePercent > 75) {
+                        fillEl.classList.add('warning');
+                    }
                 }
+                
+                console.log('Storage display updated successfully');
                 
                 // Show warning if almost full
                 if (usagePercent > 95) {
