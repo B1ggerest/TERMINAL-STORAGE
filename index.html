@@ -680,7 +680,83 @@
             max-width: 80vw;
         }
 
-        /* Settings Modal Styles */
+        /* Storage Usage Indicator */
+        .storage-indicator {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .storage-title {
+            color: var(--color-primary);
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .storage-stats {
+            color: var(--color-secondary);
+            font-size: 12px;
+        }
+
+        .storage-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .storage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--accent-color));
+            transition: width 0.5s ease, background 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .storage-fill.warning {
+            background: linear-gradient(90deg, var(--accent-color), var(--danger-color));
+        }
+
+        .storage-fill.critical {
+            background: var(--danger-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .storage-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--color-tertiary);
+        }
+
+        .storage-refreshing {
+            color: var(--info-color);
+        }
+
+        .storage-error {
+            color: var(--danger-color);
+            font-style: italic;
+        }
         .settings-content {
             min-width: 500px;
             max-width: 600px;
@@ -828,6 +904,21 @@
                 <label for="password">PASSWORD</label>
                 <input type="password" id="password" placeholder="Enter access code">
             </div>
+
+            <!-- Storage Usage Indicator -->
+            <div class="storage-indicator" id="storageIndicator">
+                <div class="storage-header">
+                    <div class="storage-title">R2 Storage Usage</div>
+                    <div class="storage-stats" id="storageStats">Loading...</div>
+                </div>
+                <div class="storage-bar">
+                    <div class="storage-fill" id="storageFill" style="width: 0%"></div>
+                </div>
+                <div class="storage-details">
+                    <span id="storageUsed">-- GB</span>
+                    <span id="storageTotal">-- GB Total</span>
+                </div>
+            </div>
             <button class="btn" onclick="authenticate()">
                 <span id="authText">LOGIN</span>
                 <span id="authLoading" class="loading" style="display: none;"></span>
@@ -964,6 +1055,7 @@
                 this.filteredFiles = [];
                 this.currentTheme = 'matrix';
                 this.objectUrls = new Set(); // Track URLs for cleanup
+                this.storageData = null; // Cache storage data
                 
                 this.init();
             }
@@ -1221,6 +1313,9 @@
                         this.files = await response.json();
                         this.filteredFiles = [...this.files];
                         this.renderFiles();
+                        
+                        // Load storage usage after loading files
+                        this.loadStorageUsage();
                     } else if (response.status === 401) {
                         this.showAlert('SESSION EXPIRED - Please login again', 'error');
                         this.logout();
@@ -1236,6 +1331,82 @@
                     }
                     console.error('Load files error:', error);
                 }
+            }
+
+            async loadStorageUsage() {
+                try {
+                    const response = await fetch(`${this.apiUrl}/storage`, {
+                        headers: { 'Authorization': this.token }
+                    });
+
+                    if (response.ok) {
+                        this.storageData = await response.json();
+                        this.updateStorageDisplay();
+                    } else {
+                        this.showStorageError('Failed to load storage data');
+                    }
+                } catch (error) {
+                    this.showStorageError('Storage data unavailable');
+                    console.error('Storage load error:', error);
+                }
+            }
+
+            updateStorageDisplay() {
+                if (!this.storageData) {
+                    this.showStorageError('No storage data');
+                    return;
+                }
+
+                const { used, total, fileCount } = this.storageData;
+                const usagePercent = (used / total) * 100;
+                
+                // Update elements
+                const statsEl = document.getElementById('storageStats');
+                const fillEl = document.getElementById('storageFill');
+                const usedEl = document.getElementById('storageUsed');
+                const totalEl = document.getElementById('storageTotal');
+                
+                statsEl.textContent = `${fileCount} files • ${usagePercent.toFixed(1)}% used`;
+                fillEl.style.width = `${Math.min(usagePercent, 100)}%`;
+                usedEl.textContent = `${this.formatSize(used)} used`;
+                totalEl.textContent = `${this.formatSize(total)} total`;
+                
+                // Update fill color based on usage
+                fillEl.className = 'storage-fill';
+                if (usagePercent > 90) {
+                    fillEl.classList.add('critical');
+                } else if (usagePercent > 75) {
+                    fillEl.classList.add('warning');
+                }
+                
+                // Show warning if almost full
+                if (usagePercent > 95) {
+                    this.showAlert('STORAGE ALMOST FULL!', 'error');
+                } else if (usagePercent > 85) {
+                    this.showAlert('Storage getting full', 'info');
+                }
+            }
+
+            showStorageError(message) {
+                const statsEl = document.getElementById('storageStats');
+                const usedEl = document.getElementById('storageUsed');
+                const totalEl = document.getElementById('storageTotal');
+                
+                statsEl.textContent = message;
+                statsEl.className = 'storage-error';
+                usedEl.textContent = '--';
+                totalEl.textContent = '--';
+                
+                const fillEl = document.getElementById('storageFill');
+                fillEl.style.width = '0%';
+            }
+
+            refreshStorageDisplay() {
+                const statsEl = document.getElementById('storageStats');
+                statsEl.textContent = 'Refreshing...';
+                statsEl.className = 'storage-refreshing';
+                
+                this.loadStorageUsage();
             }
 
             renderFiles() {
@@ -1336,6 +1507,8 @@
                 }
                 
                 this.loadFiles();
+                // Refresh storage after upload
+                setTimeout(() => this.refreshStorageDisplay(), 1000);
             }
 
             async downloadFile(filename) {
@@ -1377,10 +1550,29 @@
                         const blob = await response.blob();
                         const contentType = response.headers.get('content-type') || '';
                         
-                        // Check file size to prevent crashes
-                        const maxSize = 50 * 1024 * 1024; // 50MB limit
+                        // Check file size - different limits for different types
+                        const maxVideoSize = 500 * 1024 * 1024; // 500MB for videos
+                        const maxImageSize = 100 * 1024 * 1024; // 100MB for images  
+                        const maxTextSize = 10 * 1024 * 1024;   // 10MB for text
+                        const maxGeneralSize = 200 * 1024 * 1024; // 200MB for other files
+                        
+                        let maxSize = maxGeneralSize;
+                        let fileType = 'FILE';
+                        
+                        if (contentType.startsWith('video/')) {
+                            maxSize = maxVideoSize;
+                            fileType = 'VIDEO';
+                        } else if (contentType.startsWith('image/')) {
+                            maxSize = maxImageSize;
+                            fileType = 'IMAGE';
+                        } else if (contentType.startsWith('text/')) {
+                            maxSize = maxTextSize;
+                            fileType = 'TEXT';
+                        }
+                        
                         if (blob.size > maxSize) {
-                            this.showAlert(`FILE TOO LARGE: ${filename} (${this.formatSize(blob.size)})`, 'error');
+                            // Show modal with download option instead of blocking completely
+                            this.showLargeFileModal(filename, blob.size, contentType, fileType);
                             return;
                         }
                         
@@ -1394,6 +1586,42 @@
                 } catch (error) {
                     this.showAlert(`ERROR LOADING FILE: ${error.message}`, 'error');
                 }
+            }
+
+            showLargeFileModal(filename, fileSize, contentType, fileType) {
+                const modal = document.getElementById('mediaModal');
+                const title = document.getElementById('mediaTitle');
+                const content = document.getElementById('mediaContent');
+                
+                const displayName = filename.length > 50 ? filename.substring(0, 47) + '...' : filename;
+                title.textContent = `${displayName} - TOO LARGE TO PREVIEW`;
+                title.title = filename;
+                
+                content.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: var(--color-secondary);">
+                        <div style="font-size: 3em; margin-bottom: 20px; color: var(--accent-color);">⚠</div>
+                        <h4 style="color: var(--color-primary); margin-bottom: 15px;">FILE TOO LARGE FOR PREVIEW</h4>
+                        <p style="margin: 15px 0; color: var(--color-secondary);">
+                            <strong>Size:</strong> ${this.formatSize(fileSize)}<br>
+                            <strong>Type:</strong> ${contentType || 'Unknown'}<br>
+                            <strong>Category:</strong> ${fileType}
+                        </p>
+                        <p style="margin: 20px 0; color: var(--color-tertiary); font-size: 0.9em;">
+                            This file is too large to preview safely in the browser.<br>
+                            You can still download it to view locally.
+                        </p>
+                        <div style="margin-top: 30px;">
+                            <button class="btn" onclick="fileStorage.downloadFile('${filename.replace(/'/g, "\\'")}'); fileStorage.closeModal();" style="margin-right: 10px;">
+                                📥 DOWNLOAD FILE
+                            </button>
+                            <button class="btn" onclick="fileStorage.closeModal()">
+                                CLOSE
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modal.style.display = 'flex';
             }
 
             async showMediaModal(filename, url, contentType, blob) {
@@ -1473,6 +1701,8 @@
                     if (response.ok) {
                         this.showAlert(`DELETED: ${filename}`, 'success');
                         this.loadFiles();
+                        // Refresh storage after delete
+                        setTimeout(() => this.refreshStorageDisplay(), 500);
                     } else {
                         this.showAlert(`DELETE FAILED: ${filename}`, 'error');
                     }
